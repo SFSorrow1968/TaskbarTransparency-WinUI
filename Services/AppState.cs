@@ -13,6 +13,7 @@ public sealed class AppState
     public AppSettings Settings { get; private set; } = new();
     public RuntimeSnapshot Runtime { get; } = new();
     public ObservableCollection<MonitorProfile> Monitors { get; } = [];
+    public string SettingsPath => _store.SettingsPath;
 
     public event EventHandler? Changed;
     public event EventHandler? ShowWindowRequested;
@@ -75,6 +76,19 @@ public sealed class AppState
         Settings.ShowTrayIcon = enabled;
         _tray.SetVisible(enabled);
         SaveAndNotify();
+    }
+
+    public void SetStartWithWindows(bool enabled)
+    {
+        Settings.StartWithWindows = enabled;
+        SaveAndNotify();
+    }
+
+    public void CompleteFirstRun(TaskbarProfile profile)
+    {
+        Settings.FirstRunCompleted = true;
+        Settings.ActiveProfile = profile;
+        ApplyNow();
     }
 
     public void ApplyNow() => ApplyNow(AutomationTrigger.Desktop);

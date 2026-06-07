@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="TaskbarTransparency.Pages.OnboardingPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer Background="{StaticResource OxygenShellBrush}">
+        <Grid Padding="58,40,58,48" RowSpacing="22">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Spacing="8">
+                <Border Padding="16,8" HorizontalAlignment="Left" Background="#2D23C58E" CornerRadius="22">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <FontIcon Foreground="#FFA8F2E5" Glyph="&#xE73E;" />
+                        <TextBlock Foreground="#FFA8F2E5" FontSize="17" Text="First run" />
+                    </StackPanel>
+                </Border>
+                <TextBlock Style="{StaticResource OxygenPageTitleTextBlockStyle}" Text="Oxygen Taskbar" />
+                <TextBlock MaxWidth="850" FontSize="22" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Welcome. Tune Windows taskbar transparency, materials, blur, and color to match your workspace and style." TextWrapping="Wrap" />
+            </StackPanel>
+
+            <Border Grid.Row="1" Style="{StaticResource OxygenCardBorderStyle}" Padding="30">
+                <StackPanel Spacing="24">
+                    <Grid ColumnSpacing="26">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="86" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <FontIcon FontSize="54" Foreground="#FFA8F2E5" Glyph="&#xE83D;" />
+                        <StackPanel Grid.Column="1" Spacing="6">
+                            <TextBlock FontSize="22" FontWeight="SemiBold" Foreground="White" Text="100% local. Your device, your control." />
+                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Oxygen Taskbar works entirely on this device. No account, no cloud dependency, and no telemetry required." TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Grid>
+                    <Grid ColumnSpacing="26">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="86" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <FontIcon FontSize="54" Foreground="#FFA8F2E5" Glyph="&#xE8B7;" />
+                        <StackPanel Grid.Column="1" Spacing="8">
+                            <TextBlock FontSize="22" FontWeight="SemiBold" Foreground="White" Text="Your settings stay on this PC." />
+                            <TextBlock x:Name="SettingsPathText" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Grid>
+                    <Grid ColumnSpacing="26">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="86" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <FontIcon FontSize="54" Foreground="#FFA8F2E5" Glyph="&#xE9E9;" />
+                        <StackPanel Grid.Column="1" Spacing="6">
+                            <TextBlock FontSize="22" FontWeight="SemiBold" Foreground="White" Text="Easy to customize. Easy to change later." />
+                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Adjust these defaults anytime in Presets or Settings." TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Grid>
+
+                    <Border Height="1" Background="{StaticResource OxygenCardStrokeBrush}" />
+
+                    <Grid ColumnSpacing="18">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button AutomationProperties.Name="Start with Oxygen Clear" Click="StartClear_Click" Style="{StaticResource GlassButtonStyle}" Background="{StaticResource OxygenBlueBrush}">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+                                <FontIcon Foreground="White" Glyph="&#xE734;" />
+                                <TextBlock Foreground="White" Text="Start with Oxygen Clear" />
+                            </StackPanel>
+                        </Button>
+                        <Button Grid.Column="1" AutomationProperties.Name="Import existing settings" Click="Import_Click" Style="{StaticResource GlassButtonStyle}">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+                                <FontIcon Glyph="&#xE8B7;" />
+                                <TextBlock Text="Import existing settings" />
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                    <InfoBar x:Name="ImportInfo" IsOpen="False" Severity="Informational" Title="Import queued" Message="Import will use the local settings file path when file selection is added." />
+                    <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="You can fine-tune everything after setup." />
+                </StackPanel>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</Page>

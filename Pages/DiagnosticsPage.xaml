@@ -3,16 +3,78 @@
     x:Class="TaskbarTransparency.Pages.DiagnosticsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StackPanel Padding="32,24,32,32" Spacing="18">
-        <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Diagnostics" />
-        <Border Padding="18" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" CornerRadius="8">
-            <StackPanel Spacing="10">
-                <TextBlock x:Name="MessageText" FontSize="18" FontWeight="SemiBold" />
-                <TextBlock x:Name="DetailsText" TextWrapping="Wrap" />
-                <Button Click="ApplyDesktop_Click" Content="Reapply desktop state" />
-                <Button Click="ApplyHover_Click" Content="Simulate hover reveal" />
-                <Button Click="ApplyFullscreen_Click" Content="Simulate fullscreen state" />
+
+    <ScrollViewer Background="{StaticResource OxygenShellBrush}">
+        <Grid Padding="44,34,44,44" RowSpacing="18">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <StackPanel Spacing="8">
+                <TextBlock Style="{StaticResource SectionHeaderTextBlockStyle}" Foreground="{StaticResource OxygenBlueBrush}" Text="DIAGNOSTICS" />
+                <StackPanel Orientation="Horizontal" Spacing="18">
+                    <Border Width="58" Height="58" Background="#33FF6B78" CornerRadius="29">
+                        <FontIcon Foreground="{StaticResource OxygenDangerBrush}" FontSize="30" Glyph="&#xE783;" />
+                    </Border>
+                    <StackPanel Spacing="4">
+                        <TextBlock x:Name="MessageText" Style="{StaticResource OxygenPageTitleTextBlockStyle}" Text="No taskbar window detected" />
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" FontSize="18" Text="Oxygen Taskbar could not find a valid taskbar window to attach to." />
+                    </StackPanel>
+                </StackPanel>
             </StackPanel>
-        </Border>
-    </StackPanel>
+
+            <Border Grid.Row="1" Style="{StaticResource OxygenCardBorderStyle}">
+                <Grid ColumnSpacing="28">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="320" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Spacing="12">
+                        <TextBlock FontSize="22" FontWeight="SemiBold" Foreground="White" Text="Probable causes" />
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Windows Explorer is restarting or has not created the taskbar yet." />
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="An unsupported shell replacement is in use." />
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="The target taskbar is hidden, disabled, or unavailable." />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Spacing="12">
+                        <Button Click="ApplyDesktop_Click" Style="{StaticResource GlassButtonStyle}" Background="{StaticResource OxygenBlueBrush}" Content="Retry detection" />
+                        <Button Click="ApplyFullscreen_Click" Style="{StaticResource GlassButtonStyle}" Content="Apply defaults" />
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Restores safe defaults and tries again." TextWrapping="Wrap" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="2" Style="{StaticResource OxygenCardBorderStyle}">
+                <Grid ColumnSpacing="20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Spacing="6">
+                        <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Latest launcher log" />
+                        <TextBlock Foreground="{StaticResource OxygenBlueBrush}" Text="launcher-logs\build-and-launch-latest.txt" />
+                    </StackPanel>
+                    <Button Grid.Column="1" Style="{StaticResource GlassButtonStyle}" Width="160" Content="Open folder" />
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="3" Style="{StaticResource OxygenCardBorderStyle}">
+                <StackPanel Spacing="14">
+                    <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Technical details" />
+                    <TextBlock x:Name="DetailsText" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" />
+                    <Grid ColumnSpacing="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button Click="ApplyDesktop_Click" Style="{StaticResource GlassButtonStyle}" Content="Reapply desktop" />
+                        <Button Grid.Column="1" Click="ApplyHover_Click" Style="{StaticResource GlassButtonStyle}" Content="Simulate hover" />
+                        <Button Grid.Column="2" Click="ApplyFullscreen_Click" Style="{StaticResource GlassButtonStyle}" Content="Simulate fullscreen" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </ScrollViewer>
 </Page>

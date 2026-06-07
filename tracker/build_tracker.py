@@ -37,6 +37,8 @@ ITEMS = [
     [20, "Screens", "V1 P1 mockup prompt handoff", "Prompt next batch of supporting app states and edge cases.", "P1", "Done", "Covers onboarding, customization, monitor detail, automation builder, diagnostics error, hotkeys, tray, and about/update."],
     [21, "Screens", "Onboarding first-run mockup", "Generated first-run setup image organized under SCREEN IMAGES/Onboarding.", "P1", "Done", "Validated as a single standalone full-screen mockup."],
     [22, "Screens", "V1 P1 mockup organization", "Organize generated supporting app states and edge cases.", "P1", "Done", "Presets, monitors, automation, diagnostics, settings, tray, about, and alternate onboarding states organized."],
+    [23, "Screens", "V1 P1 screen implementation", "Implement supporting app states from the organized V1 P1 mockups.", "P1", "Done", "First-run, preset editor, monitor detail, rule builder, diagnostics error, hotkeys, and about/update surfaces added."],
+    [24, "Features", "First-run setup flow", "Route new installs through a local-only onboarding screen before the dashboard.", "P1", "Done", "Start with Oxygen Clear persists completion and enters the dashboard."],
 ]
 
 TAB_COLORS = {

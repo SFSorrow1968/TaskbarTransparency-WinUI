@@ -4,18 +4,117 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="using:TaskbarTransparency.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <StackPanel Padding="32,24,32,32" Spacing="18">
-        <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="About" />
-        <Border Padding="18" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" CornerRadius="8">
-            <StackPanel Spacing="10">
-                <TextBlock FontSize="22" FontWeight="SemiBold" Text="Oxygen Taskbar" />
-                <TextBlock TextWrapping="Wrap" Text="A from-scratch WinUI 3 rebuild of TaskbarTransparency focused on clear taskbar materials, simple automation, per-monitor control, and a calmer settings surface." />
-                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Version 0.1.0" />
-            </StackPanel>
-        </Border>
-    </StackPanel>
+    <ScrollViewer Background="{StaticResource OxygenShellBrush}">
+        <Grid Padding="44,34,44,44" RowSpacing="18">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Grid ColumnSpacing="28">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="140" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Width="120" Height="120" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
+                    <FontIcon FontSize="72" Foreground="{StaticResource OxygenBlueBrush}" Glyph="&#xE7F4;" />
+                </Border>
+                <StackPanel Grid.Column="1" Spacing="6" VerticalAlignment="Center">
+                    <TextBlock Style="{StaticResource SectionHeaderTextBlockStyle}" Foreground="{StaticResource OxygenBlueBrush}" Text="ABOUT" />
+                    <TextBlock Style="{StaticResource OxygenPageTitleTextBlockStyle}" Text="Oxygen Taskbar" />
+                    <TextBlock FontSize="18" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Intelligent taskbar translucency and appearance control with per-monitor awareness." TextWrapping="Wrap" />
+                </StackPanel>
+            </Grid>
+
+            <Border Grid.Row="1" Style="{StaticResource OxygenCardBorderStyle}">
+                <StackPanel Spacing="0">
+                    <TextBlock Margin="0,0,0,16" FontSize="21" FontWeight="SemiBold" Foreground="White" Text="Application information" />
+                    <Grid Height="52" ColumnSpacing="18">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="200" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Foreground="White" Text="Version" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="1" Foreground="{StaticResource OxygenMutedTextBrush}" Text="1.0.0" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="2" Foreground="{StaticResource OxygenMintBrush}" Text="Stable" VerticalAlignment="Center" />
+                    </Grid>
+                    <Grid Height="52" ColumnSpacing="18">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="200" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Foreground="White" Text="Repository" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="1" Foreground="{StaticResource OxygenBlueBrush}" Text="https://github.com/SFSorrow1968/TaskbarTransparency-WinUI" VerticalAlignment="Center" />
+                    </Grid>
+                    <Grid Height="52" ColumnSpacing="18">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="200" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Foreground="White" Text="Settings location" VerticalAlignment="Center" />
+                        <TextBlock x:Name="SettingsPathText" Grid.Column="1" Foreground="{StaticResource OxygenBlueBrush}" VerticalAlignment="Center" />
+                    </Grid>
+                    <Grid Height="52" ColumnSpacing="18">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="200" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Foreground="White" Text="License" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="1" Foreground="{StaticResource OxygenMutedTextBrush}" Text="MIT License" VerticalAlignment="Center" />
+                    </Grid>
+                    <Grid Height="52" ColumnSpacing="18">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="200" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Foreground="White" Text="Status" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="1" Foreground="{StaticResource OxygenMintBrush}" Text="Active" VerticalAlignment="Center" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Grid Grid.Row="2" ColumnSpacing="14">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Button Style="{StaticResource GlassButtonStyle}" Content="View logs" />
+                <Button Grid.Column="1" Style="{StaticResource GlassButtonStyle}" Content="Open settings file" />
+                <Button Grid.Column="2" Style="{StaticResource GlassButtonStyle}" Content="Check for updates" />
+            </Grid>
+
+            <Border Grid.Row="3" Style="{StaticResource OxygenCardBorderStyle}">
+                <Grid ColumnSpacing="20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="140" />
+                        <ColumnDefinition Width="140" />
+                    </Grid.ColumnDefinitions>
+                    <Border Width="74" Height="74" Background="#3323C58E" CornerRadius="37">
+                        <FontIcon Foreground="{StaticResource OxygenMintBrush}" FontSize="34" Glyph="&#xE73E;" />
+                    </Border>
+                    <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
+                        <TextBlock FontSize="22" FontWeight="SemiBold" Foreground="White" Text="You are up to date" />
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="You are running the latest version." />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Current version" />
+                        <TextBlock Foreground="White" FontSize="20" Text="1.0.0" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Latest version" />
+                        <TextBlock Foreground="White" FontSize="20" Text="1.0.0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
 </Page>

@@ -2,6 +2,7 @@ namespace TaskbarTransparency.Models;
 
 public sealed class AppSettings
 {
+    public bool FirstRunCompleted { get; set; }
     public bool AutomationEnabled { get; set; } = true;
     public bool StartWithWindows { get; set; }
     public bool ShowTrayIcon { get; set; } = true;

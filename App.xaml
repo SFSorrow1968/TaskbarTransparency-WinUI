@@ -18,6 +18,7 @@
             <Color x:Key="OxygenBlueColor">#FF2878FF</Color>
             <Color x:Key="OxygenMintColor">#FF23C58E</Color>
             <Color x:Key="OxygenAmberColor">#FFFFB454</Color>
+            <Color x:Key="OxygenDangerColor">#FFFF6B78</Color>
             <SolidColorBrush x:Key="OxygenInkBrush" Color="{StaticResource OxygenInkColor}" />
             <SolidColorBrush x:Key="OxygenShellBrush" Color="{StaticResource OxygenShellColor}" />
             <SolidColorBrush x:Key="OxygenCardBrush" Color="{StaticResource OxygenCardColor}" />
@@ -27,6 +28,7 @@
             <SolidColorBrush x:Key="OxygenBlueBrush" Color="{StaticResource OxygenBlueColor}" />
             <SolidColorBrush x:Key="OxygenMintBrush" Color="{StaticResource OxygenMintColor}" />
             <SolidColorBrush x:Key="OxygenAmberBrush" Color="{StaticResource OxygenAmberColor}" />
+            <SolidColorBrush x:Key="OxygenDangerBrush" Color="{StaticResource OxygenDangerColor}" />
             <Style x:Key="SectionHeaderTextBlockStyle" TargetType="TextBlock">
                 <Setter Property="FontSize" Value="13" />
                 <Setter Property="FontWeight" Value="SemiBold" />
@@ -41,6 +43,18 @@
                 <Setter Property="MinHeight" Value="56" />
                 <Setter Property="CornerRadius" Value="8" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
+            </Style>
+            <Style x:Key="OxygenPageTitleTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="40" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Foreground" Value="White" />
+            </Style>
+            <Style x:Key="OxygenCardBorderStyle" TargetType="Border">
+                <Setter Property="Padding" Value="22" />
+                <Setter Property="Background" Value="{StaticResource OxygenCardBrush}" />
+                <Setter Property="BorderBrush" Value="{StaticResource OxygenCardStrokeBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="8" />
             </Style>
         </ResourceDictionary>
     </Application.Resources>
