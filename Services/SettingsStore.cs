@@ -1,15 +1,11 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using TaskbarTransparency.Models;
 
 namespace TaskbarTransparency.Services;
 
 public sealed class SettingsStore
 {
-    private static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.Web)
-    {
-        WriteIndented = true
-    };
-
     public string SettingsPath { get; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "OxygenTaskbar",
@@ -25,7 +21,7 @@ public sealed class SettingsStore
         try
         {
             var json = File.ReadAllText(SettingsPath);
-            return JsonSerializer.Deserialize<AppSettings>(json, Options) ?? new AppSettings();
+            return JsonSerializer.Deserialize(json, SettingsJsonContext.Default.AppSettings) ?? new AppSettings();
         }
         catch
         {
@@ -36,6 +32,10 @@ public sealed class SettingsStore
     public void Save(AppSettings settings)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath)!);
-        File.WriteAllText(SettingsPath, JsonSerializer.Serialize(settings, Options));
+        File.WriteAllText(SettingsPath, JsonSerializer.Serialize(settings, SettingsJsonContext.Default.AppSettings));
     }
 }
+
+[JsonSourceGenerationOptions(WriteIndented = true, PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
+[JsonSerializable(typeof(AppSettings))]
+internal sealed partial class SettingsJsonContext : JsonSerializerContext;

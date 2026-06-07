@@ -31,6 +31,7 @@ ITEMS = [
     [14, "Infrastructure", "Release snapshot", "SemVer snapshot branch/tag publishing script.", "P0", "Done", "Script added for new remote."],
     [15, "Infrastructure", "Remote repository", "Own GitHub remote for WinUI rebuild.", "P0", "In Progress", "Created/pushed during this pass if network permits."],
     [16, "Screens", "Generated mockups", "Single-screen generated images for key views.", "P1", "Blocked", "Waiting for user-generated images."],
+    [17, "Infrastructure", "Release build hygiene", "Keep Release x64 build free of app warnings.", "P0", "Done", "Source-generated settings JSON and trimming disabled."],
 ]
 
 TAB_COLORS = {
