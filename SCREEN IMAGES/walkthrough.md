@@ -3,6 +3,7 @@
 ## Structure
 
 - `References/V1 P1 Mockups/Prompt_V1_P1_Mockups.txt`: active prompt for the second visual mockup generation pass.
+- `Onboarding/Onboarding_FirstRun_Default.png`: generated first-run setup mockup.
 
 ## Expected Screens
 
@@ -17,7 +18,7 @@
 
 ### V1 P1 Mockups
 
-- `Onboarding_FirstRun_Default.png`: first-run setup for choosing the starter profile or importing settings.
+- `Onboarding_FirstRun_Default.png`: first-run setup for choosing the starter profile or importing settings. Generated and organized in `Onboarding/`.
 - `Presets_Customize_Edit.png`: focused preset customization state for material, opacity, and easing.
 - `Monitors_Override_Detail.png`: per-display override state with sync disabled for one monitor.
 - `Automation_RuleBuilder_Default.png`: richer automation policy builder with resolved-state preview.
@@ -28,7 +29,7 @@
 
 ## Current State
 
-Dashboard reference was received in chat on 2026-06-07 and used to refine the live WinUI Dashboard screen. No generated mockup image file has been placed in the repo yet, so there is nothing local to rename or move.
+Dashboard reference was received in chat on 2026-06-07 and used to refine the live WinUI Dashboard screen. The V1 P1 first-run onboarding mockup was generated, visually inspected as a single standalone full-screen UI mockup, renamed, and moved into `Onboarding/`.
 
 The active prompt folder is `References/V1 P1 Mockups/`. No local source screen images are available yet to copy as references; use the prompt file as the handoff artifact for external generation.
 
