@@ -79,4 +79,54 @@ public sealed class RuntimeStateSensorServiceTests
 
         Assert.Equal(AutomationTrigger.WindowVisible, trigger);
     }
+
+    [Fact]
+    public void IsPointNearRectForTest_UsesConfiguredHoverDistance()
+    {
+        var nearWithLargerDistance = RuntimeStateSensorService.IsPointNearRectForTest(
+            x: 50,
+            y: 86,
+            left: 0,
+            top: 100,
+            right: 100,
+            bottom: 120,
+            distance: 16);
+
+        var outsideWithSmallerDistance = RuntimeStateSensorService.IsPointNearRectForTest(
+            x: 50,
+            y: 86,
+            left: 0,
+            top: 100,
+            right: 100,
+            bottom: 120,
+            distance: 8);
+
+        Assert.True(nearWithLargerDistance);
+        Assert.False(outsideWithSmallerDistance);
+    }
+
+    [Fact]
+    public void IsPointNearRectForTest_ClampsHoverDistanceToSupportedRange()
+    {
+        var outsideAtMaximumDistance = RuntimeStateSensorService.IsPointNearRectForTest(
+            x: 50,
+            y: 51,
+            left: 0,
+            top: 100,
+            right: 100,
+            bottom: 120,
+            distance: 999);
+
+        var insideAtMaximumDistance = RuntimeStateSensorService.IsPointNearRectForTest(
+            x: 50,
+            y: 52,
+            left: 0,
+            top: 100,
+            right: 100,
+            bottom: 120,
+            distance: 999);
+
+        Assert.False(outsideAtMaximumDistance);
+        Assert.True(insideAtMaximumDistance);
+    }
 }

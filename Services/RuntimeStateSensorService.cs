@@ -86,8 +86,8 @@ public sealed class RuntimeStateSensorService : IDisposable
         var hasForeground = foreground != IntPtr.Zero && !IsShellWindow(foreground);
         var maximized = hasForeground && IsZoomed(foreground);
         var fullscreen = hasForeground && IsFullscreen(foreground);
-        var nearTaskbar = IsMouseNearAnyTaskbar();
         var settings = _getSettings();
+        var nearTaskbar = IsMouseNearAnyTaskbar(settings.HoverDistance);
         return ResolveTrigger(
             settings.AutomationEnabled,
             settings.HoverReveal,
@@ -131,7 +131,12 @@ public sealed class RuntimeStateSensorService : IDisposable
             && windowRect.Bottom >= info.Monitor.Bottom;
     }
 
-    private static bool IsMouseNearAnyTaskbar()
+    public static bool IsPointNearRectForTest(int x, int y, int left, int top, int right, int bottom, int distance)
+    {
+        return IsNear(new Point { X = x, Y = y }, new Rect { Left = left, Top = top, Right = right, Bottom = bottom }, distance);
+    }
+
+    private static bool IsMouseNearAnyTaskbar(int hoverDistance)
     {
         if (!GetCursorPos(out var point))
         {
@@ -140,7 +145,7 @@ public sealed class RuntimeStateSensorService : IDisposable
 
         foreach (var handle in EnumerateTaskbars())
         {
-            if (GetWindowRect(handle, out var rect) && IsNear(point, rect, 10))
+            if (GetWindowRect(handle, out var rect) && IsNear(point, rect, hoverDistance))
             {
                 return true;
             }
@@ -151,10 +156,11 @@ public sealed class RuntimeStateSensorService : IDisposable
 
     private static bool IsNear(Point point, Rect rect, int distance)
     {
-        return point.X >= rect.Left - distance
-            && point.X <= rect.Right + distance
-            && point.Y >= rect.Top - distance
-            && point.Y <= rect.Bottom + distance;
+        var clampedDistance = Math.Clamp(distance, 0, 48);
+        return point.X >= rect.Left - clampedDistance
+            && point.X <= rect.Right + clampedDistance
+            && point.Y >= rect.Top - clampedDistance
+            && point.Y <= rect.Bottom + clampedDistance;
     }
 
     private static IEnumerable<IntPtr> EnumerateTaskbars()

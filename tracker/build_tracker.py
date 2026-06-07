@@ -54,6 +54,7 @@ ITEMS = [
     [37, "Features", "Unified tuning settings", "Move user-set controls into renamed Tuning tab and keep runtime history in Diagnostics.", "P1", "Done", "Tuning now owns fade-in/out, hover proximity, automation sensors, tray/startup, and hotkey settings; Diagnostics keeps telemetry/history."],
     [38, "Infrastructure", "Transition settings migration", "Preserve existing fade timing when loading settings created before fade-in/out split.", "P1", "Done", "Legacy profiles with fadeMilliseconds now hydrate fade-in and fade-out instead of becoming instant."],
     [39, "Features", "Tuning save edge cases", "Ensure Save changes preserves the active material and visible profile values.", "P1", "Done", "Saving from Oxygen Clear no longer silently rebuilds the profile from Focus Glass; blank names preserve the current profile name."],
+    [40, "Backend", "Hover proximity calibration", "Ensure the Tuning hover proximity control drives runtime hover detection.", "P1", "Done", "Runtime sensor now uses the saved hover distance instead of a hard-coded 10 px threshold, with boundary coverage."],
 ]
 
 TAB_COLORS = {
