@@ -9,9 +9,17 @@
 - `Monitors/Monitors_Override_Detail.png`: generated per-monitor override detail mockup.
 - `Automation/Automation_RuleBuilder_Default.png`: generated automation rule builder mockup.
 - `Diagnostics/Diagnostics_Error_NoTaskbar.png`: generated no-taskbar diagnostics error mockup.
+- `Diagnostics/Diagnostics_HotkeyConflict_Error.png`: generated hotkey registration failure recovery mockup.
+- `Diagnostics/Diagnostics_SensorTimeline_Default.png`: generated runtime sensor telemetry timeline mockup.
 - `Settings/Settings_Hotkeys_Edit.png`: generated hotkey settings edit mockup.
+- `Settings/Settings_StartupPermission_Warning.png`: generated startup permission warning mockup.
 - `Tray/Tray_Menu_Open.png`: generated system tray menu mockup.
 - `About/About_Update_Default.png`: generated about and update status mockup.
+- `Automation/Automation_LiveHistory_Default.png`: generated live automation history mockup.
+- `Automation/Automation_RuleConflict_Warning.png`: generated automation conflict warning mockup.
+- `Automation/Automation_SensorCalibration_Default.png`: generated sensor calibration mockup.
+- `Dashboard/Dashboard_RuntimeSensor_Active.png`: generated runtime sensor dashboard mockup.
+- `Monitors/Monitors_MultiDisplay_Overview.png`: generated multi-display overview mockup.
 
 ## Expected Screens
 
@@ -37,18 +45,18 @@
 
 ### V1 P2 Mockups
 
-- `Automation_LiveHistory_Default.png`: automation history timeline for live runtime state changes.
-- `Automation_SensorCalibration_Default.png`: sensor calibration controls for hover, fullscreen, maximized, and monitor scope.
-- `Automation_RuleConflict_Warning.png`: rule conflict warning and suggested fixes.
-- `Diagnostics_SensorTimeline_Default.png`: detailed runtime sensor telemetry and probe timeline.
-- `Diagnostics_HotkeyConflict_Error.png`: failed hotkey registration recovery state.
-- `Monitors_MultiDisplay_Overview.png`: multi-monitor taskbar overview and sync/override status.
-- `Settings_StartupPermission_Warning.png`: startup registration permission warning state.
-- `Dashboard_RuntimeSensor_Active.png`: dashboard state showing live automation sensor activity.
+- `Automation_LiveHistory_Default.png`: automation history timeline for live runtime state changes. Generated and organized in `Automation/`.
+- `Automation_SensorCalibration_Default.png`: sensor calibration controls for hover, fullscreen, maximized, and monitor scope. Generated and organized in `Automation/`.
+- `Automation_RuleConflict_Warning.png`: rule conflict warning and suggested fixes. Generated and organized in `Automation/`.
+- `Diagnostics_SensorTimeline_Default.png`: detailed runtime sensor telemetry and probe timeline. Generated and organized in `Diagnostics/`.
+- `Diagnostics_HotkeyConflict_Error.png`: failed hotkey registration recovery state. Generated and organized in `Diagnostics/`.
+- `Monitors_MultiDisplay_Overview.png`: multi-monitor taskbar overview and sync/override status. Generated and organized in `Monitors/`.
+- `Settings_StartupPermission_Warning.png`: startup registration permission warning state. Generated and organized in `Settings/`.
+- `Dashboard_RuntimeSensor_Active.png`: dashboard state showing live automation sensor activity. Generated and organized in `Dashboard/`.
 
 ## Current State
 
-Dashboard reference was received in chat on 2026-06-07 and used to refine the live WinUI Dashboard screen. The V1 P1 first-run onboarding mockup was generated, visually inspected as a single standalone full-screen UI mockup, renamed, and moved into `Onboarding/`. The remaining V1 P1 generated mockups were also visually inspected, renamed, and organized into their matching logical folders. The tray menu mockup is a desktop tray context state rather than an app-window screen, but it is a single standalone state and not a collage. V1 P2 prompt handoff is now active because the implementation has reached runtime automation sensors and needs new generated screens for history, calibration, conflict, recovery, and multi-monitor telemetry states.
+Dashboard reference was received in chat on 2026-06-07 and used to refine the live WinUI Dashboard screen. The V1 P1 first-run onboarding mockup was generated, visually inspected as a single standalone full-screen UI mockup, renamed, and moved into `Onboarding/`. The remaining V1 P1 generated mockups were also visually inspected, renamed, and organized into their matching logical folders. The tray menu mockup is a desktop tray context state rather than an app-window screen, but it is a single standalone state and not a collage. V1 P2 generated mockups were visually inspected, renamed, and organized into matching logical folders.
 
 The active prompt folder is `References/V1 P2 Mockups/`. Use the prompt file as the handoff artifact for external generation.
 

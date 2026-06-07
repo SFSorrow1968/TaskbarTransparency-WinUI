@@ -138,13 +138,29 @@ public sealed class AppState
     public void ApplyNow(AutomationTrigger trigger)
     {
         var opacity = OpacityPolicy.Resolve(Settings.ActiveProfile, trigger, Settings.AutomationEnabled);
+        var previousState = Runtime.State;
+        var previousOpacity = Runtime.ResolvedOpacity;
         Runtime.TaskbarsUpdated = _taskbar.Apply(Settings.ActiveProfile, opacity);
         Runtime.LastAppliedAt = DateTimeOffset.Now;
         Runtime.State = trigger.ToString();
         Runtime.AppliedProfile = Settings.ActiveProfile.Name;
+        Runtime.ResolvedOpacity = opacity;
         Runtime.LastMessage = Runtime.TaskbarsUpdated == 0
             ? "No taskbar windows were found"
             : $"Applied {Settings.ActiveProfile.Mode} at {opacity}%";
+        if (Runtime.RecentEvents.Count == 0 || previousState != Runtime.State || previousOpacity != opacity)
+        {
+            Runtime.RecordEvent(new RuntimeEvent
+            {
+                Time = Runtime.LastAppliedAt,
+                State = Runtime.State,
+                Profile = Runtime.AppliedProfile,
+                Opacity = Runtime.ResolvedOpacity,
+                TaskbarsUpdated = Runtime.TaskbarsUpdated,
+                Message = Runtime.LastMessage
+            });
+        }
+
         SaveAndNotify();
     }
 

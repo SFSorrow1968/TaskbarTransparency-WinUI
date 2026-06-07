@@ -28,9 +28,21 @@ public sealed partial class HomePage : Page
         TaskbarsText.Text = _state.Runtime.TaskbarsUpdated.ToString();
         ServiceStatusText.Text = _state.Runtime.TaskbarsUpdated > 0 ? "Running" : "Waiting for taskbar";
         CurrentMaterialText.Text = _state.Settings.ActiveProfile.Mode.ToString();
+        CurrentTriggerText.Text = FormatTrigger(_state.Runtime.State);
+        ResolvedOpacityText.Text = $"{_state.Runtime.ResolvedOpacity}%";
+        SensorDetailText.Text = _state.Settings.AutomationEnabled ? NextSensorHint(_state.Runtime.State) : "Automation is paused";
+        AutomationStatusText.Text = _state.Settings.AutomationEnabled ? "Enabled" : "Paused";
+        AutomationDetailText.Text = _state.Settings.AutomationEnabled ? "Sensors are live" : "Manual apply only";
         RuntimeMessageText.Text = _state.Runtime.LastMessage;
         RuntimeTimeText.Text = _state.Runtime.LastAppliedAt.ToString("MMM d, h:mm tt");
         SyncStateText.Text = _state.Monitors.Count <= 1 ? "Primary taskbar in sync" : "All taskbars in sync";
+        RecentEventsList.ItemsSource = _state.Runtime.RecentEvents
+            .Select(item => new RuntimeEventRow(
+                item.Time.ToString("h:mm:ss tt"),
+                FormatTrigger(item.State),
+                $"{item.Profile} · {item.Message} · {item.TaskbarsUpdated} taskbar{(item.TaskbarsUpdated == 1 ? string.Empty : "s")}",
+                $"{item.Opacity}%"))
+            .ToList();
         OpacitySlider.Value = _state.Settings.ActiveProfile.Opacity;
         _loading = false;
     }
@@ -47,4 +59,30 @@ public sealed partial class HomePage : Page
     private void ApplyGlass_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e) => _state.SetProfile(TaskbarProfile.FocusGlass);
     private void ApplySolid_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e) => _state.SetProfile(TaskbarProfile.NightSolid);
     private void ApplyNow_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e) => _state.ApplyNow();
+
+    private static string FormatTrigger(string state)
+    {
+        return state switch
+        {
+            nameof(AutomationTrigger.WindowVisible) => "Window visible",
+            nameof(AutomationTrigger.WindowMaximized) => "Window maximized",
+            nameof(AutomationTrigger.Fullscreen) => "Fullscreen",
+            nameof(AutomationTrigger.Hover) => "Hover reveal",
+            _ => "Desktop"
+        };
+    }
+
+    private static string NextSensorHint(string state)
+    {
+        return state switch
+        {
+            nameof(AutomationTrigger.WindowVisible) => "Watching maximize, fullscreen, and hover",
+            nameof(AutomationTrigger.WindowMaximized) => "Watching fullscreen and hover",
+            nameof(AutomationTrigger.Fullscreen) => "Fullscreen overlap policy is active",
+            nameof(AutomationTrigger.Hover) => "Pointer is near a taskbar edge",
+            _ => "Watching windows, fullscreen, and hover"
+        };
+    }
+
+    private sealed record RuntimeEventRow(string TimeText, string State, string Detail, string OpacityText);
 }

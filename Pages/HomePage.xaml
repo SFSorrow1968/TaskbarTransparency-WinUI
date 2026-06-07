@@ -143,6 +143,34 @@
             <Border Grid.Row="3" Padding="24" Background="{StaticResource OxygenCardBrush}" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
                 <StackPanel Spacing="14">
                     <TextBlock FontSize="21" FontWeight="SemiBold" Foreground="White" Text="Runtime status" />
+                    <Grid ColumnSpacing="14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Padding="16" Background="#58233448" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
+                            <StackPanel Spacing="6">
+                                <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Active sensor" />
+                                <TextBlock x:Name="CurrentTriggerText" FontSize="24" FontWeight="SemiBold" Foreground="White" Text="Desktop" />
+                                <TextBlock x:Name="SensorDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Watching desktop changes" />
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="1" Padding="16" Background="#58233448" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
+                            <StackPanel Spacing="6">
+                                <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Resolved opacity" />
+                                <TextBlock x:Name="ResolvedOpacityText" FontSize="24" FontWeight="SemiBold" Foreground="White" Text="32%" />
+                                <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Policy output" />
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="2" Padding="16" Background="#58233448" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
+                            <StackPanel Spacing="6">
+                                <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Automation" />
+                                <TextBlock x:Name="AutomationStatusText" FontSize="24" FontWeight="SemiBold" Foreground="White" Text="Enabled" />
+                                <TextBlock x:Name="AutomationDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Sensors are live" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
                     <Grid Background="#58233448" CornerRadius="8" RowSpacing="0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="52" />
@@ -189,6 +217,37 @@
                         <TextBlock x:Name="SyncStateText" Grid.Row="4" Grid.Column="3" Foreground="White" Text="All taskbars in sync" VerticalAlignment="Center" />
                         <FontIcon Grid.Row="4" Grid.Column="4" Foreground="{StaticResource OxygenMutedTextBrush}" Glyph="&#xE974;" VerticalAlignment="Center" />
                     </Grid>
+                    <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="White" Text="Recent sensor history" />
+                    <ListView x:Name="RecentEventsList" MaxHeight="272" SelectionMode="None" Background="Transparent">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="MinHeight" Value="58" />
+                                <Setter Property="Padding" Value="0" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="0,0,0,8" Padding="14,10" Background="#58233448" CornerRadius="8">
+                                    <Grid ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="120" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="96" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="{Binding TimeText}" VerticalAlignment="Center" />
+                                        <StackPanel Grid.Column="1" Spacing="2">
+                                            <TextBlock Foreground="White" FontWeight="SemiBold" Text="{Binding State}" />
+                                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="{Binding Detail}" TextWrapping="Wrap" />
+                                        </StackPanel>
+                                        <Border Grid.Column="2" Padding="10,6" Background="#8835AAFF" CornerRadius="8" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                            <TextBlock Foreground="White" FontWeight="SemiBold" Text="{Binding OpacityText}" />
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
                 </StackPanel>
             </Border>
         </Grid>
