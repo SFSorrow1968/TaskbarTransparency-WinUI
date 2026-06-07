@@ -32,6 +32,7 @@ public sealed class TrayIconHost : IDisposable
     private IntPtr _windowHandle;
     private IntPtr _iconHandle;
     private Action? _showWindow;
+    private Action? _showTuning;
     private Action? _applyNow;
     private Action? _toggleTransparency;
     private Action? _exit;
@@ -42,9 +43,10 @@ public sealed class TrayIconHost : IDisposable
         _wndProc = WindowProc;
     }
 
-    public void Start(Action showWindow, Action applyNow, Action toggleTransparency, Action exit)
+    public void Start(Action showWindow, Action showTuning, Action applyNow, Action toggleTransparency, Action exit)
     {
         _showWindow = showWindow;
+        _showTuning = showTuning;
         _applyNow = applyNow;
         _toggleTransparency = toggleTransparency;
         _exit = exit;
@@ -174,7 +176,7 @@ public sealed class TrayIconHost : IDisposable
         AppendMenu(menu, MenuString, OpenCommand, "Open Dashboard");
         AppendMenu(menu, MenuString, ApplyCommand, "Apply Now");
         AppendMenu(menu, MenuString, ToggleCommand, "Toggle Transparency");
-        AppendMenu(menu, MenuString, SettingsCommand, "Settings");
+        AppendMenu(menu, MenuString, SettingsCommand, "Open Tuning");
         AppendMenu(menu, MenuSeparator, 0, null);
         AppendMenu(menu, MenuString, ExitCommand, "Exit");
 
@@ -185,8 +187,10 @@ public sealed class TrayIconHost : IDisposable
         switch (command)
         {
             case OpenCommand:
-            case SettingsCommand:
                 _showWindow?.Invoke();
+                break;
+            case SettingsCommand:
+                _showTuning?.Invoke();
                 break;
             case ApplyCommand:
                 _applyNow?.Invoke();

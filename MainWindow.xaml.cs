@@ -3,24 +3,33 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using WinRT.Interop;
 using TaskbarTransparency.Pages;
+using TaskbarTransparency.Services;
 using Windows.Graphics;
+using System.Runtime.InteropServices;
 
 namespace TaskbarTransparency;
 
 public sealed partial class MainWindow : Window
 {
+    private const int ShowWindowHide = 0;
+    private const int ShowWindowShow = 5;
+    private readonly AppState _state;
+    private readonly IntPtr _hwnd;
+
     public MainWindow()
     {
         InitializeComponent();
 
+        _state = ((App)Application.Current).State;
+        _hwnd = WindowNative.GetWindowHandle(this);
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
         AppWindow.Resize(new SizeInt32(1440, 920));
         AppWindow.SetIcon("Assets/AppIcon.ico");
-        var state = ((App)Application.Current).State;
-        state.AttachWindow(WindowNative.GetWindowHandle(this));
-        state.ShowWindowRequested += (_, _) => Activate();
+        AppWindow.Closing += AppWindow_Closing;
+        _state.AttachWindow(_hwnd);
+        _state.ShowWindowRequested += State_ShowWindowRequested;
         NavFrame.Navigated += (_, _) => AppTitleBar.IsBackButtonVisible = NavFrame.CanGoBack;
         NavigateToInitialPage();
     }
@@ -39,6 +48,45 @@ public sealed partial class MainWindow : Window
     private void NavigatePage(Type pageType)
     {
         NavFrame.Navigate(pageType);
+    }
+
+    private void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
+    {
+        if (!_state.Settings.ShowTrayIcon || _state.ExitRequested)
+        {
+            return;
+        }
+
+        args.Cancel = true;
+        ShowWindow(_hwnd, ShowWindowHide);
+    }
+
+    private void State_ShowWindowRequested(object? sender, AppViewRequestedEventArgs args)
+    {
+        ShowWindow(_hwnd, ShowWindowShow);
+        Activate();
+
+        if (args.View == AppView.Tuning)
+        {
+            SelectNavigationItem("presets");
+            NavigatePage(typeof(PresetsPage));
+            return;
+        }
+
+        SelectNavigationItem("home");
+        NavigateToInitialPage();
+    }
+
+    private void SelectNavigationItem(string tag)
+    {
+        foreach (var item in NavView.MenuItems.OfType<NavigationViewItem>())
+        {
+            if (Equals(item.Tag, tag))
+            {
+                NavView.SelectedItem = item;
+                return;
+            }
+        }
     }
 
     private void TitleBar_PaneToggleRequested(TitleBar sender, object args)
@@ -91,4 +139,7 @@ public sealed partial class MainWindow : Window
             }
         }
     }
+
+    [DllImport("user32.dll")]
+    private static extern bool ShowWindow(IntPtr hwnd, int command);
 }

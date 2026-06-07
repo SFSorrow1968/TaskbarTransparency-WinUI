@@ -21,9 +21,10 @@ public sealed class AppState
     public string SettingsPath => _store.SettingsPath;
     public bool StartupRegistrationFailed { get; private set; }
     public string StartupStatusMessage { get; private set; } = "Startup registration is ready.";
+    public bool ExitRequested { get; private set; }
 
     public event EventHandler? Changed;
-    public event EventHandler? ShowWindowRequested;
+    public event EventHandler<AppViewRequestedEventArgs>? ShowWindowRequested;
 
     public AppState()
     {
@@ -36,10 +37,11 @@ public sealed class AppState
         Settings.StartWithWindows = _startup.IsEnabled();
         RefreshMonitors();
         _tray.Start(
-            () => ShowWindowRequested?.Invoke(this, EventArgs.Empty),
+            () => RequestView(AppView.Dashboard),
+            () => RequestView(AppView.Tuning),
             ApplyNow,
             ToggleTransparency,
-            () => Environment.Exit(0));
+            RequestExit);
         _tray.SetVisible(Settings.ShowTrayIcon);
         ApplyNow();
         _sensors.Start(trigger => ApplyNow(trigger));
@@ -51,8 +53,22 @@ public sealed class AppState
             hwnd,
             Settings.OpenHotkey,
             Settings.ToggleHotkey,
-            () => ShowWindowRequested?.Invoke(this, EventArgs.Empty),
+            () => RequestView(AppView.Dashboard),
             ToggleTransparency);
+    }
+
+    public void RequestView(AppView view)
+    {
+        ShowWindowRequested?.Invoke(this, new AppViewRequestedEventArgs(view));
+    }
+
+    public void RequestExit()
+    {
+        ExitRequested = true;
+        _tray.Dispose();
+        _hotkeys.Dispose();
+        _sensors.Dispose();
+        Environment.Exit(0);
     }
 
     public void RefreshMonitors()
@@ -205,4 +221,15 @@ public sealed class AppState
     {
         _store.Save(Settings);
     }
+}
+
+public enum AppView
+{
+    Dashboard,
+    Tuning
+}
+
+public sealed class AppViewRequestedEventArgs(AppView view) : EventArgs
+{
+    public AppView View { get; } = view;
 }

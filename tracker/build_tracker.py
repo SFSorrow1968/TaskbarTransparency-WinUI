@@ -22,7 +22,7 @@ ITEMS = [
     [5, "Screens", "Diagnostics", "Runtime apply and state simulation screen.", "P0", "Done", "Manual runtime checks available."],
     [6, "Features", "Taskbar interop", "Apply Windows composition attributes to taskbar windows.", "P0", "Done", "Primary and secondary taskbar handles supported."],
     [7, "Features", "Persistence", "Save profile and behavior settings locally.", "P0", "Done", "JSON settings store implemented."],
-    [8, "Features", "Tray integration", "Background tray menu and open/apply/toggle/settings/exit commands.", "P1", "Done", "Implemented with Shell_NotifyIcon Win32 host to keep WinUI project shape."],
+    [8, "Features", "Tray integration", "Background tray menu and open/apply/toggle/tuning/exit commands.", "P1", "Done", "Implemented with Shell_NotifyIcon Win32 host to keep WinUI project shape."],
     [9, "Features", "Global hotkeys", "Register open and toggle shortcuts.", "P1", "Done", "Ctrl+Alt+G and Ctrl+Alt+T register against the WinUI window handle."],
     [10, "Backend", "Opacity policy", "Resolve opacity from profile and runtime state.", "P0", "Done", "Covered by unit tests."],
     [11, "Backend", "Focus/fullscreen sensors", "Detect active window, maximized, fullscreen, and hover taskbar states.", "P1", "Done", "Win32 foreground, monitor, taskbar, and cursor sensors apply policy on state changes."],
@@ -55,6 +55,8 @@ ITEMS = [
     [38, "Infrastructure", "Transition settings migration", "Preserve existing fade timing when loading settings created before fade-in/out split.", "P1", "Done", "Legacy profiles with fadeMilliseconds now hydrate fade-in and fade-out instead of becoming instant."],
     [39, "Features", "Tuning save edge cases", "Ensure Save changes preserves the active material and visible profile values.", "P1", "Done", "Saving from Oxygen Clear no longer silently rebuilds the profile from Focus Glass; blank names preserve the current profile name."],
     [40, "Backend", "Hover proximity calibration", "Ensure the Tuning hover proximity control drives runtime hover detection.", "P1", "Done", "Runtime sensor now uses the saved hover distance instead of a hard-coded 10 px threshold, with boundary coverage."],
+    [41, "Features", "Close-to-tray lifecycle", "Keep the app running when the dashboard is closed while the tray icon is enabled.", "P1", "Done", "Close now hides the WinUI window, tray and hotkey requests restore it, and tray Open Tuning routes to the Tuning page."],
+    [42, "Screens", "Ultrawide layout readability", "Keep primary app pages readable on widescreen monitors.", "P1", "Done", "Dashboard, Tuning, Monitors, Automation, Diagnostics, About, and Settings page content is centered with a readable max width."],
 ]
 
 TAB_COLORS = {
