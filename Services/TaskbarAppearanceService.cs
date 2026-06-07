@@ -5,6 +5,9 @@ namespace TaskbarTransparency.Services;
 
 public sealed class TaskbarAppearanceService
 {
+    private const int GwlExStyle = -20;
+    private const int WsExLayered = 0x00080000;
+    private const uint LwaAlpha = 0x00000002;
     private const int AccentDisabled = 0;
     private const int AccentEnableGradient = 1;
     private const int AccentEnableTransparentGradient = 2;
@@ -17,6 +20,7 @@ public sealed class TaskbarAppearanceService
         foreach (var handle in handles)
         {
             Apply(handle, profile, opacity);
+            ApplyWholeTaskbarAlpha(handle, opacity);
         }
 
         return handles.Length;
@@ -78,6 +82,7 @@ public sealed class TaskbarAppearanceService
     }
 
     public static int ComposeColorForTest(string hex, byte opacity) => ComposeColor(hex, opacity);
+    public static byte ConvertOpacityToAlphaForTest(byte opacity) => ConvertOpacityToAlpha(opacity);
 
     private static int ComposeColor(string hex, byte opacity)
     {
@@ -87,6 +92,46 @@ public sealed class TaskbarAppearanceService
         var b = Convert.ToByte(clean.Substring(4, 2), 16);
         var alpha = (byte)Math.Clamp(opacity * 255 / 100, 0, 255);
         return (alpha << 24) | (b << 16) | (g << 8) | r;
+    }
+
+    private static void ApplyWholeTaskbarAlpha(IntPtr handle, byte opacity)
+    {
+        EnsureLayeredWindow(handle);
+        SetLayeredWindowAttributes(handle, 0, ConvertOpacityToAlpha(opacity), LwaAlpha);
+    }
+
+    private static byte ConvertOpacityToAlpha(byte opacity)
+    {
+        return (byte)Math.Clamp(opacity * 255 / 100, 0, 255);
+    }
+
+    private static void EnsureLayeredWindow(IntPtr handle)
+    {
+        if (handle == IntPtr.Zero)
+        {
+            return;
+        }
+
+        var style = GetWindowLongPtr(handle, GwlExStyle);
+        var styleValue = style.ToInt64();
+        if ((styleValue & WsExLayered) != WsExLayered)
+        {
+            SetWindowLongPtr(handle, GwlExStyle, new IntPtr(styleValue | WsExLayered));
+        }
+    }
+
+    private static IntPtr GetWindowLongPtr(IntPtr handle, int index)
+    {
+        return IntPtr.Size == 8
+            ? GetWindowLongPtr64(handle, index)
+            : new IntPtr(GetWindowLong32(handle, index));
+    }
+
+    private static IntPtr SetWindowLongPtr(IntPtr handle, int index, IntPtr value)
+    {
+        return IntPtr.Size == 8
+            ? SetWindowLongPtr64(handle, index, value)
+            : new IntPtr(SetWindowLong32(handle, index, value.ToInt32()));
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -114,4 +159,19 @@ public sealed class TaskbarAppearanceService
 
     [DllImport("user32.dll")]
     private static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
+
+    [DllImport("user32.dll", EntryPoint = "GetWindowLongA", SetLastError = true)]
+    private static extern int GetWindowLong32(IntPtr hWnd, int nIndex);
+
+    [DllImport("user32.dll", EntryPoint = "SetWindowLongA", SetLastError = true)]
+    private static extern int SetWindowLong32(IntPtr hWnd, int nIndex, int dwNewLong);
+
+    [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrA", SetLastError = true)]
+    private static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, int nIndex);
+
+    [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrA", SetLastError = true)]
+    private static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool SetLayeredWindowAttributes(IntPtr hwnd, uint colorKey, byte alpha, uint flags);
 }

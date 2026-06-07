@@ -49,6 +49,7 @@ ITEMS = [
     [32, "Screens", "Diagnostics recovery states", "Implement sensor timeline and hotkey conflict recovery views.", "P1", "Done", "Diagnostics shows sensor timeline, hotkey status, and reset recovery alongside runtime details."],
     [33, "Screens", "Multi-display overview", "Implement monitor overview with multi-display state and recent actions.", "P1", "Done", "Monitor page shows display KPIs, detected display rows, sync state, and recent monitor actions."],
     [34, "Screens", "Startup permission warning", "Implement startup registration failure recovery state.", "P1", "Done", "Settings shows startup registration status, permission warning copy, and retry recovery."],
+    [35, "Features", "Whole taskbar transparency parity", "Match old repo behavior by fading taskbar windows and icons, not only accent material.", "P0", "Done", "Taskbar interop now applies WS_EX_LAYERED and SetLayeredWindowAttributes after material composition."],
 ]
 
 TAB_COLORS = {
