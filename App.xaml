@@ -10,11 +10,19 @@
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
             </ResourceDictionary.MergedDictionaries>
             <Color x:Key="OxygenInkColor">#FF101318</Color>
+            <Color x:Key="OxygenShellColor">#FF071425</Color>
+            <Color x:Key="OxygenCardColor">#B8233448</Color>
+            <Color x:Key="OxygenCardStrokeColor">#3D9DB7D5</Color>
+            <Color x:Key="OxygenMutedTextColor">#FFC4CEE0</Color>
             <Color x:Key="OxygenPanelColor">#CCFFFFFF</Color>
             <Color x:Key="OxygenBlueColor">#FF2878FF</Color>
             <Color x:Key="OxygenMintColor">#FF23C58E</Color>
             <Color x:Key="OxygenAmberColor">#FFFFB454</Color>
             <SolidColorBrush x:Key="OxygenInkBrush" Color="{StaticResource OxygenInkColor}" />
+            <SolidColorBrush x:Key="OxygenShellBrush" Color="{StaticResource OxygenShellColor}" />
+            <SolidColorBrush x:Key="OxygenCardBrush" Color="{StaticResource OxygenCardColor}" />
+            <SolidColorBrush x:Key="OxygenCardStrokeBrush" Color="{StaticResource OxygenCardStrokeColor}" />
+            <SolidColorBrush x:Key="OxygenMutedTextBrush" Color="{StaticResource OxygenMutedTextColor}" />
             <SolidColorBrush x:Key="OxygenPanelBrush" Color="{StaticResource OxygenPanelColor}" />
             <SolidColorBrush x:Key="OxygenBlueBrush" Color="{StaticResource OxygenBlueColor}" />
             <SolidColorBrush x:Key="OxygenMintBrush" Color="{StaticResource OxygenMintColor}" />
@@ -22,11 +30,17 @@
             <Style x:Key="SectionHeaderTextBlockStyle" TargetType="TextBlock">
                 <Setter Property="FontSize" Value="13" />
                 <Setter Property="FontWeight" Value="SemiBold" />
-                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource OxygenMutedTextBrush}" />
             </Style>
             <Style x:Key="MetricTextBlockStyle" TargetType="TextBlock">
                 <Setter Property="FontSize" Value="28" />
                 <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Foreground" Value="White" />
+            </Style>
+            <Style x:Key="GlassButtonStyle" TargetType="Button">
+                <Setter Property="MinHeight" Value="56" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
             </Style>
         </ResourceDictionary>
     </Application.Resources>

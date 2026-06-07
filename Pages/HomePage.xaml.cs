@@ -24,9 +24,13 @@ public sealed partial class HomePage : Page
         _loading = true;
         ProfileText.Text = _state.Settings.ActiveProfile.Name;
         OpacityText.Text = $"{_state.Settings.ActiveProfile.Opacity}%";
+        OpacityValueBoxText.Text = $"{_state.Settings.ActiveProfile.Opacity}%";
         TaskbarsText.Text = _state.Runtime.TaskbarsUpdated.ToString();
+        ServiceStatusText.Text = _state.Runtime.TaskbarsUpdated > 0 ? "Running" : "Waiting for taskbar";
+        CurrentMaterialText.Text = _state.Settings.ActiveProfile.Mode.ToString();
         RuntimeMessageText.Text = _state.Runtime.LastMessage;
-        RuntimeTimeText.Text = $"Last applied {_state.Runtime.LastAppliedAt:MMM d, h:mm:ss tt}";
+        RuntimeTimeText.Text = _state.Runtime.LastAppliedAt.ToString("MMM d, h:mm tt");
+        SyncStateText.Text = _state.Monitors.Count <= 1 ? "Primary taskbar in sync" : "All taskbars in sync";
         OpacitySlider.Value = _state.Settings.ActiveProfile.Opacity;
         _loading = false;
     }

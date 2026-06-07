@@ -2,6 +2,7 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using TaskbarTransparency.Pages;
+using Windows.Graphics;
 
 namespace TaskbarTransparency;
 
@@ -14,6 +15,7 @@ public sealed partial class MainWindow : Window
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
+        AppWindow.Resize(new SizeInt32(1440, 920));
         AppWindow.SetIcon("Assets/AppIcon.ico");
         ((App)Application.Current).State.ShowWindowRequested += (_, _) => Activate();
     }

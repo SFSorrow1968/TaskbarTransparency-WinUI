@@ -15,7 +15,7 @@ STATUSES = ["Done", "In Progress", "Not Started", "Blocked"]
 PRIORITIES = ["P0", "P1", "P2", "P3"]
 
 ITEMS = [
-    [1, "Screens", "Dashboard", "Live opacity and runtime taskbar control screen.", "P0", "Done", "Built in WinUI."],
+    [1, "Screens", "Dashboard", "Live opacity and runtime taskbar control screen.", "P0", "Done", "Refined from generated dashboard reference."],
     [2, "Screens", "Presets", "Material preset selection screen.", "P0", "Done", "Clear, Glass, Solid presets."],
     [3, "Screens", "Monitors", "Per-display override management screen.", "P1", "In Progress", "Screen exists; native monitor catalog needs expansion."],
     [4, "Screens", "Automation", "State rules for hover, focus, maximized, and fullscreen.", "P0", "In Progress", "Policy model and toggles are present."],
@@ -29,9 +29,11 @@ ITEMS = [
     [12, "Infrastructure", "Tests", "Focused unit tests for core policy behavior.", "P0", "Done", "8 tests passing."],
     [13, "Infrastructure", "Launcher", "Build and launch script with log cleanup.", "P0", "Done", "Batch launcher added."],
     [14, "Infrastructure", "Release snapshot", "SemVer snapshot branch/tag publishing script.", "P0", "Done", "Script added for new remote."],
-    [15, "Infrastructure", "Remote repository", "Own GitHub remote for WinUI rebuild.", "P0", "In Progress", "Created/pushed during this pass if network permits."],
+    [15, "Infrastructure", "Remote repository", "Own GitHub remote for WinUI rebuild.", "P0", "Done", "Remote created and main/snapshots pushed."],
     [16, "Screens", "Generated mockups", "Single-screen generated images for key views.", "P1", "Blocked", "Waiting for user-generated images."],
     [17, "Infrastructure", "Release build hygiene", "Keep Release x64 build free of app warnings.", "P0", "Done", "Source-generated settings JSON and trimming disabled."],
+    [18, "Screens", "Dashboard visual polish", "Match Dashboard layout to generated Oxygen Taskbar direction.", "P0", "Done", "Dark shell, KPI cards, opacity rail, segmented actions, and runtime rows."],
+    [19, "Infrastructure", "Self-contained launch", "Launch unpackaged WinUI without requiring registered Windows App Runtime.", "P0", "Done", "Windows App SDK self-contained settings added and launcher verified."],
 ]
 
 TAB_COLORS = {

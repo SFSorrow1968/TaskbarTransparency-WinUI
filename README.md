@@ -15,6 +15,7 @@ A from-scratch WinUI 3 rebuild of TaskbarTransparency. The app keeps the origina
 - Unit tests for opacity policy and accent color composition
 - Tracker workbook generated from `tracker/build_tracker.py`
 - Mockup prompt handoff in `SCREEN IMAGES/References/V1 P0 Mockups`
+- Self-contained unpackaged Windows App SDK output for local launcher runs
 
 ## Build
 

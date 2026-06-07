@@ -15,4 +15,6 @@
 
 ## Current State
 
-No generated mockup images have been placed yet. After the images are generated, inspect this root `SCREEN IMAGES/` directory for new image files, verify each file is a single standalone full-screen UI mockup, then rename and move each image into a logical screen folder.
+Dashboard reference was received in chat on 2026-06-07 and used to refine the live WinUI Dashboard screen. No generated mockup image file has been placed in the repo yet, so there is nothing local to rename or move.
+
+After generated images are placed in this root `SCREEN IMAGES/` directory, verify each file is a single standalone full-screen UI mockup, then rename and move each image into a logical screen folder.
