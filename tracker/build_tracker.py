@@ -45,7 +45,7 @@ ITEMS = [
     [28, "Screens", "V1 P2 mockup prompt handoff", "Prepare next generated-image part for post-runtime behavior screens.", "P1", "Done", "Active reference part created for history, calibration, conflicts, recovery, and multi-monitor telemetry states."],
     [29, "Screens", "V1 P2 mockup organization", "Organize generated post-runtime behavior screens.", "P1", "Done", "History, calibration, conflict, diagnostics, monitor, settings, and dashboard mockups organized."],
     [30, "Screens", "Runtime dashboard implementation", "Implement Dashboard runtime sensor active state from V1 P2.", "P1", "Done", "Dashboard shows active sensor, resolved opacity, automation status, and recent runtime history."],
-    [31, "Screens", "Automation history and calibration", "Implement live history, sensor calibration, and conflict warning states.", "P1", "Not Started", "Mockups organized under Automation."],
+    [31, "Screens", "Automation history and calibration", "Implement live history, sensor calibration, and conflict warning states.", "P1", "Done", "Automation page shows runtime history, hover calibration, sensor status, and paused-rule recovery."],
     [32, "Screens", "Diagnostics recovery states", "Implement sensor timeline and hotkey conflict recovery views.", "P1", "Not Started", "Mockups organized under Diagnostics."],
     [33, "Screens", "Multi-display overview", "Implement monitor overview with multi-display state and recent actions.", "P1", "Not Started", "Mockup organized under Monitors."],
     [34, "Screens", "Startup permission warning", "Implement startup registration failure recovery state.", "P1", "Not Started", "Mockup organized under Settings."],

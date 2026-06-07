@@ -90,6 +90,12 @@ public sealed class AppState
         SaveAndNotify();
     }
 
+    public void SetHoverDistance(double value)
+    {
+        Settings.HoverDistance = Math.Clamp((int)Math.Round(value), 0, 48);
+        SaveAndNotify();
+    }
+
     public void SetFullscreenOverlap(bool enabled)
     {
         Settings.FullscreenOverlap = enabled;

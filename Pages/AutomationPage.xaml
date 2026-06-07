@@ -10,6 +10,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <Grid>
@@ -137,7 +138,97 @@
                 </Border>
             </Grid>
 
-            <Grid Grid.Row="2" ColumnSpacing="14">
+            <Grid Grid.Row="2" ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.2*" />
+                    <ColumnDefinition Width="1.1*" />
+                    <ColumnDefinition Width="1.1*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Style="{StaticResource OxygenCardBorderStyle}">
+                    <StackPanel Spacing="14">
+                        <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Live automation history" />
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Recent sensor matches and manual previews." />
+                        <ListView x:Name="AutomationHistoryList" MaxHeight="246" SelectionMode="None" Background="Transparent">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="MinHeight" Value="56" />
+                                    <Setter Property="Padding" Value="0" />
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="0,0,0,8" Padding="12,10" Background="#58233448" CornerRadius="8">
+                                        <Grid ColumnSpacing="10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="90" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="72" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="{Binding TimeText}" VerticalAlignment="Center" />
+                                            <StackPanel Grid.Column="1" Spacing="2">
+                                                <TextBlock Foreground="White" FontWeight="SemiBold" Text="{Binding State}" />
+                                                <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="{Binding Detail}" TextWrapping="Wrap" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" Foreground="{StaticResource OxygenBlueBrush}" FontWeight="SemiBold" Text="{Binding OpacityText}" TextAlignment="Right" VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource OxygenCardBorderStyle}">
+                    <StackPanel Spacing="16">
+                        <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Sensor calibration" />
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Tune hover detection without changing the rule order." />
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="72" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Foreground="White" Text="Hover edge distance" VerticalAlignment="Center" />
+                            <TextBlock x:Name="HoverDistanceText" Grid.Column="1" Foreground="{StaticResource OxygenBlueBrush}" FontWeight="SemiBold" Text="8 px" TextAlignment="Right" VerticalAlignment="Center" />
+                        </Grid>
+                        <Slider x:Name="HoverDistanceSlider" Minimum="0" Maximum="48" StepFrequency="1" ValueChanged="HoverDistanceSlider_ValueChanged" />
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Foreground="White" Text="Fullscreen overlap detection" VerticalAlignment="Center" />
+                            <TextBlock x:Name="FullscreenCalibrationText" Grid.Column="1" Foreground="{StaticResource OxygenMutedTextBrush}" Text="On" VerticalAlignment="Center" />
+                        </Grid>
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Foreground="White" Text="Last matched sensor" VerticalAlignment="Center" />
+                            <TextBlock x:Name="LastSensorText" Grid.Column="1" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Desktop" VerticalAlignment="Center" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Style="{StaticResource OxygenCardBorderStyle}">
+                    <StackPanel Spacing="14">
+                        <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Conflict review" />
+                        <InfoBar x:Name="RuleConflictInfo" Severity="Warning" IsOpen="False" Title="Automation paused" Message="State rules are configured, but automation is disabled. Re-enable automation to let sensors apply them." />
+                        <Border Padding="14" Background="#58233448" CornerRadius="8">
+                            <StackPanel Spacing="6">
+                                <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Rule health" />
+                                <TextBlock x:Name="RuleHealthText" FontSize="24" FontWeight="SemiBold" Foreground="White" Text="No conflicts" />
+                                <TextBlock x:Name="RuleHealthDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Rules are ready for live evaluation." TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+                        <Button Click="ResolveConflict_Click" Style="{StaticResource GlassButtonStyle}" Content="Enable automation" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Grid Grid.Row="3" ColumnSpacing="14">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="190" />
