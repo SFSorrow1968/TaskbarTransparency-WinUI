@@ -22,11 +22,16 @@ public sealed class TrayIconHost : IDisposable
     private const uint TrackRightButton = 0x0002;
     private const uint MenuString = 0;
     private const uint MenuSeparator = 0x0800;
-    private const int OpenCommand = 1;
-    private const int ApplyCommand = 2;
-    private const int ToggleCommand = 3;
-    private const int SettingsCommand = 4;
-    private const int ExitCommand = 5;
+    internal const int OpenCommand = 1;
+    internal const int ApplyCommand = 2;
+    internal const int ToggleCommand = 3;
+    internal const int TuningCommand = 4;
+    internal const int ExitCommand = 5;
+    internal const string OpenCommandText = "Open Dashboard";
+    internal const string ApplyCommandText = "Apply Now";
+    internal const string ToggleCommandText = "Toggle Transparency";
+    internal const string TuningCommandText = "Open Tuning";
+    internal const string ExitCommandText = "Exit";
     private readonly Guid _iconId = new("a5b8d7f6-8a4f-44ff-9c16-565457be2e23");
     private readonly WndProc _wndProc;
     private IntPtr _windowHandle;
@@ -53,6 +58,17 @@ public sealed class TrayIconHost : IDisposable
         EnsureWindow();
         EnsureIcon();
     }
+
+    internal void ConfigureCommandsForTest(Action showWindow, Action showTuning, Action applyNow, Action toggleTransparency, Action exit)
+    {
+        _showWindow = showWindow;
+        _showTuning = showTuning;
+        _applyNow = applyNow;
+        _toggleTransparency = toggleTransparency;
+        _exit = exit;
+    }
+
+    internal bool ExecuteCommandForTest(int command) => ExecuteCommand(command);
 
     public void SetVisible(bool visible)
     {
@@ -173,34 +189,41 @@ public sealed class TrayIconHost : IDisposable
     private void ShowContextMenu()
     {
         var menu = CreatePopupMenu();
-        AppendMenu(menu, MenuString, OpenCommand, "Open Dashboard");
-        AppendMenu(menu, MenuString, ApplyCommand, "Apply Now");
-        AppendMenu(menu, MenuString, ToggleCommand, "Toggle Transparency");
-        AppendMenu(menu, MenuString, SettingsCommand, "Open Tuning");
+        AppendMenu(menu, MenuString, OpenCommand, OpenCommandText);
+        AppendMenu(menu, MenuString, ApplyCommand, ApplyCommandText);
+        AppendMenu(menu, MenuString, ToggleCommand, ToggleCommandText);
+        AppendMenu(menu, MenuString, TuningCommand, TuningCommandText);
         AppendMenu(menu, MenuSeparator, 0, null);
-        AppendMenu(menu, MenuString, ExitCommand, "Exit");
+        AppendMenu(menu, MenuString, ExitCommand, ExitCommandText);
 
         GetCursorPos(out var point);
         SetForegroundWindow(_windowHandle);
         var command = TrackPopupMenu(menu, TrackReturnCommand | TrackRightButton, point.X, point.Y, 0, _windowHandle, IntPtr.Zero);
         DestroyMenu(menu);
+        ExecuteCommand(command);
+    }
+
+    private bool ExecuteCommand(int command)
+    {
         switch (command)
         {
             case OpenCommand:
                 _showWindow?.Invoke();
-                break;
-            case SettingsCommand:
+                return true;
+            case TuningCommand:
                 _showTuning?.Invoke();
-                break;
+                return true;
             case ApplyCommand:
                 _applyNow?.Invoke();
-                break;
+                return true;
             case ToggleCommand:
                 _toggleTransparency?.Invoke();
-                break;
+                return true;
             case ExitCommand:
                 _exit?.Invoke();
-                break;
+                return true;
+            default:
+                return false;
         }
     }
 

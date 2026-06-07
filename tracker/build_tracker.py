@@ -58,6 +58,7 @@ ITEMS = [
     [41, "Features", "Close-to-tray lifecycle", "Keep the app running when the dashboard is closed while the tray icon is enabled.", "P1", "Done", "Close now hides the WinUI window, tray and hotkey requests restore it, and tray Open Tuning routes to the Tuning page."],
     [42, "Screens", "Ultrawide layout readability", "Keep primary app pages readable on widescreen monitors.", "P1", "Done", "Dashboard, Tuning, Monitors, Automation, Diagnostics, About, and Settings page content is centered with a readable max width."],
     [43, "Features", "Hotkey registration diagnostics", "Report actual Windows hotkey registration success instead of only validating shortcut text.", "P1", "Done", "Diagnostics now distinguishes registered shortcuts, invalid formats, and Windows registration failures with error codes."],
+    [44, "Features", "Tray command dispatch audit", "Verify tray menu labels and command routing for dashboard, tuning, apply, toggle, and exit.", "P1", "Done", "Tray command labels and dispatch are covered by focused tests; live hidden-window validation confirmed background toggle and dashboard restore outcomes."],
 ]
 
 TAB_COLORS = {
