@@ -52,6 +52,7 @@ ITEMS = [
     [35, "Features", "Whole taskbar transparency parity", "Match old repo behavior by fading taskbar windows and icons, not only accent material.", "P0", "Done", "Taskbar interop now applies WS_EX_LAYERED and SetLayeredWindowAttributes after material composition."],
     [36, "Features", "Fade transition controls", "Expose fade duration and easing settings and animate taskbar opacity changes.", "P1", "Done", "Presets now save fade speed/easing and taskbar alpha changes animate with cancellable easing."],
     [37, "Features", "Unified tuning settings", "Move user-set controls into renamed Tuning tab and keep runtime history in Diagnostics.", "P1", "Done", "Tuning now owns fade-in/out, hover proximity, automation sensors, tray/startup, and hotkey settings; Diagnostics keeps telemetry/history."],
+    [38, "Infrastructure", "Transition settings migration", "Preserve existing fade timing when loading settings created before fade-in/out split.", "P1", "Done", "Legacy profiles with fadeMilliseconds now hydrate fade-in and fade-out instead of becoming instant."],
 ]
 
 TAB_COLORS = {

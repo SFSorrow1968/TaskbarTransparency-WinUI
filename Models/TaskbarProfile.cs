@@ -11,6 +11,20 @@ public sealed record TaskbarProfile(
     public int FadeInMilliseconds { get; init; } = FadeMilliseconds;
     public int FadeOutMilliseconds { get; init; } = FadeMilliseconds;
 
+    public TaskbarProfile NormalizeTransitions()
+    {
+        if (FadeMilliseconds <= 0)
+        {
+            return this;
+        }
+
+        return this with
+        {
+            FadeInMilliseconds = FadeInMilliseconds <= 0 ? FadeMilliseconds : FadeInMilliseconds,
+            FadeOutMilliseconds = FadeOutMilliseconds <= 0 ? FadeMilliseconds : FadeOutMilliseconds
+        };
+    }
+
     public static TaskbarProfile OxygenClear { get; } = new("Oxygen Clear", TaskbarVisualMode.Clear, 32, "#FFFFFF", 180, "CubicOut")
     {
         FadeInMilliseconds = 180,

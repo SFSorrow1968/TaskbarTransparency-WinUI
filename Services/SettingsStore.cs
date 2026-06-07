@@ -21,7 +21,9 @@ public sealed class SettingsStore
         try
         {
             var json = File.ReadAllText(SettingsPath);
-            return JsonSerializer.Deserialize(json, SettingsJsonContext.Default.AppSettings) ?? new AppSettings();
+            var settings = JsonSerializer.Deserialize(json, SettingsJsonContext.Default.AppSettings) ?? new AppSettings();
+            settings.ActiveProfile = settings.ActiveProfile.NormalizeTransitions();
+            return settings;
         }
         catch
         {
