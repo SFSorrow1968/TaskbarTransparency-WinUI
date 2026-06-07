@@ -54,7 +54,7 @@
                         <FontIcon FontSize="54" Foreground="#FFA8F2E5" Glyph="&#xE9E9;" />
                         <StackPanel Grid.Column="1" Spacing="6">
                             <TextBlock FontSize="22" FontWeight="SemiBold" Foreground="White" Text="Easy to customize. Easy to change later." />
-                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Adjust these defaults anytime in Presets or Settings." TextWrapping="Wrap" />
+                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Adjust these defaults anytime in Tuning." TextWrapping="Wrap" />
                         </StackPanel>
                     </Grid>
 

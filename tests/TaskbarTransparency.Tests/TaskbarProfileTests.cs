@@ -35,4 +35,27 @@ public sealed class TaskbarProfileTests
         Assert.Equal(0, normalized.FadeInMilliseconds);
         Assert.Equal(0, normalized.FadeOutMilliseconds);
     }
+
+    [Fact]
+    public void WithTuningValues_PreservesCurrentMaterialAndAccent()
+    {
+        var tuned = TaskbarProfile.OxygenClear.WithTuningValues("  Work Clear  ", 44, 310, 90, "Linear");
+
+        Assert.Equal("Work Clear", tuned.Name);
+        Assert.Equal(TaskbarVisualMode.Clear, tuned.Mode);
+        Assert.Equal("#FFFFFF", tuned.AccentHex);
+        Assert.Equal(44, tuned.Opacity);
+        Assert.Equal(310, tuned.FadeMilliseconds);
+        Assert.Equal(310, tuned.FadeInMilliseconds);
+        Assert.Equal(90, tuned.FadeOutMilliseconds);
+        Assert.Equal("Linear", tuned.Easing);
+    }
+
+    [Fact]
+    public void WithTuningValues_KeepsExistingName_WhenNameIsBlank()
+    {
+        var tuned = TaskbarProfile.FocusGlass.WithTuningValues(" ", 55, 120, 80, "CubicOut");
+
+        Assert.Equal(TaskbarProfile.FocusGlass.Name, tuned.Name);
+    }
 }

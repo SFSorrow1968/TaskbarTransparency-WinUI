@@ -177,7 +177,7 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Save applies the current tuning profile and app settings." VerticalAlignment="Center" />
                 <Button Grid.Column="1" Style="{StaticResource GlassButtonStyle}" Click="Glass_Click" Content="Reset" />
-                <Button Grid.Column="2" Style="{StaticResource GlassButtonStyle}" Background="{StaticResource OxygenBlueBrush}" Click="SaveFocusGlass_Click" Content="Save changes" />
+                <Button Grid.Column="2" Style="{StaticResource GlassButtonStyle}" Background="{StaticResource OxygenBlueBrush}" Click="SaveChanges_Click" Content="Save changes" />
             </Grid>
         </Grid>
     </ScrollViewer>

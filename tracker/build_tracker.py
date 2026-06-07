@@ -16,7 +16,7 @@ PRIORITIES = ["P0", "P1", "P2", "P3"]
 
 ITEMS = [
     [1, "Screens", "Dashboard", "Live opacity and runtime taskbar control screen.", "P0", "Done", "Refined from generated dashboard reference."],
-    [2, "Screens", "Presets", "Material preset selection screen.", "P0", "Done", "Clear, Glass, Solid presets."],
+    [2, "Screens", "Tuning", "Material and user settings tuning screen.", "P0", "Done", "Clear, Glass, Solid presets plus transition, sensor, startup, tray, and hotkey settings."],
     [3, "Screens", "Monitors", "Per-display override management screen.", "P1", "Done", "Native taskbar-backed monitor catalog added."],
     [4, "Screens", "Automation", "State rules for hover, focus, maximized, and fullscreen.", "P0", "Done", "Runtime sensors now drive desktop, visible, maximized, fullscreen, and hover states."],
     [5, "Screens", "Diagnostics", "Runtime apply and state simulation screen.", "P0", "Done", "Manual runtime checks available."],
@@ -26,7 +26,7 @@ ITEMS = [
     [9, "Features", "Global hotkeys", "Register open and toggle shortcuts.", "P1", "Done", "Ctrl+Alt+G and Ctrl+Alt+T register against the WinUI window handle."],
     [10, "Backend", "Opacity policy", "Resolve opacity from profile and runtime state.", "P0", "Done", "Covered by unit tests."],
     [11, "Backend", "Focus/fullscreen sensors", "Detect active window, maximized, fullscreen, and hover taskbar states.", "P1", "Done", "Win32 foreground, monitor, taskbar, and cursor sensors apply policy on state changes."],
-    [12, "Infrastructure", "Tests", "Focused unit tests for core policy behavior.", "P0", "Done", "8 tests passing."],
+    [12, "Infrastructure", "Tests", "Focused unit tests for core policy behavior.", "P0", "Done", "Profile migration, tuning, appearance, sensors, hotkeys, policy, and snapshot tests covered."],
     [13, "Infrastructure", "Launcher", "Build and launch script with log cleanup.", "P0", "Done", "Batch launcher added."],
     [14, "Infrastructure", "Release snapshot", "SemVer snapshot branch/tag publishing script.", "P0", "Done", "Script added for new remote."],
     [15, "Infrastructure", "Remote repository", "Own GitHub remote for WinUI rebuild.", "P0", "Done", "Remote created and main/snapshots pushed."],
@@ -48,11 +48,12 @@ ITEMS = [
     [31, "Screens", "Automation history and calibration", "Implement live history, sensor calibration, and conflict warning states.", "P1", "Done", "Automation page shows runtime history, hover calibration, sensor status, and paused-rule recovery."],
     [32, "Screens", "Diagnostics recovery states", "Implement sensor timeline and hotkey conflict recovery views.", "P1", "Done", "Diagnostics shows sensor timeline, hotkey status, and reset recovery alongside runtime details."],
     [33, "Screens", "Multi-display overview", "Implement monitor overview with multi-display state and recent actions.", "P1", "Done", "Monitor page shows display KPIs, detected display rows, sync state, and recent monitor actions."],
-    [34, "Screens", "Startup permission warning", "Implement startup registration failure recovery state.", "P1", "Done", "Settings shows startup registration status, permission warning copy, and retry recovery."],
+    [34, "Screens", "Startup permission warning", "Implement startup registration failure recovery state.", "P1", "Done", "Tuning shows startup registration status, permission warning copy, and retry recovery."],
     [35, "Features", "Whole taskbar transparency parity", "Match old repo behavior by fading taskbar windows and icons, not only accent material.", "P0", "Done", "Taskbar interop now applies WS_EX_LAYERED and SetLayeredWindowAttributes after material composition."],
-    [36, "Features", "Fade transition controls", "Expose fade duration and easing settings and animate taskbar opacity changes.", "P1", "Done", "Presets now save fade speed/easing and taskbar alpha changes animate with cancellable easing."],
+    [36, "Features", "Fade transition controls", "Expose fade duration and easing settings and animate taskbar opacity changes.", "P1", "Done", "Tuning now saves fade speed/easing and taskbar alpha changes animate with cancellable easing."],
     [37, "Features", "Unified tuning settings", "Move user-set controls into renamed Tuning tab and keep runtime history in Diagnostics.", "P1", "Done", "Tuning now owns fade-in/out, hover proximity, automation sensors, tray/startup, and hotkey settings; Diagnostics keeps telemetry/history."],
     [38, "Infrastructure", "Transition settings migration", "Preserve existing fade timing when loading settings created before fade-in/out split.", "P1", "Done", "Legacy profiles with fadeMilliseconds now hydrate fade-in and fade-out instead of becoming instant."],
+    [39, "Features", "Tuning save edge cases", "Ensure Save changes preserves the active material and visible profile values.", "P1", "Done", "Saving from Oxygen Clear no longer silently rebuilds the profile from Focus Glass; blank names preserve the current profile name."],
 ]
 
 TAB_COLORS = {

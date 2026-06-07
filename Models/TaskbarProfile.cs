@@ -25,6 +25,21 @@ public sealed record TaskbarProfile(
         };
     }
 
+    public TaskbarProfile WithTuningValues(string name, byte opacity, int fadeInMilliseconds, int fadeOutMilliseconds, string easing)
+    {
+        var displayName = string.IsNullOrWhiteSpace(name) ? Name : name.Trim();
+
+        return this with
+        {
+            Name = displayName,
+            Opacity = opacity,
+            FadeMilliseconds = fadeInMilliseconds,
+            FadeInMilliseconds = fadeInMilliseconds,
+            FadeOutMilliseconds = fadeOutMilliseconds,
+            Easing = easing
+        };
+    }
+
     public static TaskbarProfile OxygenClear { get; } = new("Oxygen Clear", TaskbarVisualMode.Clear, 32, "#FFFFFF", 180, "CubicOut")
     {
         FadeInMilliseconds = 180,
