@@ -23,12 +23,12 @@ if ($LASTEXITCODE -ne 0) {
     throw "Index has staged changes. Commit them before snapshot."
 }
 
-git rev-parse --verify $branch *> $null
+git show-ref --verify --quiet "refs/heads/$branch"
 if ($LASTEXITCODE -eq 0) {
     throw "Snapshot branch already exists: $branch"
 }
 
-git rev-parse --verify "refs/tags/$Version" *> $null
+git show-ref --verify --quiet "refs/tags/$Version"
 if ($LASTEXITCODE -eq 0) {
     throw "Tag already exists: $Version"
 }
