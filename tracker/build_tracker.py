@@ -48,7 +48,7 @@ ITEMS = [
     [31, "Screens", "Automation history and calibration", "Implement live history, sensor calibration, and conflict warning states.", "P1", "Done", "Automation page shows runtime history, hover calibration, sensor status, and paused-rule recovery."],
     [32, "Screens", "Diagnostics recovery states", "Implement sensor timeline and hotkey conflict recovery views.", "P1", "Done", "Diagnostics shows sensor timeline, hotkey status, and reset recovery alongside runtime details."],
     [33, "Screens", "Multi-display overview", "Implement monitor overview with multi-display state and recent actions.", "P1", "Done", "Monitor page shows display KPIs, detected display rows, sync state, and recent monitor actions."],
-    [34, "Screens", "Startup permission warning", "Implement startup registration failure recovery state.", "P1", "Not Started", "Mockup organized under Settings."],
+    [34, "Screens", "Startup permission warning", "Implement startup registration failure recovery state.", "P1", "Done", "Settings shows startup registration status, permission warning copy, and retry recovery."],
 ]
 
 TAB_COLORS = {

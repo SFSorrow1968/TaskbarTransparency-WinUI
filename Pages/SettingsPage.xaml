@@ -63,6 +63,7 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <TextBlock FontSize="21" FontWeight="SemiBold" Foreground="White" Text="General" />
                     <Grid Grid.Row="1" ColumnSpacing="14">
@@ -87,7 +88,21 @@
                         </StackPanel>
                         <ToggleSwitch x:Name="StartupSwitch" Grid.Column="1" Header="On" Toggled="StartupSwitch_Toggled" />
                     </Grid>
-                    <Grid Grid.Row="3" Margin="0,18,0,0" ColumnSpacing="14">
+                    <Border Grid.Row="3" Padding="16" Background="#58233448" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
+                        <StackPanel Spacing="12">
+                            <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="White" Text="Startup permission recovery" />
+                            <InfoBar x:Name="StartupPermissionInfo" IsOpen="True" Title="Startup registration" />
+                            <Grid ColumnSpacing="14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="180" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="StartupStatusText" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                                <Button Grid.Column="1" Click="RetryStartup_Click" Style="{StaticResource GlassButtonStyle}" Content="Retry startup" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                    <Grid Grid.Row="4" Margin="0,18,0,0" ColumnSpacing="14">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="180" />

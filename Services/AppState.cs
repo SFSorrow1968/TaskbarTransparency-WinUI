@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Security;
 using TaskbarTransparency.Models;
 
 namespace TaskbarTransparency.Services;
@@ -18,6 +19,8 @@ public sealed class AppState
     public RuntimeSnapshot Runtime { get; } = new();
     public ObservableCollection<MonitorProfile> Monitors { get; } = [];
     public string SettingsPath => _store.SettingsPath;
+    public bool StartupRegistrationFailed { get; private set; }
+    public string StartupStatusMessage { get; private set; } = "Startup registration is ready.";
 
     public event EventHandler? Changed;
     public event EventHandler? ShowWindowRequested;
@@ -111,8 +114,22 @@ public sealed class AppState
 
     public void SetStartWithWindows(bool enabled)
     {
-        Settings.StartWithWindows = enabled;
-        _startup.SetEnabled(enabled);
+        try
+        {
+            _startup.SetEnabled(enabled);
+            Settings.StartWithWindows = enabled;
+            StartupRegistrationFailed = false;
+            StartupStatusMessage = enabled
+                ? "Oxygen Taskbar will start when you sign in."
+                : "Oxygen Taskbar will not start automatically.";
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or SecurityException or IOException)
+        {
+            Settings.StartWithWindows = _startup.IsEnabled();
+            StartupRegistrationFailed = true;
+            StartupStatusMessage = "Windows blocked the startup registration. Check account permissions or retry after restarting Explorer.";
+        }
+
         SaveAndNotify();
     }
 

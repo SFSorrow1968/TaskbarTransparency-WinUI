@@ -7,22 +7,29 @@ namespace TaskbarTransparency.Pages;
 
 public sealed partial class SettingsPage : Page
 {
+    private readonly Services.AppState _state = ((App)Microsoft.UI.Xaml.Application.Current).State;
     private bool _loading;
 
     public SettingsPage()
     {
         InitializeComponent();
         Loaded += (_, _) => Refresh();
+        _state.Changed += (_, _) => DispatcherQueue.TryEnqueue(Refresh);
     }
 
     private void Refresh()
     {
-        var settings = ((App)Microsoft.UI.Xaml.Application.Current).State.Settings;
+        var settings = _state.Settings;
         _loading = true;
         TraySwitch.IsOn = settings.ShowTrayIcon;
         StartupSwitch.IsOn = settings.StartWithWindows;
         OpenHotkeyText.Text = settings.OpenHotkey;
         ToggleHotkeyText.Text = settings.ToggleHotkey;
+        StartupPermissionInfo.Severity = _state.StartupRegistrationFailed ? InfoBarSeverity.Warning : InfoBarSeverity.Success;
+        StartupPermissionInfo.Message = _state.StartupStatusMessage;
+        StartupStatusText.Text = _state.StartupRegistrationFailed
+            ? "Startup could not be changed. Keep using tray launch for now, or retry after checking Windows account permissions."
+            : _state.StartupStatusMessage;
         _loading = false;
     }
 
@@ -30,7 +37,7 @@ public sealed partial class SettingsPage : Page
     {
         if (!_loading)
         {
-            ((App)Microsoft.UI.Xaml.Application.Current).State.SetTrayVisible(TraySwitch.IsOn);
+            _state.SetTrayVisible(TraySwitch.IsOn);
         }
     }
 
@@ -38,13 +45,18 @@ public sealed partial class SettingsPage : Page
     {
         if (!_loading)
         {
-            ((App)Microsoft.UI.Xaml.Application.Current).State.SetStartWithWindows(StartupSwitch.IsOn);
+            _state.SetStartWithWindows(StartupSwitch.IsOn);
         }
     }
 
     private void Save_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        ((App)Microsoft.UI.Xaml.Application.Current).State.SetStartWithWindows(StartupSwitch.IsOn);
-        ((App)Microsoft.UI.Xaml.Application.Current).State.SetTrayVisible(TraySwitch.IsOn);
+        _state.SetStartWithWindows(StartupSwitch.IsOn);
+        _state.SetTrayVisible(TraySwitch.IsOn);
+    }
+
+    private void RetryStartup_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        _state.SetStartWithWindows(StartupSwitch.IsOn);
     }
 }
