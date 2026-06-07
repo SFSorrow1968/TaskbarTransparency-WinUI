@@ -31,4 +31,20 @@ public sealed class GlobalHotkeyServiceTests
 
         Assert.False(parsed);
     }
+
+    [Fact]
+    public void TryParse_RejectsUnknownModifiers()
+    {
+        var parsed = GlobalHotkeyService.TryParse("Ctrl+Banana+T", out _);
+
+        Assert.False(parsed);
+    }
+
+    [Fact]
+    public void RegistrationStatus_SummarizesRegistrationFailure()
+    {
+        var status = new HotkeyRegistrationStatus("Ctrl+Alt+T", true, false, 1409);
+
+        Assert.Equal("Ctrl+Alt+T: registration failed (1409)", status.Summary);
+    }
 }

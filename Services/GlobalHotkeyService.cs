@@ -13,6 +13,8 @@ public sealed class GlobalHotkeyService : IDisposable
     private Action? _toggleTransparency;
     private bool _subclassed;
 
+    public HotkeyConfigurationStatus Status { get; private set; } = HotkeyConfigurationStatus.NotConfigured;
+
     public GlobalHotkeyService()
     {
         _subclassProc = WndProc;
@@ -29,27 +31,35 @@ public sealed class GlobalHotkeyService : IDisposable
             _subclassed = true;
         }
 
-        Reconfigure(openHotkey, toggleHotkey);
+        Status = Reconfigure(openHotkey, toggleHotkey);
     }
 
-    public void Reconfigure(string openHotkey, string toggleHotkey)
+    public HotkeyConfigurationStatus Reconfigure(string openHotkey, string toggleHotkey)
     {
         if (_hwnd == IntPtr.Zero)
         {
-            return;
+            Status = HotkeyConfigurationStatus.NotConfigured;
+            return Status;
         }
 
         UnregisterHotKey(_hwnd, OpenHotkeyId);
         UnregisterHotKey(_hwnd, ToggleHotkeyId);
+        var openResult = HotkeyRegistrationResult.Invalid;
+        var toggleResult = HotkeyRegistrationResult.Invalid;
         if (TryParse(openHotkey, out var open))
         {
-            RegisterHotKey(_hwnd, OpenHotkeyId, open.Modifiers, open.VirtualKey);
+            openResult = TryRegister(OpenHotkeyId, open);
         }
 
         if (TryParse(toggleHotkey, out var toggle))
         {
-            RegisterHotKey(_hwnd, ToggleHotkeyId, toggle.Modifiers, toggle.VirtualKey);
+            toggleResult = TryRegister(ToggleHotkeyId, toggle);
         }
+
+        Status = new HotkeyConfigurationStatus(
+            new HotkeyRegistrationStatus(openHotkey, openResult.FormatValid, openResult.Registered, openResult.ErrorCode),
+            new HotkeyRegistrationStatus(toggleHotkey, toggleResult.FormatValid, toggleResult.Registered, toggleResult.ErrorCode));
+        return Status;
     }
 
     public void Dispose()
@@ -87,8 +97,13 @@ public sealed class GlobalHotkeyService : IDisposable
                 "CTRL" or "CONTROL" => 0x0002u,
                 "SHIFT" => 0x0004u,
                 "WIN" or "WINDOWS" => 0x0008u,
-                _ => 0u
+                _ => uint.MaxValue
             };
+
+            if (modifiers == uint.MaxValue)
+            {
+                return false;
+            }
         }
 
         if (modifiers == 0 || !TryParseVirtualKey(keyPart, out var virtualKey))
@@ -120,6 +135,16 @@ public sealed class GlobalHotkeyService : IDisposable
         }
 
         return false;
+    }
+
+    private HotkeyRegistrationResult TryRegister(int id, HotkeyRegistration registration)
+    {
+        if (RegisterHotKey(_hwnd, id, registration.Modifiers, registration.VirtualKey))
+        {
+            return HotkeyRegistrationResult.Success;
+        }
+
+        return HotkeyRegistrationResult.Failed(Marshal.GetLastWin32Error());
     }
 
     private IntPtr WndProc(IntPtr hwnd, uint message, IntPtr wParam, IntPtr lParam, UIntPtr subclassId, IntPtr refData)
@@ -159,3 +184,42 @@ public sealed class GlobalHotkeyService : IDisposable
 }
 
 public readonly record struct HotkeyRegistration(uint Modifiers, uint VirtualKey);
+
+public sealed record HotkeyConfigurationStatus(HotkeyRegistrationStatus Open, HotkeyRegistrationStatus Toggle)
+{
+    public static HotkeyConfigurationStatus NotConfigured { get; } = new(
+        HotkeyRegistrationStatus.NotConfigured(""),
+        HotkeyRegistrationStatus.NotConfigured(""));
+
+    public bool IsReady => Open.Registered && Toggle.Registered;
+}
+
+public sealed record HotkeyRegistrationStatus(string Hotkey, bool FormatValid, bool Registered, int ErrorCode)
+{
+    public static HotkeyRegistrationStatus NotConfigured(string hotkey) => new(hotkey, false, false, 0);
+
+    public string Summary
+    {
+        get
+        {
+            if (!FormatValid)
+            {
+                return $"{Hotkey}: invalid format";
+            }
+
+            if (!Registered)
+            {
+                return $"{Hotkey}: registration failed ({ErrorCode})";
+            }
+
+            return $"{Hotkey}: registered";
+        }
+    }
+}
+
+internal readonly record struct HotkeyRegistrationResult(bool FormatValid, bool Registered, int ErrorCode)
+{
+    public static HotkeyRegistrationResult Invalid { get; } = new(false, false, 0);
+    public static HotkeyRegistrationResult Success { get; } = new(true, true, 0);
+    public static HotkeyRegistrationResult Failed(int errorCode) => new(true, false, errorCode);
+}

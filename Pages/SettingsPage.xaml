@@ -108,7 +108,7 @@
                             <ColumnDefinition Width="180" />
                             <ColumnDefinition Width="180" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Hotkey capture UI is ready; native global registration remains queued." VerticalAlignment="Center" />
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Global shortcut registration is checked in Diagnostics." VerticalAlignment="Center" />
                         <Button Grid.Column="1" Style="{StaticResource GlassButtonStyle}" Content="Cancel" />
                         <Button Grid.Column="2" Click="Save_Click" Style="{StaticResource GlassButtonStyle}" Background="{StaticResource OxygenBlueBrush}" Content="Save" />
                     </Grid>

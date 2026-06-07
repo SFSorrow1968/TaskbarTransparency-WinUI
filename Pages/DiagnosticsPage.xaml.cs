@@ -28,15 +28,14 @@ public sealed partial class DiagnosticsPage : Page
                 $"{item.Profile} applied {item.Opacity}% opacity and updated {item.TaskbarsUpdated} taskbar{(item.TaskbarsUpdated == 1 ? string.Empty : "s")}."))
             .ToList();
 
-        var openValid = GlobalHotkeyService.TryParse(_state.Settings.OpenHotkey, out _);
-        var toggleValid = GlobalHotkeyService.TryParse(_state.Settings.ToggleHotkey, out _);
-        var hotkeysReady = openValid && toggleValid;
+        var hotkeyStatus = _state.HotkeyStatus;
+        var hotkeysReady = hotkeyStatus.IsReady;
         HotkeyRecoveryInfo.Severity = hotkeysReady ? InfoBarSeverity.Success : InfoBarSeverity.Error;
         HotkeyRecoveryInfo.Message = hotkeysReady
-            ? "Shortcut formats are valid. If Windows rejects one, reset to defaults and try again."
-            : "One or more shortcuts cannot be parsed. Reset to restore the default registrations.";
-        HotkeyStatusText.Text = hotkeysReady ? "Formats ready" : "Needs reset";
-        HotkeyDetailText.Text = $"Open: {_state.Settings.OpenHotkey}\nToggle: {_state.Settings.ToggleHotkey}";
+            ? "Both shortcuts are registered with Windows and ready."
+            : "One or more shortcuts could not be registered. Reset to defaults, then retry after closing conflicting apps.";
+        HotkeyStatusText.Text = hotkeysReady ? "Registered" : "Needs attention";
+        HotkeyDetailText.Text = $"Open: {hotkeyStatus.Open.Summary}\nToggle: {hotkeyStatus.Toggle.Summary}";
     }
 
     private void ApplyDesktop_Click(object sender, RoutedEventArgs e) => _state.ApplyNow(AutomationTrigger.Desktop);

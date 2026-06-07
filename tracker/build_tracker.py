@@ -57,6 +57,7 @@ ITEMS = [
     [40, "Backend", "Hover proximity calibration", "Ensure the Tuning hover proximity control drives runtime hover detection.", "P1", "Done", "Runtime sensor now uses the saved hover distance instead of a hard-coded 10 px threshold, with boundary coverage."],
     [41, "Features", "Close-to-tray lifecycle", "Keep the app running when the dashboard is closed while the tray icon is enabled.", "P1", "Done", "Close now hides the WinUI window, tray and hotkey requests restore it, and tray Open Tuning routes to the Tuning page."],
     [42, "Screens", "Ultrawide layout readability", "Keep primary app pages readable on widescreen monitors.", "P1", "Done", "Dashboard, Tuning, Monitors, Automation, Diagnostics, About, and Settings page content is centered with a readable max width."],
+    [43, "Features", "Hotkey registration diagnostics", "Report actual Windows hotkey registration success instead of only validating shortcut text.", "P1", "Done", "Diagnostics now distinguishes registered shortcuts, invalid formats, and Windows registration failures with error codes."],
 ]
 
 TAB_COLORS = {
