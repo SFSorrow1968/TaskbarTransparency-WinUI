@@ -116,6 +116,14 @@ public sealed class AppState
         SaveAndNotify();
     }
 
+    public void ResetHotkeys()
+    {
+        Settings.OpenHotkey = "Ctrl+Alt+G";
+        Settings.ToggleHotkey = "Ctrl+Alt+T";
+        _hotkeys.Reconfigure(Settings.OpenHotkey, Settings.ToggleHotkey);
+        SaveAndNotify();
+    }
+
     public void ToggleTransparency()
     {
         if (_opacityBeforeToggle is null)

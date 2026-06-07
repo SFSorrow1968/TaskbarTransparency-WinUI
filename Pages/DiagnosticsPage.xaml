@@ -60,20 +60,72 @@
             </Border>
 
             <Border Grid.Row="3" Style="{StaticResource OxygenCardBorderStyle}">
-                <StackPanel Spacing="14">
-                    <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Technical details" />
-                    <TextBlock x:Name="DetailsText" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" />
-                    <Grid ColumnSpacing="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Button Click="ApplyDesktop_Click" Style="{StaticResource GlassButtonStyle}" Content="Reapply desktop" />
-                        <Button Grid.Column="1" Click="ApplyHover_Click" Style="{StaticResource GlassButtonStyle}" Content="Simulate hover" />
-                        <Button Grid.Column="2" Click="ApplyFullscreen_Click" Style="{StaticResource GlassButtonStyle}" Content="Simulate fullscreen" />
-                    </Grid>
-                </StackPanel>
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.15*" />
+                        <ColumnDefinition Width="1.15*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Spacing="14">
+                        <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Technical details" />
+                        <TextBlock x:Name="DetailsText" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" />
+                        <Grid ColumnSpacing="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Button Click="ApplyDesktop_Click" Style="{StaticResource GlassButtonStyle}" Content="Reapply desktop" />
+                            <Button Grid.Column="1" Click="ApplyHover_Click" Style="{StaticResource GlassButtonStyle}" Content="Simulate hover" />
+                            <Button Grid.Column="2" Click="ApplyFullscreen_Click" Style="{StaticResource GlassButtonStyle}" Content="Simulate fullscreen" />
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Spacing="14">
+                        <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Sensor timeline" />
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Recent probes and apply results from this session." />
+                        <ListView x:Name="SensorTimelineList" MaxHeight="260" SelectionMode="None" Background="Transparent">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="MinHeight" Value="56" />
+                                    <Setter Property="Padding" Value="0" />
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="0,0,0,8" Padding="12,10" Background="#58233448" CornerRadius="8">
+                                        <StackPanel Spacing="2">
+                                            <Grid ColumnSpacing="10">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Foreground="White" FontWeight="SemiBold" Text="{Binding State}" />
+                                                <TextBlock Grid.Column="1" Foreground="{StaticResource OxygenBlueBrush}" FontWeight="SemiBold" Text="{Binding TimeText}" />
+                                            </Grid>
+                                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="{Binding Detail}" TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Spacing="14">
+                        <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Hotkey recovery" />
+                        <InfoBar x:Name="HotkeyRecoveryInfo" IsOpen="True" Title="Hotkey status" />
+                        <Border Padding="14" Background="#58233448" CornerRadius="8">
+                            <StackPanel Spacing="6">
+                                <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Registered shortcuts" />
+                                <TextBlock x:Name="HotkeyStatusText" FontSize="22" FontWeight="SemiBold" Foreground="White" Text="Ready" />
+                                <TextBlock x:Name="HotkeyDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+                        <Button Click="ResetHotkeys_Click" Style="{StaticResource GlassButtonStyle}" Content="Reset hotkeys" />
+                    </StackPanel>
+                </Grid>
             </Border>
         </Grid>
     </ScrollViewer>
