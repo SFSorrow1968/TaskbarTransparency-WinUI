@@ -28,7 +28,7 @@ public sealed class TaskbarAppearanceService
             EnsureLayeredWindow(handle);
         }
 
-        AnimateWholeTaskbarAlpha(handles, opacity, profile.FadeMilliseconds, profile.Easing);
+        AnimateWholeTaskbarAlpha(handles, opacity, profile);
         return handles.Length;
     }
 
@@ -90,6 +90,7 @@ public sealed class TaskbarAppearanceService
     public static int ComposeColorForTest(string hex, byte opacity) => ComposeColor(hex, opacity);
     public static byte ConvertOpacityToAlphaForTest(byte opacity) => ConvertOpacityToAlpha(opacity);
     public static double EaseProgressForTest(double progress, string easing) => EaseProgress(progress, easing);
+    public static int SelectFadeMillisecondsForTest(TaskbarProfile profile, byte startAlpha, byte targetAlpha) => SelectFadeMilliseconds(profile, startAlpha, targetAlpha);
 
     private static int ComposeColor(string hex, byte opacity)
     {
@@ -101,7 +102,7 @@ public sealed class TaskbarAppearanceService
         return (alpha << 24) | (b << 16) | (g << 8) | r;
     }
 
-    private void AnimateWholeTaskbarAlpha(IReadOnlyCollection<IntPtr> handles, byte opacity, int fadeMilliseconds, string easing)
+    private void AnimateWholeTaskbarAlpha(IReadOnlyCollection<IntPtr> handles, byte opacity, TaskbarProfile profile)
     {
         var targetAlpha = ConvertOpacityToAlpha(opacity);
         if (handles.Count == 0)
@@ -119,6 +120,10 @@ public sealed class TaskbarAppearanceService
             cancellation = _animationCancellation;
         }
 
+        var starts = handles.ToDictionary(handle => handle, handle => _currentAlphas.GetValueOrDefault(handle, targetAlpha));
+        var representativeStart = starts.Values.FirstOrDefault(targetAlpha);
+        var fadeMilliseconds = SelectFadeMilliseconds(profile, representativeStart, targetAlpha);
+
         if (fadeMilliseconds <= 0)
         {
             foreach (var handle in handles)
@@ -129,7 +134,6 @@ public sealed class TaskbarAppearanceService
             return;
         }
 
-        var starts = handles.ToDictionary(handle => handle, handle => _currentAlphas.GetValueOrDefault(handle, targetAlpha));
         _ = Task.Run(async () =>
         {
             var token = cancellation.Token;
@@ -141,7 +145,7 @@ public sealed class TaskbarAppearanceService
                     token.ThrowIfCancellationRequested();
                     var elapsed = Environment.TickCount64 - started;
                     var progress = Math.Clamp(elapsed / (double)fadeMilliseconds, 0d, 1d);
-                    var eased = EaseProgress(progress, easing);
+                    var eased = EaseProgress(progress, profile.Easing);
 
                     foreach (var handle in handles)
                     {
@@ -185,6 +189,13 @@ public sealed class TaskbarAppearanceService
             "QuintOut" => 1d - Math.Pow(1d - clamped, 5d),
             _ => 1d - Math.Pow(1d - clamped, 3d)
         };
+    }
+
+    private static int SelectFadeMilliseconds(TaskbarProfile profile, byte startAlpha, byte targetAlpha)
+    {
+        return targetAlpha >= startAlpha
+            ? Math.Max(0, profile.FadeInMilliseconds)
+            : Math.Max(0, profile.FadeOutMilliseconds);
     }
 
     private static void EnsureLayeredWindow(IntPtr handle)

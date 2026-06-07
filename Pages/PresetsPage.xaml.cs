@@ -6,24 +6,40 @@ namespace TaskbarTransparency.Pages;
 
 public sealed partial class PresetsPage : Page
 {
+    private readonly Services.AppState _state = ((App)Application.Current).State;
     private bool _loading;
 
     public PresetsPage()
     {
         InitializeComponent();
         Loaded += (_, _) => Refresh();
+        _state.Changed += (_, _) => DispatcherQueue.TryEnqueue(Refresh);
     }
 
-    private static void Apply(TaskbarProfile profile) => ((App)Application.Current).State.SetProfile(profile);
+    private void Apply(TaskbarProfile profile) => _state.SetProfile(profile);
     private void Refresh()
     {
-        var profile = ((App)Application.Current).State.Settings.ActiveProfile;
+        var settings = _state.Settings;
+        var profile = settings.ActiveProfile;
         _loading = true;
         PresetNameText.Text = profile.Name;
         PresetOpacitySlider.Value = profile.Opacity;
         PresetOpacityText.Text = $"{PresetOpacitySlider.Value:0}%";
-        FadeDurationSlider.Value = profile.FadeMilliseconds;
-        FadeDurationText.Text = $"{profile.FadeMilliseconds} ms";
+        FadeInDurationSlider.Value = profile.FadeInMilliseconds;
+        FadeInDurationText.Text = $"{profile.FadeInMilliseconds} ms";
+        FadeOutDurationSlider.Value = profile.FadeOutMilliseconds;
+        FadeOutDurationText.Text = $"{profile.FadeOutMilliseconds} ms";
+        HoverDistanceSlider.Value = settings.HoverDistance;
+        HoverDistanceText.Text = $"{settings.HoverDistance} px";
+        AutomationSwitch.IsOn = settings.AutomationEnabled;
+        HoverSwitch.IsOn = settings.HoverReveal;
+        FullscreenSwitch.IsOn = settings.FullscreenOverlap;
+        TraySwitch.IsOn = settings.ShowTrayIcon;
+        StartupSwitch.IsOn = settings.StartWithWindows;
+        OpenHotkeyText.Text = settings.OpenHotkey;
+        ToggleHotkeyText.Text = settings.ToggleHotkey;
+        StartupPermissionInfo.Severity = _state.StartupRegistrationFailed ? InfoBarSeverity.Warning : InfoBarSeverity.Success;
+        StartupPermissionInfo.Message = _state.StartupStatusMessage;
         EasingComboBox.SelectedIndex = profile.Easing switch
         {
             "QuintOut" => 1,
@@ -41,11 +57,68 @@ public sealed partial class PresetsPage : Page
         }
     }
 
-    private void FadeDurationSlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+    private void FadeInDurationSlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
     {
         if (!_loading)
         {
-            FadeDurationText.Text = $"{e.NewValue:0} ms";
+            FadeInDurationText.Text = $"{e.NewValue:0} ms";
+        }
+    }
+
+    private void FadeOutDurationSlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+    {
+        if (!_loading)
+        {
+            FadeOutDurationText.Text = $"{e.NewValue:0} ms";
+        }
+    }
+
+    private void HoverDistanceSlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+    {
+        if (!_loading)
+        {
+            HoverDistanceText.Text = $"{e.NewValue:0} px";
+            _state.SetHoverDistance(e.NewValue);
+        }
+    }
+
+    private void AutomationSwitch_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (!_loading)
+        {
+            _state.SetAutomation(AutomationSwitch.IsOn);
+        }
+    }
+
+    private void HoverSwitch_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (!_loading)
+        {
+            _state.SetHoverReveal(HoverSwitch.IsOn);
+        }
+    }
+
+    private void FullscreenSwitch_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (!_loading)
+        {
+            _state.SetFullscreenOverlap(FullscreenSwitch.IsOn);
+        }
+    }
+
+    private void TraySwitch_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (!_loading)
+        {
+            _state.SetTrayVisible(TraySwitch.IsOn);
+        }
+    }
+
+    private void StartupSwitch_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (!_loading)
+        {
+            _state.SetStartWithWindows(StartupSwitch.IsOn);
         }
     }
 
@@ -57,9 +130,13 @@ public sealed partial class PresetsPage : Page
         Apply(TaskbarProfile.FocusGlass with
         {
             Opacity = (byte)Math.Round(PresetOpacitySlider.Value),
-            FadeMilliseconds = (int)Math.Round(FadeDurationSlider.Value),
+            FadeMilliseconds = (int)Math.Round(FadeInDurationSlider.Value),
+            FadeInMilliseconds = (int)Math.Round(FadeInDurationSlider.Value),
+            FadeOutMilliseconds = (int)Math.Round(FadeOutDurationSlider.Value),
             Easing = SelectedEasing()
         });
+        _state.SetTrayVisible(TraySwitch.IsOn);
+        _state.SetStartWithWindows(StartupSwitch.IsOn);
     }
 
     private string SelectedEasing()

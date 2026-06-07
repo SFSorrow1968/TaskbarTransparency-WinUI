@@ -23,22 +23,11 @@ public sealed partial class AutomationPage : Page
         AutomationSwitch.IsOn = settings.AutomationEnabled;
         HoverSwitch.IsOn = settings.HoverReveal;
         FullscreenSwitch.IsOn = settings.FullscreenOverlap;
-        HoverDistanceSlider.Value = settings.HoverDistance;
-        HoverDistanceText.Text = $"{settings.HoverDistance} px";
-        FullscreenCalibrationText.Text = settings.FullscreenOverlap ? "On" : "Off";
-        LastSensorText.Text = FormatTrigger(_state.Runtime.State);
         RuleConflictInfo.IsOpen = !settings.AutomationEnabled;
         RuleHealthText.Text = settings.AutomationEnabled ? "No conflicts" : "Rules paused";
         RuleHealthDetailText.Text = settings.AutomationEnabled
             ? "Rules are ready for live evaluation."
             : "Enable automation to let sensor matches apply rule opacity.";
-        AutomationHistoryList.ItemsSource = _state.Runtime.RecentEvents
-            .Select(item => new AutomationHistoryRow(
-                item.Time.ToString("h:mm:ss tt"),
-                FormatTrigger(item.State),
-                $"{item.Profile} matched {item.TaskbarsUpdated} taskbar{(item.TaskbarsUpdated == 1 ? string.Empty : "s")}",
-                $"{item.Opacity}%"))
-            .ToList();
         _loading = false;
     }
 
@@ -63,14 +52,6 @@ public sealed partial class AutomationPage : Page
         if (!_loading)
         {
             _state.SetFullscreenOverlap(FullscreenSwitch.IsOn);
-        }
-    }
-
-    private void HoverDistanceSlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
-    {
-        if (!_loading)
-        {
-            _state.SetHoverDistance(e.NewValue);
         }
     }
 
@@ -100,6 +81,4 @@ public sealed partial class AutomationPage : Page
             _ => "Desktop"
         };
     }
-
-    private sealed record AutomationHistoryRow(string TimeText, string State, string Detail, string OpacityText);
 }

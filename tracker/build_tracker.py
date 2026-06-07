@@ -51,6 +51,7 @@ ITEMS = [
     [34, "Screens", "Startup permission warning", "Implement startup registration failure recovery state.", "P1", "Done", "Settings shows startup registration status, permission warning copy, and retry recovery."],
     [35, "Features", "Whole taskbar transparency parity", "Match old repo behavior by fading taskbar windows and icons, not only accent material.", "P0", "Done", "Taskbar interop now applies WS_EX_LAYERED and SetLayeredWindowAttributes after material composition."],
     [36, "Features", "Fade transition controls", "Expose fade duration and easing settings and animate taskbar opacity changes.", "P1", "Done", "Presets now save fade speed/easing and taskbar alpha changes animate with cancellable easing."],
+    [37, "Features", "Unified tuning settings", "Move user-set controls into renamed Tuning tab and keep runtime history in Diagnostics.", "P1", "Done", "Tuning now owns fade-in/out, hover proximity, automation sensors, tray/startup, and hotkey settings; Diagnostics keeps telemetry/history."],
 ]
 
 TAB_COLORS = {

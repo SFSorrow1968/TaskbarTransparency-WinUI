@@ -15,8 +15,8 @@
 
             <Grid>
                 <StackPanel Spacing="6">
-                    <TextBlock Style="{StaticResource OxygenPageTitleTextBlockStyle}" Text="Focus Glass" />
-                    <TextBlock FontSize="18" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Customize how your taskbar looks and behaves." />
+                    <TextBlock Style="{StaticResource OxygenPageTitleTextBlockStyle}" Text="Taskbar Tuning" />
+                    <TextBlock FontSize="18" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Adjust appearance, transitions, sensors, startup, tray, and shortcuts from one place." />
                 </StackPanel>
                 <Border HorizontalAlignment="Right" Padding="16,10" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
                     <StackPanel Orientation="Horizontal" Spacing="10">
@@ -73,38 +73,99 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="110" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Foreground="White" Text="Fade speed" VerticalAlignment="Center" />
-                        <Slider x:Name="FadeDurationSlider" Grid.Column="1" Maximum="1000" Minimum="0" StepFrequency="10" ValueChanged="FadeDurationSlider_ValueChanged" />
-                        <TextBlock x:Name="FadeDurationText" Grid.Column="2" FontSize="22" FontWeight="SemiBold" Foreground="White" Text="220 ms" VerticalAlignment="Center" />
+                        <TextBlock Foreground="White" Text="Fade in" VerticalAlignment="Center" />
+                        <Slider x:Name="FadeInDurationSlider" Grid.Column="1" Maximum="1000" Minimum="0" StepFrequency="10" ValueChanged="FadeInDurationSlider_ValueChanged" />
+                        <TextBlock x:Name="FadeInDurationText" Grid.Column="2" FontSize="22" FontWeight="SemiBold" Foreground="White" Text="220 ms" VerticalAlignment="Center" />
+                    </Grid>
+                    <Grid ColumnSpacing="18">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="110" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Foreground="White" Text="Fade out" VerticalAlignment="Center" />
+                        <Slider x:Name="FadeOutDurationSlider" Grid.Column="1" Maximum="1000" Minimum="0" StepFrequency="10" ValueChanged="FadeOutDurationSlider_ValueChanged" />
+                        <TextBlock x:Name="FadeOutDurationText" Grid.Column="2" FontSize="22" FontWeight="SemiBold" Foreground="White" Text="180 ms" VerticalAlignment="Center" />
                     </Grid>
                     <ComboBox x:Name="EasingComboBox" Header="Easing" SelectedIndex="0" HorizontalAlignment="Stretch">
                         <ComboBoxItem Content="Smooth cubic out" Tag="CubicOut" />
                         <ComboBoxItem Content="Quick quint out" Tag="QuintOut" />
                         <ComboBoxItem Content="Linear" Tag="Linear" />
                     </ComboBox>
+                    <TextBlock FontSize="19" FontWeight="SemiBold" Foreground="White" Text="Sensor calibration" />
+                    <Grid ColumnSpacing="18">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="90" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Foreground="White" Text="Hover proximity" VerticalAlignment="Center" />
+                        <Slider x:Name="HoverDistanceSlider" Grid.Column="1" Maximum="48" Minimum="0" StepFrequency="1" ValueChanged="HoverDistanceSlider_ValueChanged" />
+                        <TextBlock x:Name="HoverDistanceText" Grid.Column="2" FontSize="22" FontWeight="SemiBold" Foreground="White" Text="8 px" VerticalAlignment="Center" />
+                    </Grid>
+                    <Grid ColumnSpacing="14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Runtime automation sensors" VerticalAlignment="Center" />
+                        <ToggleSwitch x:Name="AutomationSwitch" Grid.Column="1" Header="Automation" Toggled="AutomationSwitch_Toggled" />
+                        <ToggleSwitch x:Name="HoverSwitch" Grid.Column="2" Header="Hover" Toggled="HoverSwitch_Toggled" />
+                        <ToggleSwitch x:Name="FullscreenSwitch" Grid.Column="3" Header="Fullscreen" Toggled="FullscreenSwitch_Toggled" />
+                    </Grid>
                 </StackPanel>
             </Border>
 
             <Border Grid.Row="2" Style="{StaticResource OxygenCardBorderStyle}">
-                <StackPanel Spacing="14">
-                    <TextBlock FontSize="21" FontWeight="SemiBold" Foreground="White" Text="Preview" />
-                    <Grid ColumnSpacing="16">
+                <StackPanel Spacing="18">
+                    <TextBlock FontSize="21" FontWeight="SemiBold" Foreground="White" Text="App settings" />
+                    <Grid ColumnSpacing="14">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <Border Height="72" BorderBrush="{StaticResource OxygenBlueBrush}" BorderThickness="1" CornerRadius="8">
-                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" Text="Default taskbar preview" />
-                        </Border>
-                        <Border Grid.Column="1" Height="72" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
-                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" Text="Maximized window" />
-                        </Border>
-                        <Border Grid.Column="2" Height="72" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
-                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" Text="Start menu open" />
-                        </Border>
+                        <StackPanel>
+                            <TextBlock Foreground="White" FontSize="18" Text="Show tray icon" />
+                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Keep the Oxygen Taskbar icon visible in the system tray." />
+                        </StackPanel>
+                        <ToggleSwitch x:Name="TraySwitch" Grid.Column="1" Header="On" Toggled="TraySwitch_Toggled" />
                     </Grid>
-                    <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Applies to synced displays." />
+                    <Grid ColumnSpacing="14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Foreground="White" FontSize="18" Text="Start with Windows" />
+                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Automatically start Oxygen Taskbar when you sign in." />
+                        </StackPanel>
+                        <ToggleSwitch x:Name="StartupSwitch" Grid.Column="1" Header="On" Toggled="StartupSwitch_Toggled" />
+                    </Grid>
+                    <InfoBar x:Name="StartupPermissionInfo" IsOpen="True" Title="Startup registration" />
+                    <Grid ColumnSpacing="14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="360" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Foreground="White" FontSize="18" Text="Dashboard hotkey" />
+                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Open or focus the Oxygen Taskbar dashboard." />
+                        </StackPanel>
+                        <TextBox x:Name="OpenHotkeyText" Grid.Column="1" IsReadOnly="True" />
+                    </Grid>
+                    <Grid ColumnSpacing="14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="360" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Foreground="White" FontSize="18" Text="Transparency toggle hotkey" />
+                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Toggle taskbar translucency on or off." />
+                        </StackPanel>
+                        <TextBox x:Name="ToggleHotkeyText" Grid.Column="1" IsReadOnly="True" />
+                    </Grid>
                 </StackPanel>
             </Border>
 
@@ -114,7 +175,7 @@
                     <ColumnDefinition Width="180" />
                     <ColumnDefinition Width="220" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Use the preset cards or save this customized Focus Glass profile." VerticalAlignment="Center" />
+                <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Save applies the current tuning profile and app settings." VerticalAlignment="Center" />
                 <Button Grid.Column="1" Style="{StaticResource GlassButtonStyle}" Click="Glass_Click" Content="Reset" />
                 <Button Grid.Column="2" Style="{StaticResource GlassButtonStyle}" Background="{StaticResource OxygenBlueBrush}" Click="SaveFocusGlass_Click" Content="Save changes" />
             </Grid>

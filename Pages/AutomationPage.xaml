@@ -19,7 +19,7 @@
                     <TextBlock Style="{StaticResource OxygenPageTitleTextBlockStyle}" Text="Taskbar Opacity Rules" />
                     <TextBlock FontSize="18" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Define how the taskbar should appear in different states. Rules are evaluated from top to bottom." />
                 </StackPanel>
-                <Button HorizontalAlignment="Right" VerticalAlignment="Top" Style="{StaticResource GlassButtonStyle}" Width="210" Content="Add custom rule" />
+                <Button HorizontalAlignment="Right" VerticalAlignment="Top" Style="{StaticResource GlassButtonStyle}" Width="210" IsEnabled="False" Content="Add custom rule" />
             </Grid>
 
             <Grid Grid.Row="1" ColumnSpacing="16">
@@ -56,8 +56,8 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Foreground="White" Text="1" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Foreground="White" Text="Desktop" VerticalAlignment="Center" />
-                                <ToggleSwitch x:Name="AutomationSwitch" Grid.Column="2" Toggled="AutomationSwitch_Toggled" />
-                                <Slider Grid.Column="3" Maximum="100" Minimum="0" Value="72" />
+                                <ToggleSwitch x:Name="AutomationSwitch" Grid.Column="2" IsEnabled="False" Toggled="AutomationSwitch_Toggled" />
+                                <Slider Grid.Column="3" Maximum="100" Minimum="0" IsEnabled="False" Value="72" />
                                 <TextBlock Grid.Column="4" Foreground="White" Text="72%" VerticalAlignment="Center" />
                             </Grid>
                             <Grid ColumnSpacing="12">
@@ -70,8 +70,8 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Foreground="White" Text="2" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Foreground="White" Text="Hover" VerticalAlignment="Center" />
-                                <ToggleSwitch x:Name="HoverSwitch" Grid.Column="2" Toggled="HoverSwitch_Toggled" />
-                                <Slider Grid.Column="3" Maximum="100" Minimum="0" Value="85" />
+                                <ToggleSwitch x:Name="HoverSwitch" Grid.Column="2" IsEnabled="False" Toggled="HoverSwitch_Toggled" />
+                                <Slider Grid.Column="3" Maximum="100" Minimum="0" IsEnabled="False" Value="85" />
                                 <TextBlock Grid.Column="4" Foreground="White" Text="85%" VerticalAlignment="Center" />
                             </Grid>
                             <Grid ColumnSpacing="12">
@@ -84,8 +84,8 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Foreground="White" Text="3" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Foreground="White" Text="Visible window" VerticalAlignment="Center" />
-                                <ToggleSwitch Grid.Column="2" IsOn="True" />
-                                <Slider Grid.Column="3" Maximum="100" Minimum="0" Value="60" />
+                                <ToggleSwitch Grid.Column="2" IsEnabled="False" IsOn="True" />
+                                <Slider Grid.Column="3" Maximum="100" Minimum="0" IsEnabled="False" Value="60" />
                                 <TextBlock Grid.Column="4" Foreground="White" Text="60%" VerticalAlignment="Center" />
                             </Grid>
                             <Grid ColumnSpacing="12">
@@ -98,8 +98,8 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Foreground="White" Text="4" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Foreground="White" Text="Maximized window" VerticalAlignment="Center" />
-                                <ToggleSwitch Grid.Column="2" IsOn="True" />
-                                <Slider Grid.Column="3" Maximum="100" Minimum="0" Value="42" />
+                                <ToggleSwitch Grid.Column="2" IsEnabled="False" IsOn="True" />
+                                <Slider Grid.Column="3" Maximum="100" Minimum="0" IsEnabled="False" Value="42" />
                                 <TextBlock Grid.Column="4" Foreground="White" Text="42%" VerticalAlignment="Center" />
                             </Grid>
                             <Grid ColumnSpacing="12">
@@ -112,8 +112,8 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Foreground="White" Text="5" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Foreground="White" Text="Fullscreen" VerticalAlignment="Center" />
-                                <ToggleSwitch x:Name="FullscreenSwitch" Grid.Column="2" Toggled="FullscreenSwitch_Toggled" />
-                                <Slider Grid.Column="3" Maximum="100" Minimum="0" Value="0" />
+                                <ToggleSwitch x:Name="FullscreenSwitch" Grid.Column="2" IsEnabled="False" Toggled="FullscreenSwitch_Toggled" />
+                                <Slider Grid.Column="3" Maximum="100" Minimum="0" IsEnabled="False" Value="0" />
                                 <TextBlock Grid.Column="4" Foreground="White" Text="Hidden" VerticalAlignment="Center" />
                             </Grid>
                         </StackPanel>
@@ -140,79 +140,10 @@
 
             <Grid Grid.Row="2" ColumnSpacing="16">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1.2*" />
-                    <ColumnDefinition Width="1.1*" />
-                    <ColumnDefinition Width="1.1*" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
                 <Border Style="{StaticResource OxygenCardBorderStyle}">
-                    <StackPanel Spacing="14">
-                        <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Live automation history" />
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Recent sensor matches and manual previews." />
-                        <ListView x:Name="AutomationHistoryList" MaxHeight="246" SelectionMode="None" Background="Transparent">
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="MinHeight" Value="56" />
-                                    <Setter Property="Padding" Value="0" />
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Margin="0,0,0,8" Padding="12,10" Background="#58233448" CornerRadius="8">
-                                        <Grid ColumnSpacing="10">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="90" />
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="72" />
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="{Binding TimeText}" VerticalAlignment="Center" />
-                                            <StackPanel Grid.Column="1" Spacing="2">
-                                                <TextBlock Foreground="White" FontWeight="SemiBold" Text="{Binding State}" />
-                                                <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="{Binding Detail}" TextWrapping="Wrap" />
-                                            </StackPanel>
-                                            <TextBlock Grid.Column="2" Foreground="{StaticResource OxygenBlueBrush}" FontWeight="SemiBold" Text="{Binding OpacityText}" TextAlignment="Right" VerticalAlignment="Center" />
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </StackPanel>
-                </Border>
-
-                <Border Grid.Column="1" Style="{StaticResource OxygenCardBorderStyle}">
-                    <StackPanel Spacing="16">
-                        <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Sensor calibration" />
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Tune hover detection without changing the rule order." />
-                        <Grid ColumnSpacing="12">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="72" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Foreground="White" Text="Hover edge distance" VerticalAlignment="Center" />
-                            <TextBlock x:Name="HoverDistanceText" Grid.Column="1" Foreground="{StaticResource OxygenBlueBrush}" FontWeight="SemiBold" Text="8 px" TextAlignment="Right" VerticalAlignment="Center" />
-                        </Grid>
-                        <Slider x:Name="HoverDistanceSlider" Minimum="0" Maximum="48" StepFrequency="1" ValueChanged="HoverDistanceSlider_ValueChanged" />
-                        <Grid ColumnSpacing="12">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Foreground="White" Text="Fullscreen overlap detection" VerticalAlignment="Center" />
-                            <TextBlock x:Name="FullscreenCalibrationText" Grid.Column="1" Foreground="{StaticResource OxygenMutedTextBrush}" Text="On" VerticalAlignment="Center" />
-                        </Grid>
-                        <Grid ColumnSpacing="12">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Foreground="White" Text="Last matched sensor" VerticalAlignment="Center" />
-                            <TextBlock x:Name="LastSensorText" Grid.Column="1" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Desktop" VerticalAlignment="Center" />
-                        </Grid>
-                    </StackPanel>
-                </Border>
-
-                <Border Grid.Column="2" Style="{StaticResource OxygenCardBorderStyle}">
                     <StackPanel Spacing="14">
                         <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Conflict review" />
                         <InfoBar x:Name="RuleConflictInfo" Severity="Warning" IsOpen="False" Title="Automation paused" Message="State rules are configured, but automation is disabled. Re-enable automation to let sensors apply them." />
@@ -223,7 +154,7 @@
                                 <TextBlock x:Name="RuleHealthDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Rules are ready for live evaluation." TextWrapping="Wrap" />
                             </StackPanel>
                         </Border>
-                        <Button Click="ResolveConflict_Click" Style="{StaticResource GlassButtonStyle}" Content="Enable automation" />
+                        <Button Click="ResolveConflict_Click" Style="{StaticResource GlassButtonStyle}" IsEnabled="False" Content="Enable automation in Tuning" />
                     </StackPanel>
                 </Border>
             </Grid>
@@ -234,9 +165,9 @@
                     <ColumnDefinition Width="190" />
                     <ColumnDefinition Width="190" />
                 </Grid.ColumnDefinitions>
-                <Button Style="{StaticResource GlassButtonStyle}" Width="210" HorizontalAlignment="Left" Content="Reset to defaults" />
-                <Button Grid.Column="1" Style="{StaticResource GlassButtonStyle}" Content="Discard changes" />
-                <Button Grid.Column="2" Click="Save_Click" Style="{StaticResource GlassButtonStyle}" Background="{StaticResource OxygenBlueBrush}" Content="Save changes" />
+                <Button Style="{StaticResource GlassButtonStyle}" Width="210" HorizontalAlignment="Left" IsEnabled="False" Content="Reset to defaults" />
+                <Button Grid.Column="1" Style="{StaticResource GlassButtonStyle}" IsEnabled="False" Content="Discard changes" />
+                <Button Grid.Column="2" Click="Save_Click" Style="{StaticResource GlassButtonStyle}" Background="{StaticResource OxygenBlueBrush}" IsEnabled="False" Content="Save in Tuning" />
             </Grid>
         </Grid>
     </ScrollViewer>

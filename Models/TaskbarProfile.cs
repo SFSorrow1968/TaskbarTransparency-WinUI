@@ -8,7 +8,24 @@ public sealed record TaskbarProfile(
     int FadeMilliseconds,
     string Easing)
 {
-    public static TaskbarProfile OxygenClear { get; } = new("Oxygen Clear", TaskbarVisualMode.Clear, 32, "#FFFFFF", 180, "CubicOut");
-    public static TaskbarProfile FocusGlass { get; } = new("Focus Glass", TaskbarVisualMode.Acrylic, 72, "#101318", 220, "QuintOut");
-    public static TaskbarProfile NightSolid { get; } = new("Night Solid", TaskbarVisualMode.Solid, 92, "#111827", 120, "Linear");
+    public int FadeInMilliseconds { get; init; } = FadeMilliseconds;
+    public int FadeOutMilliseconds { get; init; } = FadeMilliseconds;
+
+    public static TaskbarProfile OxygenClear { get; } = new("Oxygen Clear", TaskbarVisualMode.Clear, 32, "#FFFFFF", 180, "CubicOut")
+    {
+        FadeInMilliseconds = 180,
+        FadeOutMilliseconds = 180
+    };
+
+    public static TaskbarProfile FocusGlass { get; } = new("Focus Glass", TaskbarVisualMode.Acrylic, 72, "#101318", 220, "QuintOut")
+    {
+        FadeInMilliseconds = 220,
+        FadeOutMilliseconds = 180
+    };
+
+    public static TaskbarProfile NightSolid { get; } = new("Night Solid", TaskbarVisualMode.Solid, 92, "#111827", 120, "Linear")
+    {
+        FadeInMilliseconds = 120,
+        FadeOutMilliseconds = 120
+    };
 }
