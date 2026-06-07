@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="TaskbarTransparency.Pages.HomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:TaskbarTransparency.Pages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer>
+        <Grid Padding="32,24,32,32" RowSpacing="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <StackPanel Spacing="6">
+                <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Oxygen Taskbar" />
+                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="A fluid WinUI 3 taskbar material controller for clear, calm desktop focus." />
+            </StackPanel>
+
+            <Grid Grid.Row="1" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Padding="18" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" CornerRadius="8">
+                    <StackPanel Spacing="4">
+                        <TextBlock Style="{StaticResource SectionHeaderTextBlockStyle}" Text="Profile" />
+                        <TextBlock x:Name="ProfileText" Style="{StaticResource MetricTextBlockStyle}" Text="Clear" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Padding="18" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" CornerRadius="8">
+                    <StackPanel Spacing="4">
+                        <TextBlock Style="{StaticResource SectionHeaderTextBlockStyle}" Text="Opacity" />
+                        <TextBlock x:Name="OpacityText" Style="{StaticResource MetricTextBlockStyle}" Text="32%" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Padding="18" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" CornerRadius="8">
+                    <StackPanel Spacing="4">
+                        <TextBlock Style="{StaticResource SectionHeaderTextBlockStyle}" Text="Taskbars" />
+                        <TextBlock x:Name="TaskbarsText" Style="{StaticResource MetricTextBlockStyle}" Text="0" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Grid.Row="2" Padding="22" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" CornerRadius="8">
+                <Grid ColumnSpacing="24">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.2*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Spacing="16">
+                        <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Live Control" />
+                        <Slider x:Name="OpacitySlider" Header="Base taskbar opacity" Maximum="100" Minimum="0" StepFrequency="1" ValueChanged="OpacitySlider_ValueChanged" />
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <Button Click="ApplyClear_Click" Content="Clear" />
+                            <Button Click="ApplyGlass_Click" Content="Glass" />
+                            <Button Click="ApplySolid_Click" Content="Solid" />
+                            <Button Click="ApplyNow_Click" Content="Apply now" />
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Spacing="12">
+                        <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Runtime" />
+                        <TextBlock x:Name="RuntimeMessageText" TextWrapping="Wrap" />
+                        <TextBlock x:Name="RuntimeTimeText" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</Page>

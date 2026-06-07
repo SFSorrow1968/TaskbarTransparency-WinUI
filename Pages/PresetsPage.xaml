@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="TaskbarTransparency.Pages.PresetsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Padding="32,24,32,32" RowSpacing="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <StackPanel Spacing="6">
+            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Presets" />
+            <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Choose the taskbar material that matches the moment." />
+        </StackPanel>
+        <Grid Grid.Row="1" ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button Padding="0" Click="Clear_Click" HorizontalAlignment="Stretch">
+                <Border Padding="18" CornerRadius="8">
+                    <StackPanel Spacing="8">
+                        <TextBlock FontSize="20" FontWeight="SemiBold" Text="Oxygen Clear" />
+                        <TextBlock TextWrapping="Wrap" Text="Barely-there glass for clean desktops and centered focus." />
+                        <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Clear / 32% / CubicOut" />
+                    </StackPanel>
+                </Border>
+            </Button>
+            <Button Grid.Column="1" Padding="0" Click="Glass_Click" HorizontalAlignment="Stretch">
+                <Border Padding="18" CornerRadius="8">
+                    <StackPanel Spacing="8">
+                        <TextBlock FontSize="20" FontWeight="SemiBold" Text="Focus Glass" />
+                        <TextBlock TextWrapping="Wrap" Text="Soft acrylic presence when windows are active." />
+                        <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Acrylic / 72% / QuintOut" />
+                    </StackPanel>
+                </Border>
+            </Button>
+            <Button Grid.Column="2" Padding="0" Click="Solid_Click" HorizontalAlignment="Stretch">
+                <Border Padding="18" CornerRadius="8">
+                    <StackPanel Spacing="8">
+                        <TextBlock FontSize="20" FontWeight="SemiBold" Text="Night Solid" />
+                        <TextBlock TextWrapping="Wrap" Text="Stable contrast for dim rooms, fullscreen work, and capture." />
+                        <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Solid / 92% / Linear" />
+                    </StackPanel>
+                </Border>
+            </Button>
+        </Grid>
+    </Grid>
+</Page>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Application
+    x:Class="TaskbarTransparency.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:TaskbarTransparency">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+            </ResourceDictionary.MergedDictionaries>
+            <Color x:Key="OxygenInkColor">#FF101318</Color>
+            <Color x:Key="OxygenPanelColor">#CCFFFFFF</Color>
+            <Color x:Key="OxygenBlueColor">#FF2878FF</Color>
+            <Color x:Key="OxygenMintColor">#FF23C58E</Color>
+            <Color x:Key="OxygenAmberColor">#FFFFB454</Color>
+            <SolidColorBrush x:Key="OxygenInkBrush" Color="{StaticResource OxygenInkColor}" />
+            <SolidColorBrush x:Key="OxygenPanelBrush" Color="{StaticResource OxygenPanelColor}" />
+            <SolidColorBrush x:Key="OxygenBlueBrush" Color="{StaticResource OxygenBlueColor}" />
+            <SolidColorBrush x:Key="OxygenMintBrush" Color="{StaticResource OxygenMintColor}" />
+            <SolidColorBrush x:Key="OxygenAmberBrush" Color="{StaticResource OxygenAmberColor}" />
+            <Style x:Key="SectionHeaderTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+            </Style>
+            <Style x:Key="MetricTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="28" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

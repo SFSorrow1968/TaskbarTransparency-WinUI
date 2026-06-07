@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "TaskbarTransparency (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "TaskbarTransparency (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

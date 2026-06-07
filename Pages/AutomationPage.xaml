@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="TaskbarTransparency.Pages.AutomationPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel Padding="32,24,32,32" Spacing="18">
+        <StackPanel Spacing="6">
+            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Automation" />
+            <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="State-aware taskbar opacity without noisy setup." />
+        </StackPanel>
+        <ToggleSwitch x:Name="AutomationSwitch" Header="Adaptive automation" Toggled="AutomationSwitch_Toggled" />
+        <ToggleSwitch x:Name="HoverSwitch" Header="Reveal on hover near taskbar" Toggled="HoverSwitch_Toggled" />
+        <ToggleSwitch x:Name="FullscreenSwitch" Header="Keep taskbar available over fullscreen" Toggled="FullscreenSwitch_Toggled" />
+        <InfoBar IsOpen="True" Severity="Informational" Title="Next build target" Message="Window focus, fullscreen, and hover sensors are scaffolded as policies here; the current pass applies manual and desktop-state changes directly." />
+    </StackPanel>
+</Page>

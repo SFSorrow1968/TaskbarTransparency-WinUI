@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="TaskbarTransparency.csproj" />
+  <Project Path="tests\TaskbarTransparency.Tests\TaskbarTransparency.Tests.csproj" />
+</Solution>
