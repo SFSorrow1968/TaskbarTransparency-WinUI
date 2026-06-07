@@ -17,13 +17,13 @@ PRIORITIES = ["P0", "P1", "P2", "P3"]
 ITEMS = [
     [1, "Screens", "Dashboard", "Live opacity and runtime taskbar control screen.", "P0", "Done", "Refined from generated dashboard reference."],
     [2, "Screens", "Presets", "Material preset selection screen.", "P0", "Done", "Clear, Glass, Solid presets."],
-    [3, "Screens", "Monitors", "Per-display override management screen.", "P1", "In Progress", "Screen exists; native monitor catalog needs expansion."],
+    [3, "Screens", "Monitors", "Per-display override management screen.", "P1", "Done", "Native taskbar-backed monitor catalog added."],
     [4, "Screens", "Automation", "State rules for hover, focus, maximized, and fullscreen.", "P0", "In Progress", "Policy model and toggles are present."],
     [5, "Screens", "Diagnostics", "Runtime apply and state simulation screen.", "P0", "Done", "Manual runtime checks available."],
     [6, "Features", "Taskbar interop", "Apply Windows composition attributes to taskbar windows.", "P0", "Done", "Primary and secondary taskbar handles supported."],
     [7, "Features", "Persistence", "Save profile and behavior settings locally.", "P0", "Done", "JSON settings store implemented."],
-    [8, "Features", "Tray integration", "Background tray menu and open/apply/exit commands.", "P1", "Not Started", "Placeholder host avoids WinUI/WinForms conflict."],
-    [9, "Features", "Global hotkeys", "Register open and toggle shortcuts.", "P1", "Not Started", "Defaults preserved in settings."],
+    [8, "Features", "Tray integration", "Background tray menu and open/apply/toggle/settings/exit commands.", "P1", "Done", "Implemented with Shell_NotifyIcon Win32 host to keep WinUI project shape."],
+    [9, "Features", "Global hotkeys", "Register open and toggle shortcuts.", "P1", "Done", "Ctrl+Alt+G and Ctrl+Alt+T register against the WinUI window handle."],
     [10, "Backend", "Opacity policy", "Resolve opacity from profile and runtime state.", "P0", "Done", "Covered by unit tests."],
     [11, "Backend", "Focus/fullscreen sensors", "Detect active window and fullscreen overlap.", "P1", "Not Started", "Policy hooks exist."],
     [12, "Infrastructure", "Tests", "Focused unit tests for core policy behavior.", "P0", "Done", "8 tests passing."],
@@ -39,6 +39,8 @@ ITEMS = [
     [22, "Screens", "V1 P1 mockup organization", "Organize generated supporting app states and edge cases.", "P1", "Done", "Presets, monitors, automation, diagnostics, settings, tray, about, and alternate onboarding states organized."],
     [23, "Screens", "V1 P1 screen implementation", "Implement supporting app states from the organized V1 P1 mockups.", "P1", "Done", "First-run, preset editor, monitor detail, rule builder, diagnostics error, hotkeys, and about/update surfaces added."],
     [24, "Features", "First-run setup flow", "Route new installs through a local-only onboarding screen before the dashboard.", "P1", "Done", "Start with Oxygen Clear persists completion and enters the dashboard."],
+    [25, "Features", "Startup registration", "Persist Start with Windows through the current-user Run key.", "P1", "Done", "Settings toggle writes and removes the OxygenTaskbar startup value."],
+    [26, "Backend", "Monitor catalog expansion", "Discover taskbar-backed monitor profiles from primary and secondary taskbar windows.", "P1", "Done", "Maps Shell_TrayWnd and Shell_SecondaryTrayWnd windows to monitor device names."],
 ]
 
 TAB_COLORS = {

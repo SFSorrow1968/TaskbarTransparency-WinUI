@@ -1,6 +1,7 @@
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using WinRT.Interop;
 using TaskbarTransparency.Pages;
 using Windows.Graphics;
 
@@ -17,7 +18,9 @@ public sealed partial class MainWindow : Window
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
         AppWindow.Resize(new SizeInt32(1440, 920));
         AppWindow.SetIcon("Assets/AppIcon.ico");
-        ((App)Application.Current).State.ShowWindowRequested += (_, _) => Activate();
+        var state = ((App)Application.Current).State;
+        state.AttachWindow(WindowNative.GetWindowHandle(this));
+        state.ShowWindowRequested += (_, _) => Activate();
         NavFrame.Navigated += (_, _) => AppTitleBar.IsBackButtonVisible = NavFrame.CanGoBack;
         NavigateToInitialPage();
     }
@@ -52,7 +55,7 @@ public sealed partial class MainWindow : Window
     {
         if (args.IsSettingsSelected)
         {
-            NavFrame.Navigate(typeof(SettingsPage));
+            NavigatePage(typeof(SettingsPage));
         }
         else if (args.SelectedItem is NavigationViewItem item)
         {

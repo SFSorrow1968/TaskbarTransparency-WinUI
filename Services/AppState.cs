@@ -9,6 +9,9 @@ public sealed class AppState
     private readonly MonitorCatalog _monitors = new();
     private readonly TaskbarAppearanceService _taskbar = new();
     private readonly TrayIconHost _tray = new();
+    private readonly StartupRegistrationService _startup = new();
+    private readonly GlobalHotkeyService _hotkeys = new();
+    private byte? _opacityBeforeToggle;
 
     public AppSettings Settings { get; private set; } = new();
     public RuntimeSnapshot Runtime { get; } = new();
@@ -21,10 +24,25 @@ public sealed class AppState
     public void Initialize()
     {
         Settings = _store.Load();
+        Settings.StartWithWindows = _startup.IsEnabled();
         RefreshMonitors();
-        _tray.Start(() => ShowWindowRequested?.Invoke(this, EventArgs.Empty), ApplyNow, () => Environment.Exit(0));
+        _tray.Start(
+            () => ShowWindowRequested?.Invoke(this, EventArgs.Empty),
+            ApplyNow,
+            ToggleTransparency,
+            () => Environment.Exit(0));
         _tray.SetVisible(Settings.ShowTrayIcon);
         ApplyNow();
+    }
+
+    public void AttachWindow(IntPtr hwnd)
+    {
+        _hotkeys.Attach(
+            hwnd,
+            Settings.OpenHotkey,
+            Settings.ToggleHotkey,
+            () => ShowWindowRequested?.Invoke(this, EventArgs.Empty),
+            ToggleTransparency);
     }
 
     public void RefreshMonitors()
@@ -81,7 +99,24 @@ public sealed class AppState
     public void SetStartWithWindows(bool enabled)
     {
         Settings.StartWithWindows = enabled;
+        _startup.SetEnabled(enabled);
         SaveAndNotify();
+    }
+
+    public void ToggleTransparency()
+    {
+        if (_opacityBeforeToggle is null)
+        {
+            _opacityBeforeToggle = Settings.ActiveProfile.Opacity;
+            Settings.ActiveProfile = Settings.ActiveProfile with { Opacity = 0 };
+        }
+        else
+        {
+            Settings.ActiveProfile = Settings.ActiveProfile with { Opacity = _opacityBeforeToggle.Value };
+            _opacityBeforeToggle = null;
+        }
+
+        ApplyNow();
     }
 
     public void CompleteFirstRun(TaskbarProfile profile)

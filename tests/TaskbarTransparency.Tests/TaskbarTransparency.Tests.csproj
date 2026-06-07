@@ -18,6 +18,7 @@
     <Compile Include="..\..\Models\*.cs" LinkBase="Models" />
     <Compile Include="..\..\Services\OpacityPolicy.cs" Link="Services\OpacityPolicy.cs" />
     <Compile Include="..\..\Services\TaskbarAppearanceService.cs" Link="Services\TaskbarAppearanceService.cs" />
+    <Compile Include="..\..\Services\GlobalHotkeyService.cs" Link="Services\GlobalHotkeyService.cs" />
   </ItemGroup>
 
   <ItemGroup>
