@@ -11,6 +11,7 @@ public sealed class AppState
     private readonly TrayIconHost _tray = new();
     private readonly StartupRegistrationService _startup = new();
     private readonly GlobalHotkeyService _hotkeys = new();
+    private readonly RuntimeStateSensorService _sensors;
     private byte? _opacityBeforeToggle;
 
     public AppSettings Settings { get; private set; } = new();
@@ -20,6 +21,11 @@ public sealed class AppState
 
     public event EventHandler? Changed;
     public event EventHandler? ShowWindowRequested;
+
+    public AppState()
+    {
+        _sensors = new RuntimeStateSensorService(() => Settings);
+    }
 
     public void Initialize()
     {
@@ -33,6 +39,7 @@ public sealed class AppState
             () => Environment.Exit(0));
         _tray.SetVisible(Settings.ShowTrayIcon);
         ApplyNow();
+        _sensors.Start(trigger => ApplyNow(trigger));
     }
 
     public void AttachWindow(IntPtr hwnd)

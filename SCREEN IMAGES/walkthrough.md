@@ -2,7 +2,7 @@
 
 ## Structure
 
-- `References/V1 P1 Mockups/Prompt_V1_P1_Mockups.txt`: active prompt for the second visual mockup generation pass.
+- `References/V1 P2 Mockups/Prompt_V1_P2_Mockups.txt`: active prompt for the third visual mockup generation pass.
 - `Onboarding/Onboarding_FirstRun_Default.png`: generated first-run setup mockup.
 - `Onboarding/Onboarding_FirstRun_Ready.png`: alternate generated first-run setup mockup with readiness checks.
 - `Presets/Presets_Customize_Edit.png`: generated preset customization mockup.
@@ -35,10 +35,21 @@
 - `Tray_Menu_Open.png`: compact system tray menu state. Generated and organized in `Tray/`.
 - `About_Update_Default.png`: product, version, repository, logs, settings path, and update surface. Generated and organized in `About/`.
 
+### V1 P2 Mockups
+
+- `Automation_LiveHistory_Default.png`: automation history timeline for live runtime state changes.
+- `Automation_SensorCalibration_Default.png`: sensor calibration controls for hover, fullscreen, maximized, and monitor scope.
+- `Automation_RuleConflict_Warning.png`: rule conflict warning and suggested fixes.
+- `Diagnostics_SensorTimeline_Default.png`: detailed runtime sensor telemetry and probe timeline.
+- `Diagnostics_HotkeyConflict_Error.png`: failed hotkey registration recovery state.
+- `Monitors_MultiDisplay_Overview.png`: multi-monitor taskbar overview and sync/override status.
+- `Settings_StartupPermission_Warning.png`: startup registration permission warning state.
+- `Dashboard_RuntimeSensor_Active.png`: dashboard state showing live automation sensor activity.
+
 ## Current State
 
-Dashboard reference was received in chat on 2026-06-07 and used to refine the live WinUI Dashboard screen. The V1 P1 first-run onboarding mockup was generated, visually inspected as a single standalone full-screen UI mockup, renamed, and moved into `Onboarding/`. The remaining V1 P1 generated mockups were also visually inspected, renamed, and organized into their matching logical folders. The tray menu mockup is a desktop tray context state rather than an app-window screen, but it is a single standalone state and not a collage.
+Dashboard reference was received in chat on 2026-06-07 and used to refine the live WinUI Dashboard screen. The V1 P1 first-run onboarding mockup was generated, visually inspected as a single standalone full-screen UI mockup, renamed, and moved into `Onboarding/`. The remaining V1 P1 generated mockups were also visually inspected, renamed, and organized into their matching logical folders. The tray menu mockup is a desktop tray context state rather than an app-window screen, but it is a single standalone state and not a collage. V1 P2 prompt handoff is now active because the implementation has reached runtime automation sensors and needs new generated screens for history, calibration, conflict, recovery, and multi-monitor telemetry states.
 
-The active prompt folder is `References/V1 P1 Mockups/`. No local source screen images are available yet to copy as references; use the prompt file as the handoff artifact for external generation.
+The active prompt folder is `References/V1 P2 Mockups/`. Use the prompt file as the handoff artifact for external generation.
 
 After generated images are placed in this root `SCREEN IMAGES/` directory, verify each file is a single standalone full-screen UI mockup, then rename and move each image into a logical screen folder. Reject and regenerate any storyboard sheet, collage, split-screen, comparison image, contact sheet, or multi-panel grid.

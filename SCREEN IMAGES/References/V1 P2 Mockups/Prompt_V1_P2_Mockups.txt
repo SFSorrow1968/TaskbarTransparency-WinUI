@@ -1,0 +1,29 @@
+Generate one UI mockup at a time for the WinUI 3 desktop app "Oxygen Taskbar".
+
+Hard requirements:
+- Produce only a single, standalone, full-screen UI mockup per generated image.
+- Do not produce storyboard sheets, collages, split-screens, before/after comparisons, contact sheets, or multi-panel grids.
+- Each screen in the sequence must be generated one-by-one as an independent single image.
+- Use a polished Windows 11 WinUI 3 aesthetic with Mica-like depth, crisp typography, restrained color, and oxygen OS grade fluidity.
+- Keep the product practical and quiet: no marketing hero, no decorative blobs, no oversized empty panels.
+- Screen size target: 1440x960 desktop app window unless the requested state is explicitly a system tray or compact overlay state.
+- Use the app name "Oxygen Taskbar".
+- Keep navigation consistent with the app shell: Dashboard, Presets, Monitors, Automation, Diagnostics, Settings, About.
+
+Visual language:
+- Quiet dark shell with adaptive WinUI surfaces, soft neutral cards, and sparing blue, mint, amber, and red status accents.
+- 8px card radius, crisp hierarchy, compact but readable controls, clear focus states, and native Windows 11 control styling.
+- Use icons only where they improve scanning; avoid decorative illustration.
+- Make every screen look like a real, usable app state with believable values, not a marketing concept.
+
+Generate these screens separately:
+1. Automation_LiveHistory_Default: automation screen showing a live timeline of detected state changes for Desktop, Visible window, Maximized, Fullscreen, and Hover, with current resolved opacity, last transition time, and a pause/resume sensor control.
+2. Automation_SensorCalibration_Default: calibration screen for hover reveal distance, fullscreen detection sensitivity, maximized-window behavior, and per-monitor sensor scope, with a live preview panel and save/reset controls.
+3. Automation_RuleConflict_Warning: rule builder warning state where two rules conflict or produce the same priority, with highlighted rows, suggested fixes, and a clear non-blocking save warning.
+4. Diagnostics_SensorTimeline_Default: diagnostics screen focused on runtime sensor telemetry, showing foreground window class, monitor bounds, cursor/taskbar distance, detected trigger, taskbars updated, and recent probe results.
+5. Diagnostics_HotkeyConflict_Error: diagnostics or settings recovery state for a failed global hotkey registration, with conflicting shortcut details, retry button, edit shortcut action, and concise technical cause.
+6. Monitors_MultiDisplay_Overview: multi-monitor overview with primary and secondary taskbars, detected device names, sync/override status, per-display opacity, and last-applied timestamp for each display.
+7. Settings_StartupPermission_Warning: settings state when Start with Windows could not be written, with Run-key permission explanation, retry, open startup folder, and keep disabled actions.
+8. Dashboard_RuntimeSensor_Active: dashboard state after sensors are live, showing current trigger, next likely trigger, automation enabled status, recent state changes, and a compact control to pause automation.
+
+Again: output each screen as one independent full-screen mockup image, never a collage or multi-screen sheet. Generate the screens one-by-one as separate files.
