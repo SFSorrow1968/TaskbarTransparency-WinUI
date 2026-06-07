@@ -23,4 +23,20 @@ public sealed class TaskbarAppearanceServiceTests
 
         Assert.Equal(expected, alpha);
     }
+
+    [Fact]
+    public void EaseProgressForTest_UsesLinearProgress_WhenRequested()
+    {
+        var progress = TaskbarAppearanceService.EaseProgressForTest(0.5, "Linear");
+
+        Assert.Equal(0.5, progress, precision: 3);
+    }
+
+    [Fact]
+    public void EaseProgressForTest_UsesCubicOutFallback_ForSmoothFade()
+    {
+        var progress = TaskbarAppearanceService.EaseProgressForTest(0.5, "CubicOut");
+
+        Assert.Equal(0.875, progress, precision: 3);
+    }
 }

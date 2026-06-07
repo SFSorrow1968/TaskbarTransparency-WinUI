@@ -67,10 +67,20 @@
                             <Button Width="42" Height="42" Content="+" />
                         </StackPanel>
                     </Grid>
-                    <ComboBox Header="Easing" SelectedIndex="0" HorizontalAlignment="Stretch">
-                        <ComboBoxItem Content="Smooth (220 ms)" />
-                        <ComboBoxItem Content="CubicOut (180 ms)" />
-                        <ComboBoxItem Content="Linear (120 ms)" />
+                    <Grid ColumnSpacing="18">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="110" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Foreground="White" Text="Fade speed" VerticalAlignment="Center" />
+                        <Slider x:Name="FadeDurationSlider" Grid.Column="1" Maximum="1000" Minimum="0" StepFrequency="10" ValueChanged="FadeDurationSlider_ValueChanged" />
+                        <TextBlock x:Name="FadeDurationText" Grid.Column="2" FontSize="22" FontWeight="SemiBold" Foreground="White" Text="220 ms" VerticalAlignment="Center" />
+                    </Grid>
+                    <ComboBox x:Name="EasingComboBox" Header="Easing" SelectedIndex="0" HorizontalAlignment="Stretch">
+                        <ComboBoxItem Content="Smooth cubic out" Tag="CubicOut" />
+                        <ComboBoxItem Content="Quick quint out" Tag="QuintOut" />
+                        <ComboBoxItem Content="Linear" Tag="Linear" />
                     </ComboBox>
                 </StackPanel>
             </Border>

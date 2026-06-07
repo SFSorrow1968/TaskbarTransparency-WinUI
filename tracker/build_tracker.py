@@ -50,6 +50,7 @@ ITEMS = [
     [33, "Screens", "Multi-display overview", "Implement monitor overview with multi-display state and recent actions.", "P1", "Done", "Monitor page shows display KPIs, detected display rows, sync state, and recent monitor actions."],
     [34, "Screens", "Startup permission warning", "Implement startup registration failure recovery state.", "P1", "Done", "Settings shows startup registration status, permission warning copy, and retry recovery."],
     [35, "Features", "Whole taskbar transparency parity", "Match old repo behavior by fading taskbar windows and icons, not only accent material.", "P0", "Done", "Taskbar interop now applies WS_EX_LAYERED and SetLayeredWindowAttributes after material composition."],
+    [36, "Features", "Fade transition controls", "Expose fade duration and easing settings and animate taskbar opacity changes.", "P1", "Done", "Presets now save fade speed/easing and taskbar alpha changes animate with cancellable easing."],
 ]
 
 TAB_COLORS = {

@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using TaskbarTransparency.Models;
 
@@ -13,6 +14,10 @@ public sealed class TaskbarAppearanceService
     private const int AccentEnableTransparentGradient = 2;
     private const int AccentEnableBlurBehind = 3;
     private const int AccentEnableAcrylicBlurBehind = 4;
+    private const int MinimumFrameMilliseconds = 16;
+    private readonly ConcurrentDictionary<IntPtr, byte> _currentAlphas = new();
+    private readonly object _animationSync = new();
+    private CancellationTokenSource? _animationCancellation;
 
     public int Apply(TaskbarProfile profile, byte opacity)
     {
@@ -20,9 +25,10 @@ public sealed class TaskbarAppearanceService
         foreach (var handle in handles)
         {
             Apply(handle, profile, opacity);
-            ApplyWholeTaskbarAlpha(handle, opacity);
+            EnsureLayeredWindow(handle);
         }
 
+        AnimateWholeTaskbarAlpha(handles, opacity, profile.FadeMilliseconds, profile.Easing);
         return handles.Length;
     }
 
@@ -83,6 +89,7 @@ public sealed class TaskbarAppearanceService
 
     public static int ComposeColorForTest(string hex, byte opacity) => ComposeColor(hex, opacity);
     public static byte ConvertOpacityToAlphaForTest(byte opacity) => ConvertOpacityToAlpha(opacity);
+    public static double EaseProgressForTest(double progress, string easing) => EaseProgress(progress, easing);
 
     private static int ComposeColor(string hex, byte opacity)
     {
@@ -94,15 +101,90 @@ public sealed class TaskbarAppearanceService
         return (alpha << 24) | (b << 16) | (g << 8) | r;
     }
 
-    private static void ApplyWholeTaskbarAlpha(IntPtr handle, byte opacity)
+    private void AnimateWholeTaskbarAlpha(IReadOnlyCollection<IntPtr> handles, byte opacity, int fadeMilliseconds, string easing)
+    {
+        var targetAlpha = ConvertOpacityToAlpha(opacity);
+        if (handles.Count == 0)
+        {
+            _currentAlphas.Clear();
+            return;
+        }
+
+        CancellationTokenSource cancellation;
+        lock (_animationSync)
+        {
+            _animationCancellation?.Cancel();
+            _animationCancellation?.Dispose();
+            _animationCancellation = new CancellationTokenSource();
+            cancellation = _animationCancellation;
+        }
+
+        if (fadeMilliseconds <= 0)
+        {
+            foreach (var handle in handles)
+            {
+                ApplyLayeredAlpha(handle, targetAlpha);
+            }
+
+            return;
+        }
+
+        var starts = handles.ToDictionary(handle => handle, handle => _currentAlphas.GetValueOrDefault(handle, targetAlpha));
+        _ = Task.Run(async () =>
+        {
+            var token = cancellation.Token;
+            var started = Environment.TickCount64;
+            try
+            {
+                while (true)
+                {
+                    token.ThrowIfCancellationRequested();
+                    var elapsed = Environment.TickCount64 - started;
+                    var progress = Math.Clamp(elapsed / (double)fadeMilliseconds, 0d, 1d);
+                    var eased = EaseProgress(progress, easing);
+
+                    foreach (var handle in handles)
+                    {
+                        var start = starts[handle];
+                        var alpha = (byte)Math.Clamp((int)Math.Round(start + ((targetAlpha - start) * eased)), 0, 255);
+                        ApplyLayeredAlpha(handle, alpha);
+                    }
+
+                    if (progress >= 1d)
+                    {
+                        break;
+                    }
+
+                    await Task.Delay(MinimumFrameMilliseconds, token).ConfigureAwait(false);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }, cancellation.Token);
+    }
+
+    private void ApplyLayeredAlpha(IntPtr handle, byte alpha)
     {
         EnsureLayeredWindow(handle);
-        SetLayeredWindowAttributes(handle, 0, ConvertOpacityToAlpha(opacity), LwaAlpha);
+        SetLayeredWindowAttributes(handle, 0, alpha, LwaAlpha);
+        _currentAlphas[handle] = alpha;
     }
 
     private static byte ConvertOpacityToAlpha(byte opacity)
     {
         return (byte)Math.Clamp(opacity * 255 / 100, 0, 255);
+    }
+
+    private static double EaseProgress(double progress, string easing)
+    {
+        var clamped = Math.Clamp(progress, 0d, 1d);
+        return easing switch
+        {
+            "Linear" => clamped,
+            "QuintOut" => 1d - Math.Pow(1d - clamped, 5d),
+            _ => 1d - Math.Pow(1d - clamped, 3d)
+        };
     }
 
     private static void EnsureLayeredWindow(IntPtr handle)
