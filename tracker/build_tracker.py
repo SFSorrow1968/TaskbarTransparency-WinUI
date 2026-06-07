@@ -30,10 +30,11 @@ ITEMS = [
     [13, "Infrastructure", "Launcher", "Build and launch script with log cleanup.", "P0", "Done", "Batch launcher added."],
     [14, "Infrastructure", "Release snapshot", "SemVer snapshot branch/tag publishing script.", "P0", "Done", "Script added for new remote."],
     [15, "Infrastructure", "Remote repository", "Own GitHub remote for WinUI rebuild.", "P0", "Done", "Remote created and main/snapshots pushed."],
-    [16, "Screens", "Generated mockups", "Single-screen generated images for key views.", "P1", "Blocked", "Waiting for user-generated images."],
+    [16, "Screens", "Generated mockups", "Single-screen generated images for key views.", "P1", "In Progress", "V1 P1 prompt batch prepared; waiting for user-generated images."],
     [17, "Infrastructure", "Release build hygiene", "Keep Release x64 build free of app warnings.", "P0", "Done", "Source-generated settings JSON and trimming disabled."],
     [18, "Screens", "Dashboard visual polish", "Match Dashboard layout to generated Oxygen Taskbar direction.", "P0", "Done", "Dark shell, KPI cards, opacity rail, segmented actions, and runtime rows."],
     [19, "Infrastructure", "Self-contained launch", "Launch unpackaged WinUI without requiring registered Windows App Runtime.", "P0", "Done", "Windows App SDK self-contained settings added and launcher verified."],
+    [20, "Screens", "V1 P1 mockup prompt handoff", "Prompt next batch of supporting app states and edge cases.", "P1", "Done", "Covers onboarding, customization, monitor detail, automation builder, diagnostics error, hotkeys, tray, and about/update."],
 ]
 
 TAB_COLORS = {

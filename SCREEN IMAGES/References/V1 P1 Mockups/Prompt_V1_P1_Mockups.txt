@@ -1,0 +1,29 @@
+Generate one UI mockup at a time for the WinUI 3 desktop app "Oxygen Taskbar".
+
+Hard requirements:
+- Produce only a single, standalone, full-screen UI mockup per generated image.
+- Do not produce storyboard sheets, collages, split-screens, before/after comparisons, contact sheets, or multi-panel grids.
+- Each screen in the sequence must be generated one-by-one as an independent single image.
+- Use a polished Windows 11 WinUI 3 aesthetic with Mica-like depth, crisp typography, restrained color, and oxygen OS grade fluidity.
+- Keep the product practical and quiet: no marketing hero, no decorative blobs, no oversized empty panels.
+- Screen size target: 1440x960 desktop app window.
+- Use the app name "Oxygen Taskbar".
+- Keep navigation consistent with the app shell: Dashboard, Presets, Monitors, Automation, Diagnostics, Settings, About.
+
+Visual language:
+- Quiet dark shell with adaptive light/dark WinUI surfaces, soft neutral cards, and sparing blue and mint accents.
+- 8px card radius, crisp hierarchy, compact but readable controls, clear focus states, and native Windows 11 control styling.
+- Use icons only where they improve scanning; avoid decorative illustration.
+- Make every screen look like a real, usable app state with believable values, not a marketing concept.
+
+Generate these screens separately:
+1. Onboarding_FirstRun_Default: first-run setup screen for Oxygen Taskbar with app name, calm introduction, "Start with Oxygen Clear" primary action, "Import existing settings" secondary action, settings path note, and privacy-friendly local-only copy.
+2. Presets_Customize_Edit: preset editor for "Focus Glass" with material selector, opacity slider at 72%, easing dropdown, preview strip, save/reset controls, and a small "applies to synced displays" note.
+3. Monitors_Override_Detail: monitor detail view for a secondary display with sync toggle off, monitor name and device id, per-display opacity slider, material picker, taskbar detected status, and apply/revert controls.
+4. Automation_RuleBuilder_Default: rule builder for desktop, hover, visible window, maximized window, and fullscreen states with per-state opacity targets, enable toggles, drag handles or priority ordering, and a live resolved-state preview.
+5. Diagnostics_Error_NoTaskbar: diagnostics state when no taskbar window is detected, with clear error title, probable causes, latest launcher log path, retry/apply buttons, and compact technical detail area.
+6. Settings_Hotkeys_Edit: settings screen for editing dashboard and transparency toggle hotkeys with capture fields, conflict warning, tray icon toggle, start with Windows toggle, save/cancel controls, and calm confirmation state.
+7. Tray_Menu_Open: compact Windows system tray context menu for Oxygen Taskbar with current profile, opacity, Open Dashboard, Apply Now, Toggle Transparency, Settings, and Exit.
+8. About_Update_Default: About screen with product identity, version, repository link, local settings path, license/status rows, and buttons for View logs, Open settings file, and Check for updates.
+
+Again: output each screen as one independent full-screen mockup image, never a collage or multi-screen sheet. Generate the screens one-by-one as separate files.
