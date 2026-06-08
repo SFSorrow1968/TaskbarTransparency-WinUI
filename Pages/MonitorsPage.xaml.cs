@@ -8,13 +8,31 @@ namespace TaskbarTransparency.Pages;
 public sealed partial class MonitorsPage : Page
 {
     private readonly AppState _state = ((App)Application.Current).State;
+    private string _monitorListSignature = string.Empty;
+    private string _recentActionsSignature = string.Empty;
     private bool _loading;
 
     public MonitorsPage()
     {
         InitializeComponent();
-        Loaded += (_, _) => Refresh();
-        _state.Changed += (_, _) => DispatcherQueue.TryEnqueue(Refresh);
+        Loaded += Page_Loaded;
+        Unloaded += Page_Unloaded;
+    }
+
+    private void Page_Loaded(object sender, RoutedEventArgs e)
+    {
+        _state.Changed += State_Changed;
+        Refresh();
+    }
+
+    private void Page_Unloaded(object sender, RoutedEventArgs e)
+    {
+        _state.Changed -= State_Changed;
+    }
+
+    private void State_Changed(object? sender, EventArgs e)
+    {
+        DispatcherQueue.TryEnqueue(Refresh);
     }
 
     private void Refresh()
@@ -24,18 +42,29 @@ public sealed partial class MonitorsPage : Page
         TotalDisplaysText.Text = _state.Monitors.Count.ToString();
         SyncedDisplaysText.Text = _state.Monitors.Count(item => item.SyncWithPrimary).ToString();
         TaskbarsUpdatedText.Text = _state.Runtime.TaskbarsUpdated.ToString();
-        MonitorOverviewList.ItemsSource = _state.Monitors
-            .Select(item => new MonitorOverviewRow(
-                item.FriendlyName,
-                item.DeviceName,
-                item.SyncWithPrimary ? "Synced" : "Override",
-                $"{item.OverrideOpacity}%"))
-            .ToList();
-        RecentMonitorActionsList.ItemsSource = _state.Runtime.RecentEvents
-            .Select(item => new MonitorActionRow(
-                $"{RuntimeTriggerText.Label(item.State)} - {item.Opacity}%",
-                $"{item.TaskbarsUpdated} taskbar{(item.TaskbarsUpdated == 1 ? string.Empty : "s")} updated at {item.Time:h:mm:ss tt}"))
-            .ToList();
+        var monitorListSignature = MonitorListSignature();
+        if (_monitorListSignature != monitorListSignature)
+        {
+            _monitorListSignature = monitorListSignature;
+            MonitorOverviewList.ItemsSource = _state.Monitors
+                .Select(item => new MonitorOverviewRow(
+                    item.FriendlyName,
+                    item.DeviceName,
+                    item.SyncWithPrimary ? "Synced" : "Override",
+                    $"{item.OverrideOpacity}%"))
+                .ToList();
+        }
+
+        var recentActionsSignature = RuntimeEventsSignature();
+        if (_recentActionsSignature != recentActionsSignature)
+        {
+            _recentActionsSignature = recentActionsSignature;
+            RecentMonitorActionsList.ItemsSource = _state.Runtime.RecentEvents
+                .Select(item => new MonitorActionRow(
+                    $"{RuntimeTriggerText.Label(item.State)} - {item.Opacity}%",
+                    $"{item.TaskbarsUpdated} taskbar{(item.TaskbarsUpdated == 1 ? string.Empty : "s")} updated at {item.Time:h:mm:ss tt}"))
+                .ToList();
+        }
 
         if (monitor is null)
         {
@@ -103,6 +132,18 @@ public sealed partial class MonitorsPage : Page
     private void UpdateOverrideControlState()
     {
         OverrideOpacitySlider.IsEnabled = !SyncSwitch.IsOn;
+    }
+
+    private string MonitorListSignature()
+    {
+        return string.Join('|', _state.Monitors.Select(item =>
+            $"{item.DeviceName}:{item.FriendlyName}:{item.IsPrimary}:{item.SyncWithPrimary}:{item.OverrideOpacity}"));
+    }
+
+    private string RuntimeEventsSignature()
+    {
+        return string.Join('|', _state.Runtime.RecentEvents.Select(item =>
+            $"{item.Time.UtcTicks}:{item.State}:{item.Opacity}:{item.TaskbarsUpdated}"));
     }
 
     private sealed record MonitorOverviewRow(string Name, string Device, string SyncState, string OpacityText);

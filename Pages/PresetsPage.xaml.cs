@@ -20,8 +20,29 @@ public sealed partial class PresetsPage : Page
         _hoverDistanceCommitTimer = DispatcherQueue.CreateTimer();
         _hoverDistanceCommitTimer.Interval = TimeSpan.FromMilliseconds(350);
         _hoverDistanceCommitTimer.Tick += CommitPendingHoverDistance;
-        Loaded += (_, _) => Refresh();
-        _state.Changed += (_, _) => DispatcherQueue.TryEnqueue(Refresh);
+        Loaded += Page_Loaded;
+        Unloaded += Page_Unloaded;
+    }
+
+    private void Page_Loaded(object sender, RoutedEventArgs e)
+    {
+        _state.Changed += State_Changed;
+        Refresh();
+    }
+
+    private void Page_Unloaded(object sender, RoutedEventArgs e)
+    {
+        _state.Changed -= State_Changed;
+        if (_hoverDistanceCommitTimer.IsRunning)
+        {
+            _hoverDistanceCommitTimer.Stop();
+            _state.SetHoverDistance(_pendingHoverDistance);
+        }
+    }
+
+    private void State_Changed(object? sender, EventArgs e)
+    {
+        DispatcherQueue.TryEnqueue(Refresh);
     }
 
     private void Apply(TaskbarProfile profile)

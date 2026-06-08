@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml;
 
 namespace TaskbarTransparency.Pages;
 
@@ -13,8 +14,24 @@ public sealed partial class SettingsPage : Page
     public SettingsPage()
     {
         InitializeComponent();
-        Loaded += (_, _) => Refresh();
-        _state.Changed += (_, _) => DispatcherQueue.TryEnqueue(Refresh);
+        Loaded += Page_Loaded;
+        Unloaded += Page_Unloaded;
+    }
+
+    private void Page_Loaded(object sender, RoutedEventArgs e)
+    {
+        _state.Changed += State_Changed;
+        Refresh();
+    }
+
+    private void Page_Unloaded(object sender, RoutedEventArgs e)
+    {
+        _state.Changed -= State_Changed;
+    }
+
+    private void State_Changed(object? sender, EventArgs e)
+    {
+        DispatcherQueue.TryEnqueue(Refresh);
     }
 
     private void Refresh()

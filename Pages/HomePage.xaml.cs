@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml;
 using TaskbarTransparency.Models;
 using TaskbarTransparency.Services;
 
@@ -13,6 +14,7 @@ public sealed partial class HomePage : Page
     private readonly AppState _state = ((App)Microsoft.UI.Xaml.Application.Current).State;
     private readonly DispatcherQueueTimer _opacityCommitTimer;
     private double _pendingOpacity;
+    private string _recentEventsSignature = string.Empty;
     private bool _loading = true;
 
     public HomePage()
@@ -21,8 +23,29 @@ public sealed partial class HomePage : Page
         _opacityCommitTimer = DispatcherQueue.CreateTimer();
         _opacityCommitTimer.Interval = TimeSpan.FromMilliseconds(350);
         _opacityCommitTimer.Tick += CommitPendingOpacity;
-        Loaded += (_, _) => Refresh();
-        _state.Changed += (_, _) => DispatcherQueue.TryEnqueue(Refresh);
+        Loaded += Page_Loaded;
+        Unloaded += Page_Unloaded;
+    }
+
+    private void Page_Loaded(object sender, RoutedEventArgs e)
+    {
+        _state.Changed += State_Changed;
+        Refresh();
+    }
+
+    private void Page_Unloaded(object sender, RoutedEventArgs e)
+    {
+        _state.Changed -= State_Changed;
+        if (_opacityCommitTimer.IsRunning)
+        {
+            _opacityCommitTimer.Stop();
+            _state.SetOpacity(_pendingOpacity);
+        }
+    }
+
+    private void State_Changed(object? sender, EventArgs e)
+    {
+        DispatcherQueue.TryEnqueue(Refresh);
     }
 
     private void Refresh()
@@ -42,13 +65,19 @@ public sealed partial class HomePage : Page
         RuntimeMessageText.Text = _state.Runtime.LastMessage;
         RuntimeTimeText.Text = _state.Runtime.LastAppliedAt.ToString("MMM d, h:mm tt");
         SyncStateText.Text = _state.Monitors.Count <= 1 ? "Primary taskbar in sync" : "All taskbars in sync";
-        RecentEventsList.ItemsSource = _state.Runtime.RecentEvents
-            .Select(item => new RuntimeEventRow(
-                item.Time.ToString("h:mm:ss tt"),
-                RuntimeTriggerText.Label(item.State),
-                $"{item.Profile} - {item.Message} - {item.TaskbarsUpdated} taskbar{(item.TaskbarsUpdated == 1 ? string.Empty : "s")}",
-                $"{item.Opacity}%"))
-            .ToList();
+        var recentEventsSignature = RuntimeEventsSignature();
+        if (_recentEventsSignature != recentEventsSignature)
+        {
+            _recentEventsSignature = recentEventsSignature;
+            RecentEventsList.ItemsSource = _state.Runtime.RecentEvents
+                .Select(item => new RuntimeEventRow(
+                    item.Time.ToString("h:mm:ss tt"),
+                    RuntimeTriggerText.Label(item.State),
+                    $"{item.Profile} - {item.Message} - {item.TaskbarsUpdated} taskbar{(item.TaskbarsUpdated == 1 ? string.Empty : "s")}",
+                    $"{item.Opacity}%"))
+                .ToList();
+        }
+
         OpacitySlider.Value = _state.Settings.ActiveProfile.Opacity;
         _loading = false;
     }
@@ -87,6 +116,12 @@ public sealed partial class HomePage : Page
             nameof(AutomationTrigger.Hover) => "Pointer is near a taskbar edge",
             _ => "Watching windows, fullscreen, and hover"
         };
+    }
+
+    private string RuntimeEventsSignature()
+    {
+        return string.Join('|', _state.Runtime.RecentEvents.Select(item =>
+            $"{item.Time.UtcTicks}:{item.State}:{item.Profile}:{item.Opacity}:{item.TaskbarsUpdated}:{item.Message}"));
     }
 
     private sealed record RuntimeEventRow(string TimeText, string State, string Detail, string OpacityText);

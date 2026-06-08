@@ -11,12 +11,29 @@ namespace TaskbarTransparency.Pages;
 public sealed partial class DiagnosticsPage : Page
 {
     private readonly AppState _state = ((App)Application.Current).State;
+    private string _timelineSignature = string.Empty;
 
     public DiagnosticsPage()
     {
         InitializeComponent();
-        Loaded += (_, _) => Refresh();
-        _state.Changed += (_, _) => DispatcherQueue.TryEnqueue(Refresh);
+        Loaded += Page_Loaded;
+        Unloaded += Page_Unloaded;
+    }
+
+    private void Page_Loaded(object sender, RoutedEventArgs e)
+    {
+        _state.Changed += State_Changed;
+        Refresh();
+    }
+
+    private void Page_Unloaded(object sender, RoutedEventArgs e)
+    {
+        _state.Changed -= State_Changed;
+    }
+
+    private void State_Changed(object? sender, EventArgs e)
+    {
+        DispatcherQueue.TryEnqueue(Refresh);
     }
 
     private void Refresh()
@@ -42,12 +59,17 @@ public sealed partial class DiagnosticsPage : Page
         RecoverySecondaryButton.Visibility = recovery.ShowSecondaryAction ? Visibility.Visible : Visibility.Collapsed;
         RecoveryHelperText.Text = recovery.HelperText;
         DetailsText.Text = $"State: {runtime.State}\nProfile: {runtime.AppliedProfile}\nTaskbars updated: {runtime.TaskbarsUpdated}\nLast applied: {runtime.LastAppliedAt:O}";
-        SensorTimelineList.ItemsSource = runtime.RecentEvents
-            .Select(item => new SensorTimelineRow(
-                item.Time.ToString("h:mm:ss tt"),
-                RuntimeTriggerText.Label(item.State),
-                $"{item.Profile} applied {item.Opacity}% opacity and updated {item.TaskbarsUpdated} taskbar{(item.TaskbarsUpdated == 1 ? string.Empty : "s")}."))
-            .ToList();
+        var timelineSignature = RuntimeEventsSignature(runtime);
+        if (_timelineSignature != timelineSignature)
+        {
+            _timelineSignature = timelineSignature;
+            SensorTimelineList.ItemsSource = runtime.RecentEvents
+                .Select(item => new SensorTimelineRow(
+                    item.Time.ToString("h:mm:ss tt"),
+                    RuntimeTriggerText.Label(item.State),
+                    $"{item.Profile} applied {item.Opacity}% opacity and updated {item.TaskbarsUpdated} taskbar{(item.TaskbarsUpdated == 1 ? string.Empty : "s")}."))
+                .ToList();
+        }
 
         var hotkeyStatus = _state.HotkeyStatus;
         var hotkeysReady = hotkeyStatus.IsReady;
@@ -89,6 +111,12 @@ public sealed partial class DiagnosticsPage : Page
         }
 
         return Path.Combine(AppContext.BaseDirectory, "launcher-logs");
+    }
+
+    private static string RuntimeEventsSignature(RuntimeSnapshot runtime)
+    {
+        return string.Join('|', runtime.RecentEvents.Select(item =>
+            $"{item.Time.UtcTicks}:{item.State}:{item.Profile}:{item.Opacity}:{item.TaskbarsUpdated}:{item.Message}"));
     }
 
     private sealed record SensorTimelineRow(string TimeText, string State, string Detail);
