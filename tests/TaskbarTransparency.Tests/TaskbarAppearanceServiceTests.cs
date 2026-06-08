@@ -153,6 +153,18 @@ public sealed class TaskbarAppearanceServiceTests
     }
 
     [Fact]
+    public void DistinctByHandleForTest_PreservesFirstTargetPerHandle()
+    {
+        var first = new TaskbarWindowInfo(new IntPtr(1), "Shell_TrayWnd", "Primary", true);
+        var duplicate = new TaskbarWindowInfo(new IntPtr(1), "Shell_SecondaryTrayWnd", "Duplicate", false);
+        var second = new TaskbarWindowInfo(new IntPtr(2), "Shell_SecondaryTrayWnd", "Secondary", false);
+
+        var distinct = TaskbarAppearanceService.DistinctByHandleForTest([first, duplicate, second]);
+
+        Assert.Equal([first, second], distinct);
+    }
+
+    [Fact]
     public void ShouldApplyLayeredAlphaForTest_SkipsUnchangedAlpha()
     {
         Assert.False(TaskbarAppearanceService.ShouldApplyLayeredAlphaForTest(128, 128));

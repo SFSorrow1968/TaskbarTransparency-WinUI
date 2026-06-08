@@ -1,0 +1,12 @@
+Target: taskbar apply target de-duplication
+Date: 2026-06-08
+Runtime: .NET 10.0.203 SDK, WinUI desktop app
+
+Baseline evidence:
+- TaskbarAppearanceService.Apply used GroupBy + Select + ToArray to keep the first taskbar target per handle.
+- The apply path then built dictionaries sized by default capacity.
+- This path runs during startup, profile changes, runtime sensor applies, and manual reapply.
+
+Validation baseline:
+- Pre-change repo state was clean on main...origin/main.
+- Previous pass snapshot baseline: v0.1.56.

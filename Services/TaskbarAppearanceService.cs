@@ -24,12 +24,9 @@ public sealed class TaskbarAppearanceService
 
     public int Apply(TaskbarProfile profile, byte opacity, IReadOnlyCollection<MonitorProfile>? monitors = null)
     {
-        var targets = TaskbarWindowCatalog.GetCurrent()
-            .GroupBy(target => target.Handle)
-            .Select(group => group.First())
-            .ToArray();
+        var targets = DistinctByHandle(TaskbarWindowCatalog.GetCurrent());
         var monitorLookup = BuildMonitorOverrideLookup(monitors);
-        var alphaTargets = new Dictionary<IntPtr, byte>();
+        var alphaTargets = new Dictionary<IntPtr, byte>(targets.Count);
         var compositionApplied = 0;
         var compositionSkipped = 0;
         foreach (var target in targets)
@@ -51,7 +48,7 @@ public sealed class TaskbarAppearanceService
         PruneStaleHandles(targets.Select(target => target.Handle));
         var alphaSummary = AnimateTaskbarAlpha(alphaTargets, profile);
         Diagnostics = TaskbarApplyDiagnostics.Create(
-            targets.Length,
+            targets.Count,
             compositionApplied,
             compositionSkipped,
             alphaSummary.LayeredAlphaChanges,
@@ -59,7 +56,7 @@ public sealed class TaskbarAppearanceService
             monitorLookup is not null,
             alphaSummary.AnimationStarted,
             DateTimeOffset.Now);
-        return targets.Length;
+        return targets.Count;
     }
 
     private bool ApplyIfChanged(IntPtr handle, TaskbarProfile profile, byte opacity)
@@ -113,6 +110,7 @@ public sealed class TaskbarAppearanceService
     public static TaskbarApplyDiagnostics CreateDiagnosticsForTest(int targetCount, int compositionApplied, int compositionSkipped, int layeredAlphaChanges, int layeredAlphaNoOps, bool monitorLookupBuilt, bool animationStarted) => TaskbarApplyDiagnostics.Create(targetCount, compositionApplied, compositionSkipped, layeredAlphaChanges, layeredAlphaNoOps, monitorLookupBuilt, animationStarted, DateTimeOffset.UnixEpoch);
     public static IReadOnlyCollection<IntPtr> FindStaleHandlesForTest(IEnumerable<IntPtr> cachedHandles, IEnumerable<IntPtr> liveHandles) => FindStaleHandles(cachedHandles, liveHandles);
     public static bool NeedsMonitorOverrideLookupForTest(IReadOnlyCollection<MonitorProfile>? monitors) => NeedsMonitorOverrideLookup(monitors);
+    public static IReadOnlyList<TaskbarWindowInfo> DistinctByHandleForTest(IReadOnlyList<TaskbarWindowInfo> targets) => DistinctByHandle(targets);
 
     private static int ComposeColor(string hex, byte opacity)
     {
@@ -136,6 +134,26 @@ public sealed class TaskbarAppearanceService
                 _ => AccentDisabled
             },
             ComposeColor(profile.AccentHex, opacity));
+    }
+
+    private static IReadOnlyList<TaskbarWindowInfo> DistinctByHandle(IReadOnlyList<TaskbarWindowInfo> targets)
+    {
+        if (targets.Count <= 1)
+        {
+            return targets;
+        }
+
+        var seen = new HashSet<IntPtr>();
+        var distinct = new List<TaskbarWindowInfo>(targets.Count);
+        foreach (var target in targets)
+        {
+            if (seen.Add(target.Handle))
+            {
+                distinct.Add(target);
+            }
+        }
+
+        return distinct;
     }
 
     private AlphaApplySummary AnimateTaskbarAlpha(IReadOnlyDictionary<IntPtr, byte> targetOpacities, TaskbarProfile profile)
