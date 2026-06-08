@@ -98,6 +98,7 @@ ITEMS = [
     [81, "Infrastructure", "Layered alpha change loop allocation reduction", "Avoid LINQ iterator and dictionary projection overhead while collecting changed layered-alpha targets.", "P1", "Done", "TaskbarAppearanceService now builds alpha-change targets in one pre-sized loop while preserving skip counters for Diagnostics."],
     [82, "Infrastructure", "Taskbar target dedupe allocation reduction", "Avoid LINQ grouping when de-duplicating taskbar targets by window handle before apply.", "P1", "Done", "TaskbarAppearanceService now preserves first target per handle with a single loop and pre-sizes per-apply target dictionaries."],
     [83, "Infrastructure", "Stale taskbar cache pruning allocation reduction", "Avoid LINQ projection and stale-handle arrays while pruning cached taskbar state after apply.", "P1", "Done", "TaskbarAppearanceService now prunes alpha and appearance caches directly against one live handle set built from current taskbar targets."],
+    [84, "Infrastructure", "Monitor override lookup loop allocation reduction", "Avoid double-scanning and LINQ grouping when building per-monitor override lookup data.", "P1", "Done", "TaskbarAppearanceService now builds unsynced monitor override lookup entries in one loop and returns no dictionary for fully synced monitor sets."],
 ]
 
 TAB_COLORS = {

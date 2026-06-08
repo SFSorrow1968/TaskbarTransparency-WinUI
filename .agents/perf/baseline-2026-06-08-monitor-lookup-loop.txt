@@ -1,0 +1,12 @@
+Target: monitor override lookup construction
+Date: 2026-06-08
+Runtime: .NET 10.0.203 SDK, WinUI desktop app
+
+Baseline evidence:
+- TaskbarAppearanceService.BuildMonitorOverrideLookup first scanned monitors with Any.
+- When an unsynced monitor existed, it then used Where + GroupBy + ToDictionary to build the lookup.
+- The lookup is used in the taskbar apply path when per-monitor overrides are active.
+
+Validation baseline:
+- Pre-change repo state was clean on main...origin/main.
+- Previous pass snapshot baseline: v0.1.58.

@@ -134,6 +134,22 @@ public sealed class TaskbarAppearanceServiceTests
     }
 
     [Fact]
+    public void BuildMonitorOverrideLookupForTest_PreservesFirstUnsyncedMonitorPerDevice()
+    {
+        var first = new MonitorProfile { DeviceName = "Display2", SyncWithPrimary = false, OverrideOpacity = 44 };
+        var duplicate = new MonitorProfile { DeviceName = "display2", SyncWithPrimary = false, OverrideOpacity = 88 };
+        var lookup = TaskbarAppearanceService.BuildMonitorOverrideLookupForTest([
+            new MonitorProfile { DeviceName = "Primary", SyncWithPrimary = true, OverrideOpacity = 12 },
+            first,
+            duplicate
+        ]);
+
+        Assert.NotNull(lookup);
+        Assert.Single(lookup);
+        Assert.Same(first, lookup["DISPLAY2"]);
+    }
+
+    [Fact]
     public void CreateDiagnosticsForTest_ComputesSkipRatiosAndClampsCounts()
     {
         var diagnostics = TaskbarAppearanceService.CreateDiagnosticsForTest(

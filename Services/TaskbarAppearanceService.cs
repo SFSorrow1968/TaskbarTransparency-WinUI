@@ -110,6 +110,7 @@ public sealed class TaskbarAppearanceService
     public static TaskbarApplyDiagnostics CreateDiagnosticsForTest(int targetCount, int compositionApplied, int compositionSkipped, int layeredAlphaChanges, int layeredAlphaNoOps, bool monitorLookupBuilt, bool animationStarted) => TaskbarApplyDiagnostics.Create(targetCount, compositionApplied, compositionSkipped, layeredAlphaChanges, layeredAlphaNoOps, monitorLookupBuilt, animationStarted, DateTimeOffset.UnixEpoch);
     public static IReadOnlyCollection<IntPtr> FindStaleHandlesForTest(IEnumerable<IntPtr> cachedHandles, IEnumerable<IntPtr> liveHandles) => FindStaleHandles(cachedHandles, liveHandles);
     public static bool NeedsMonitorOverrideLookupForTest(IReadOnlyCollection<MonitorProfile>? monitors) => NeedsMonitorOverrideLookup(monitors);
+    public static IReadOnlyDictionary<string, MonitorProfile>? BuildMonitorOverrideLookupForTest(IReadOnlyCollection<MonitorProfile>? monitors) => BuildMonitorOverrideLookup(monitors);
     public static IReadOnlyList<TaskbarWindowInfo> DistinctByHandleForTest(IReadOnlyList<TaskbarWindowInfo> targets) => DistinctByHandle(targets);
 
     private static int ComposeColor(string hex, byte opacity)
@@ -295,15 +296,24 @@ public sealed class TaskbarAppearanceService
 
     private static Dictionary<string, MonitorProfile>? BuildMonitorOverrideLookup(IReadOnlyCollection<MonitorProfile>? monitors)
     {
-        if (!NeedsMonitorOverrideLookup(monitors))
+        if (monitors is null || monitors.Count == 0)
         {
             return null;
         }
 
-        return monitors!
-            .Where(monitor => !monitor.SyncWithPrimary)
-            .GroupBy(monitor => monitor.DeviceName, StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, MonitorProfile>? lookup = null;
+        foreach (var monitor in monitors)
+        {
+            if (monitor.SyncWithPrimary)
+            {
+                continue;
+            }
+
+            lookup ??= new Dictionary<string, MonitorProfile>(StringComparer.OrdinalIgnoreCase);
+            lookup.TryAdd(monitor.DeviceName, monitor);
+        }
+
+        return lookup;
     }
 
     private static bool NeedsMonitorOverrideLookup(IReadOnlyCollection<MonitorProfile>? monitors)
