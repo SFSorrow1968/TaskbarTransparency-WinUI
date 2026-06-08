@@ -38,6 +38,10 @@ public sealed partial class AutomationPage : Page
             : "Automation paused; the active profile opacity is applied.";
 
         RuleConflictInfo.IsOpen = !settings.AutomationEnabled;
+        ResolveConflictButton.IsEnabled = !settings.AutomationEnabled;
+        ResolveConflictButton.Visibility = settings.AutomationEnabled
+            ? Microsoft.UI.Xaml.Visibility.Collapsed
+            : Microsoft.UI.Xaml.Visibility.Visible;
         RuleHealthText.Text = settings.AutomationEnabled ? "No conflicts" : "Rules paused";
         RuleHealthDetailText.Text = settings.AutomationEnabled
             ? "Rules are ready for live evaluation."

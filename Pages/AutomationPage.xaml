@@ -154,7 +154,7 @@
                                 <TextBlock x:Name="RuleHealthDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Rules are ready for live evaluation." TextWrapping="Wrap" />
                             </StackPanel>
                         </Border>
-                        <Button Click="ResolveConflict_Click" Style="{StaticResource GlassButtonStyle}" IsEnabled="False" Content="Enable automation in Tuning" />
+                        <Button x:Name="ResolveConflictButton" Click="ResolveConflict_Click" Style="{StaticResource GlassButtonStyle}" Content="Enable automation now" />
                     </StackPanel>
                 </Border>
             </Grid>
