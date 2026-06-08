@@ -45,7 +45,7 @@ public sealed partial class DiagnosticsPage : Page
         SensorTimelineList.ItemsSource = runtime.RecentEvents
             .Select(item => new SensorTimelineRow(
                 item.Time.ToString("h:mm:ss tt"),
-                FormatTrigger(item.State),
+                RuntimeTriggerText.Label(item.State),
                 $"{item.Profile} applied {item.Opacity}% opacity and updated {item.TaskbarsUpdated} taskbar{(item.TaskbarsUpdated == 1 ? string.Empty : "s")}."))
             .ToList();
 
@@ -89,18 +89,6 @@ public sealed partial class DiagnosticsPage : Page
         }
 
         return Path.Combine(AppContext.BaseDirectory, "launcher-logs");
-    }
-
-    private static string FormatTrigger(string state)
-    {
-        return state switch
-        {
-            nameof(AutomationTrigger.WindowVisible) => "Visible window",
-            nameof(AutomationTrigger.WindowMaximized) => "Maximized window",
-            nameof(AutomationTrigger.Fullscreen) => "Fullscreen",
-            nameof(AutomationTrigger.Hover) => "Hover",
-            _ => "Desktop"
-        };
     }
 
     private sealed record SensorTimelineRow(string TimeText, string State, string Detail);

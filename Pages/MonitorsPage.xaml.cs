@@ -33,7 +33,7 @@ public sealed partial class MonitorsPage : Page
             .ToList();
         RecentMonitorActionsList.ItemsSource = _state.Runtime.RecentEvents
             .Select(item => new MonitorActionRow(
-                $"{FormatTrigger(item.State)} - {item.Opacity}%",
+                $"{RuntimeTriggerText.Label(item.State)} - {item.Opacity}%",
                 $"{item.TaskbarsUpdated} taskbar{(item.TaskbarsUpdated == 1 ? string.Empty : "s")} updated at {item.Time:h:mm:ss tt}"))
             .ToList();
 
@@ -103,18 +103,6 @@ public sealed partial class MonitorsPage : Page
     private void UpdateOverrideControlState()
     {
         OverrideOpacitySlider.IsEnabled = !SyncSwitch.IsOn;
-    }
-
-    private static string FormatTrigger(string state)
-    {
-        return state switch
-        {
-            nameof(AutomationTrigger.WindowVisible) => "Visible",
-            nameof(AutomationTrigger.WindowMaximized) => "Maximized",
-            nameof(AutomationTrigger.Fullscreen) => "Fullscreen",
-            nameof(AutomationTrigger.Hover) => "Hover",
-            _ => "Desktop"
-        };
     }
 
     private sealed record MonitorOverviewRow(string Name, string Device, string SyncState, string OpacityText);

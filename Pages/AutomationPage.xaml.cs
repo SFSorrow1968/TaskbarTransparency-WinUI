@@ -27,9 +27,9 @@ public sealed partial class AutomationPage : Page
         SetRule(WindowMaximizedOpacityBar, WindowMaximizedOpacityText, RuleOpacity(settings, AutomationTrigger.WindowMaximized));
         SetRule(FullscreenOpacityBar, FullscreenOpacityText, RuleOpacity(settings, AutomationTrigger.Fullscreen));
 
-        var runtimeState = FormatTrigger(_state.Runtime.State);
+        var runtimeState = RuntimeTriggerText.Label(_state.Runtime.State);
         PreviewStateText.Text = runtimeState;
-        PreviewStateDetailText.Text = StateDetail(_state.Runtime.State);
+        PreviewStateDetailText.Text = RuntimeTriggerText.Detail(_state.Runtime.State);
         PreviewOpacityText.Text = $"{_state.Runtime.ResolvedOpacity}%";
         PreviewMatchedRuleText.Text = settings.AutomationEnabled
             ? $"Matched rule: {runtimeState} ({_state.Runtime.ResolvedOpacity}% actual)"
@@ -72,27 +72,4 @@ public sealed partial class AutomationPage : Page
         text.Text = $"{opacity}%";
     }
 
-    private static string FormatTrigger(string state)
-    {
-        return state switch
-        {
-            nameof(AutomationTrigger.WindowVisible) => "Visible window",
-            nameof(AutomationTrigger.WindowMaximized) => "Maximized window",
-            nameof(AutomationTrigger.Fullscreen) => "Fullscreen",
-            nameof(AutomationTrigger.Hover) => "Hover",
-            _ => "Desktop"
-        };
-    }
-
-    private static string StateDetail(string state)
-    {
-        return state switch
-        {
-            nameof(AutomationTrigger.WindowVisible) => "A window is open and not maximized.",
-            nameof(AutomationTrigger.WindowMaximized) => "The active window is maximized on a detected monitor.",
-            nameof(AutomationTrigger.Fullscreen) => "The active window is covering the monitor as fullscreen.",
-            nameof(AutomationTrigger.Hover) => "The pointer is inside the saved taskbar hover proximity.",
-            _ => "No foreground window rule is currently taking priority."
-        };
-    }
 }

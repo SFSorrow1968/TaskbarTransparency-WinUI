@@ -76,6 +76,7 @@ ITEMS = [
     [59, "Features", "Monitor override apply persistence", "Make monitor override controls apply to the selected display instead of the global active profile.", "P1", "Done", "Computer Use found monitor Apply reverting edited override values and recording a global desktop apply; monitor overrides now persist per display and feed taskbar opacity resolution."],
     [60, "Features", "Per-monitor transition direction audit", "Ensure fade-in and fade-out speeds are honored independently when different taskbars change in different directions.", "P1", "Done", "Code audit found multi-monitor animation used the first taskbar as the representative duration; each taskbar now selects its own fade direction, while unchanged taskbars skip no-op animation time."],
     [61, "Features", "Hover proximity boundary audit", "Verify hover proximity edge settings behave intentionally at 0 px and 48 px.", "P1", "Done", "Computer Use verified Tuning accepts and persists 0 px and 48 px hover proximity; sensor tests now lock zero and negative-distance boundary behavior."],
+    [62, "Features", "Runtime state vocabulary consistency", "Keep runtime state labels consistent across Dashboard, Automation, Monitors, and Diagnostics.", "P1", "Done", "Source audit found Dashboard, Automation, Monitors, and Diagnostics using different names for the same runtime states; pages now share one runtime vocabulary with tests."],
 ]
 
 TAB_COLORS = {
