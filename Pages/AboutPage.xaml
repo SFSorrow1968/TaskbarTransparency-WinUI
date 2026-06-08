@@ -14,6 +14,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <Grid ColumnSpacing="28">
@@ -41,8 +42,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Foreground="White" Text="Version" VerticalAlignment="Center" />
-                        <TextBlock Grid.Column="1" Foreground="{StaticResource OxygenMutedTextBrush}" Text="1.0.0" VerticalAlignment="Center" />
-                        <TextBlock Grid.Column="2" Foreground="{StaticResource OxygenMintBrush}" Text="Stable" VerticalAlignment="Center" />
+                        <TextBlock x:Name="VersionText" Grid.Column="1" Foreground="{StaticResource OxygenMutedTextBrush}" Text="v0.1.33" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="2" Foreground="{StaticResource OxygenMintBrush}" Text="Snapshot" VerticalAlignment="Center" />
                     </Grid>
                     <Grid Height="52" ColumnSpacing="18">
                         <Grid.ColumnDefinitions>
@@ -85,12 +86,14 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <Button Style="{StaticResource GlassButtonStyle}" Content="View logs" />
-                <Button Grid.Column="1" Style="{StaticResource GlassButtonStyle}" Content="Open settings file" />
-                <Button Grid.Column="2" Style="{StaticResource GlassButtonStyle}" Content="Check for updates" />
+                <Button Click="ViewLogs_Click" Style="{StaticResource GlassButtonStyle}" Content="View logs" />
+                <Button Grid.Column="1" Click="OpenSettingsFile_Click" Style="{StaticResource GlassButtonStyle}" Content="Open settings file" />
+                <Button Grid.Column="2" Click="CheckForUpdates_Click" Style="{StaticResource GlassButtonStyle}" Content="Check for updates" />
             </Grid>
 
-            <Border Grid.Row="3" Style="{StaticResource OxygenCardBorderStyle}">
+            <InfoBar x:Name="UpdateInfo" Grid.Row="3" IsOpen="False" Severity="Informational" Title="Snapshot updates" />
+
+            <Border Grid.Row="4" Style="{StaticResource OxygenCardBorderStyle}">
                 <Grid ColumnSpacing="20">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -102,16 +105,16 @@
                         <FontIcon Foreground="{StaticResource OxygenMintBrush}" FontSize="34" Glyph="&#xE73E;" />
                     </Border>
                     <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
-                        <TextBlock FontSize="22" FontWeight="SemiBold" Foreground="White" Text="You are up to date" />
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="You are running the latest version." />
+                        <TextBlock FontSize="22" FontWeight="SemiBold" Foreground="White" Text="Snapshot build" />
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Release snapshots are published from this repository." />
                     </StackPanel>
                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
                         <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Current version" />
-                        <TextBlock Foreground="White" FontSize="20" Text="1.0.0" />
+                        <TextBlock x:Name="CurrentVersionText" Foreground="White" FontSize="20" Text="v0.1.33" />
                     </StackPanel>
                     <StackPanel Grid.Column="3" VerticalAlignment="Center">
                         <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Latest version" />
-                        <TextBlock Foreground="White" FontSize="20" Text="1.0.0" />
+                        <TextBlock x:Name="LatestVersionText" Foreground="White" FontSize="20" Text="v0.1.33" />
                     </StackPanel>
                 </Grid>
             </Border>

@@ -72,6 +72,7 @@ ITEMS = [
     [55, "Infrastructure", "Mockup handoff documentation freshness", "Remove stale active-prompt claims after generated mockups are organized.", "P2", "Done", "Computer Use swept the live app surfaces, then README and walkthrough were updated so V1 P2 prompt handoff is no longer described as active."],
     [56, "Features", "Automation preview affordance clarity", "Make Automation read like an intentional policy preview instead of a disabled editor.", "P2", "Done", "Computer Use reproduced disabled Add custom rule, reset, discard, and save controls; Automation now uses read-only policy output with an active Open Tuning edit path."],
     [57, "Features", "Diagnostics recovery card state", "Keep the Diagnostics recovery card aligned with healthy versus failed taskbar detection.", "P1", "Done", "Computer Use found a healthy Diagnostics page still showing probable failure causes; recovery copy is now state-aware and tested."],
+    [58, "Features", "About page version and utility actions", "Keep About version labels and utility buttons truthful for local snapshot builds.", "P1", "Done", "Computer Use found hard-coded 1.0.0 version labels and inert utility buttons; About now reads assembly metadata, opens logs/settings, and reports snapshot update status."],
 ]
 
 TAB_COLORS = {
