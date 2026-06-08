@@ -89,6 +89,7 @@ ITEMS = [
     [72, "Infrastructure", "Shared taskbar window discovery", "Centralize native taskbar enumeration and monitor metadata lookup used by sensors, monitor catalog, and appearance apply.", "P1", "Done", "TaskbarWindowCatalog now owns Shell_TrayWnd and Shell_SecondaryTrayWnd discovery so services reuse one native lookup path instead of duplicating Win32 enumeration code."],
     [73, "Infrastructure", "Taskbar animation cache cleanup", "Clean up stale animation/taskbar caches and completed animation cancellation tokens.", "P1", "Done", "Appearance apply now prunes handles no longer present in the live taskbar set and clears completed animation cancellation state without waiting for the next animation."],
     [74, "Infrastructure", "AppState no-op setter guards", "Avoid redundant save, notify, apply, tray, startup, and hotkey work when requested settings already match current state.", "P1", "Done", "State setters now short-circuit duplicate values while preserving debounced preview commits and retry paths for failed startup or hotkey registration."],
+    [75, "Infrastructure", "Same-page navigation no-op guard", "Avoid recreating the current WinUI page when tray, hotkey, or navigation requests target the page already displayed.", "P1", "Done", "Main window navigation now skips same-page requests so loaded pages keep their existing controls, timers, and subscriptions instead of churning through unload/reload work."],
 ]
 
 TAB_COLORS = {

@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using WinRT.Interop;
 using TaskbarTransparency.Pages;
 using TaskbarTransparency.Services;
+using TaskbarTransparency.Models;
 using Windows.Graphics;
 using System.Runtime.InteropServices;
 
@@ -47,6 +48,11 @@ public sealed partial class MainWindow : Window
 
     private void NavigatePage(Type pageType)
     {
+        if (!AppNavigation.ShouldNavigate(NavFrame.Content?.GetType(), pageType))
+        {
+            return;
+        }
+
         NavFrame.Navigate(pageType);
     }
 
