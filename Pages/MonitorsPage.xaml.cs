@@ -8,7 +8,7 @@ namespace TaskbarTransparency.Pages;
 public sealed partial class MonitorsPage : Page
 {
     private readonly AppState _state = ((App)Application.Current).State;
-    private string _monitorListSignature = string.Empty;
+    private int _monitorListVersion = -1;
     private int _recentActionsVersion = -1;
     private bool _loading;
 
@@ -42,10 +42,9 @@ public sealed partial class MonitorsPage : Page
         TotalDisplaysText.Text = _state.Monitors.Count.ToString();
         SyncedDisplaysText.Text = _state.Monitors.Count(item => item.SyncWithPrimary).ToString();
         TaskbarsUpdatedText.Text = _state.Runtime.TaskbarsUpdated.ToString();
-        var monitorListSignature = MonitorListSignature();
-        if (_monitorListSignature != monitorListSignature)
+        if (_monitorListVersion != _state.MonitorsVersion)
         {
-            _monitorListSignature = monitorListSignature;
+            _monitorListVersion = _state.MonitorsVersion;
             MonitorOverviewList.ItemsSource = _state.Monitors
                 .Select(item => new MonitorOverviewRow(
                     item.FriendlyName,
@@ -131,12 +130,6 @@ public sealed partial class MonitorsPage : Page
     private void UpdateOverrideControlState()
     {
         OverrideOpacitySlider.IsEnabled = !SyncSwitch.IsOn;
-    }
-
-    private string MonitorListSignature()
-    {
-        return string.Join('|', _state.Monitors.Select(item =>
-            $"{item.DeviceName}:{item.FriendlyName}:{item.IsPrimary}:{item.SyncWithPrimary}:{item.OverrideOpacity}"));
     }
 
     private sealed record MonitorOverviewRow(string Name, string Device, string SyncState, string OpacityText);

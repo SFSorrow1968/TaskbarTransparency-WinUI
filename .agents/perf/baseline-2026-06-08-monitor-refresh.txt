@@ -1,0 +1,13 @@
+Target: monitor overview refresh checks
+Date: 2026-06-08
+Runtime: .NET 10.0.203 SDK, WinUI desktop app
+
+Baseline evidence:
+- No dedicated benchmark project exists in this repository.
+- MonitorsPage rebuilt a monitor overview freshness signature with string.Join over _state.Monitors on every refresh.
+- The monitor collection only changes when AppState.RefreshMonitors replaces live monitor rows or SetMonitorOverride changes a live override.
+- Repeated AppState.Changed events from runtime applies can refresh the Monitors page even when monitor rows are unchanged.
+
+Validation baseline:
+- Pre-change repo state was clean on main...origin/main.
+- Previous pass snapshot baseline: v0.1.51.

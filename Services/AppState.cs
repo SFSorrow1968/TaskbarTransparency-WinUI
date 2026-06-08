@@ -20,6 +20,7 @@ public sealed class AppState
     public AppSettings Settings { get; private set; } = new();
     public RuntimeSnapshot Runtime { get; } = new();
     public ObservableCollection<MonitorProfile> Monitors { get; } = [];
+    public int MonitorsVersion { get; private set; }
     public string SettingsPath => _store.SettingsPath;
     public bool StartupRegistrationFailed { get; private set; }
     public string StartupStatusMessage { get; private set; } = "Startup registration is ready.";
@@ -90,6 +91,8 @@ public sealed class AppState
             {
                 Monitors.Add(monitor);
             }
+
+            MonitorsVersion++;
         }
 
         if (!MonitorProfile.SequenceMatches(Settings.Monitors, merged))
@@ -164,6 +167,7 @@ public sealed class AppState
         {
             liveMonitor.OverrideOpacity = monitor.OverrideOpacity;
             liveMonitor.SyncWithPrimary = syncWithPrimary;
+            MonitorsVersion++;
         }
 
         ApplyNow(persistSettings: true);
