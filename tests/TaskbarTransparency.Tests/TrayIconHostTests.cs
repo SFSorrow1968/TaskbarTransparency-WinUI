@@ -8,7 +8,7 @@ public sealed class TrayIconHostTests
     public void CommandText_UsesCurrentTuningLanguage()
     {
         Assert.Equal("Open Dashboard", TrayIconHost.OpenCommandText);
-        Assert.Equal("Apply Now", TrayIconHost.ApplyCommandText);
+        Assert.Equal("Reapply Current State", TrayIconHost.ApplyCommandText);
         Assert.Equal("Toggle Transparency", TrayIconHost.ToggleCommandText);
         Assert.Equal("Open Tuning", TrayIconHost.TuningCommandText);
         Assert.Equal("Exit", TrayIconHost.ExitCommandText);

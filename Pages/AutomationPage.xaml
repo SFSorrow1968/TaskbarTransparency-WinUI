@@ -30,7 +30,7 @@
                 <Border Style="{StaticResource OxygenCardBorderStyle}">
                     <StackPanel Spacing="14">
                         <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Rule order &amp; per-state opacity" />
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Preview-only policy output. Edit source settings in Tuning." />
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Policy output and safe simulations. Edit source settings in Tuning." />
                         <Grid ColumnSpacing="12">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="44" />
@@ -132,7 +132,7 @@
                         <TextBlock FontSize="18" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Effective opacity" />
                         <TextBlock x:Name="PreviewOpacityText" FontSize="44" FontWeight="SemiBold" Foreground="{StaticResource OxygenBlueBrush}" />
                         <TextBlock x:Name="PreviewMatchedRuleText" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" />
-                        <Button Click="Preview_Click" Style="{StaticResource GlassButtonStyle}" Content="Preview on this monitor" />
+                        <Button Click="Preview_Click" Style="{StaticResource GlassButtonStyle}" Content="Simulate visible window" />
                     </StackPanel>
                 </Border>
             </Grid>

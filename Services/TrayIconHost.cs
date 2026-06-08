@@ -28,7 +28,7 @@ public sealed class TrayIconHost : IDisposable
     internal const int TuningCommand = 4;
     internal const int ExitCommand = 5;
     internal const string OpenCommandText = "Open Dashboard";
-    internal const string ApplyCommandText = "Apply Now";
+    internal const string ApplyCommandText = "Reapply Current State";
     internal const string ToggleCommandText = "Toggle Transparency";
     internal const string TuningCommandText = "Open Tuning";
     internal const string ExitCommandText = "Exit";

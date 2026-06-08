@@ -4,6 +4,13 @@ namespace TaskbarTransparency.Services;
 
 public static class RuntimeTriggerText
 {
+    public static AutomationTrigger Parse(string state)
+    {
+        return Enum.TryParse<AutomationTrigger>(state, ignoreCase: false, out var trigger)
+            ? trigger
+            : AutomationTrigger.Desktop;
+    }
+
     public static string Label(string state)
     {
         return state switch

@@ -133,7 +133,7 @@
                         <Button Grid.Column="3" Style="{StaticResource GlassButtonStyle}" Click="ApplyNow_Click" Background="{StaticResource OxygenBlueBrush}">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
                                 <FontIcon Foreground="White" Glyph="&#xE768;" />
-                                <TextBlock Foreground="White" Text="Apply now" />
+                                <TextBlock Foreground="White" Text="Reapply state" />
                             </StackPanel>
                         </Button>
                     </Grid>

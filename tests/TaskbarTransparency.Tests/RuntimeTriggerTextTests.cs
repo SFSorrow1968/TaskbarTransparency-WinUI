@@ -23,4 +23,13 @@ public sealed class RuntimeTriggerTextTests
             "The pointer is inside the saved taskbar hover proximity.",
             RuntimeTriggerText.Detail(nameof(AutomationTrigger.Hover)));
     }
+
+    [Theory]
+    [InlineData(nameof(AutomationTrigger.Hover), AutomationTrigger.Hover)]
+    [InlineData(nameof(AutomationTrigger.Fullscreen), AutomationTrigger.Fullscreen)]
+    [InlineData("NotAState", AutomationTrigger.Desktop)]
+    public void Parse_ReturnsKnownRuntimeTriggerOrDesktopFallback(string state, AutomationTrigger expected)
+    {
+        Assert.Equal(expected, RuntimeTriggerText.Parse(state));
+    }
 }

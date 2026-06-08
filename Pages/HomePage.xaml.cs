@@ -58,7 +58,7 @@ public sealed partial class HomePage : Page
     private void ApplyClear_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e) => _state.SetProfile(TaskbarProfile.OxygenClear);
     private void ApplyGlass_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e) => _state.SetProfile(TaskbarProfile.FocusGlass);
     private void ApplySolid_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e) => _state.SetProfile(TaskbarProfile.NightSolid);
-    private void ApplyNow_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e) => _state.ApplyNow();
+    private void ApplyNow_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e) => _state.ReapplyCurrentRuntimeState();
 
     private static string NextSensorHint(string state)
     {

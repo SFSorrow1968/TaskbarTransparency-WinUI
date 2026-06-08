@@ -40,7 +40,7 @@ public sealed class AppState
         _tray.Start(
             () => RequestView(AppView.Dashboard),
             () => RequestView(AppView.Tuning),
-            ApplyNow,
+            ReapplyCurrentRuntimeState,
             ToggleTransparency,
             RequestExit);
         _tray.SetVisible(Settings.ShowTrayIcon);
@@ -211,6 +211,8 @@ public sealed class AppState
     }
 
     public void ApplyNow() => ApplyNow(AutomationTrigger.Desktop);
+
+    public void ReapplyCurrentRuntimeState() => ApplyNow(RuntimeTriggerText.Parse(Runtime.State));
 
     public void ApplyNow(AutomationTrigger trigger)
     {
