@@ -140,4 +140,11 @@ public sealed class TaskbarAppearanceServiceTests
         Assert.False(TaskbarAppearanceService.AppearanceRequestMatchesForTest(first, 72, differentOpacity, 73));
         Assert.False(TaskbarAppearanceService.AppearanceRequestMatchesForTest(first, 72, differentMode, 72));
     }
+
+    [Fact]
+    public void TaskbarWindowCatalog_IdentifiesPrimaryTaskbarClass()
+    {
+        Assert.True(TaskbarWindowCatalog.IsPrimaryClassForTest(TaskbarWindowCatalog.PrimaryTaskbarClassName));
+        Assert.False(TaskbarWindowCatalog.IsPrimaryClassForTest(TaskbarWindowCatalog.SecondaryTaskbarClassName));
+    }
 }

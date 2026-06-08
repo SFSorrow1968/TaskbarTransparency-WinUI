@@ -86,6 +86,7 @@ ITEMS = [
     [69, "Infrastructure", "Slider persistence debounce", "Collapse rapid opacity and hover-distance slider bursts into immediate previews plus one settled settings save.", "P1", "Done", "Dashboard opacity and Tuning hover proximity now preview instantly while debouncing durable settings persistence to reduce drag-time disk churn."],
     [70, "Infrastructure", "Active page refresh optimization", "Limit global state refresh work to loaded pages and avoid replacing unchanged runtime list sources.", "P1", "Done", "Dashboard, Tuning, Automation, Monitors, Diagnostics, and Settings now unsubscribe when unloaded; runtime-heavy lists update only when their source signatures change."],
     [71, "Infrastructure", "Startup monitor refresh no-op guard", "Avoid startup settings writes and live monitor collection resets when detected monitors match saved state.", "P1", "Done", "Monitor refresh now merges detected display metadata with saved overrides, updates live monitors only when changed, and saves only when the effective monitor list changes."],
+    [72, "Infrastructure", "Shared taskbar window discovery", "Centralize native taskbar enumeration and monitor metadata lookup used by sensors, monitor catalog, and appearance apply.", "P1", "Done", "TaskbarWindowCatalog now owns Shell_TrayWnd and Shell_SecondaryTrayWnd discovery so services reuse one native lookup path instead of duplicating Win32 enumeration code."],
 ]
 
 TAB_COLORS = {

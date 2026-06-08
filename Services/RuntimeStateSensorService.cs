@@ -156,9 +156,9 @@ public sealed class RuntimeStateSensorService : IDisposable
             return false;
         }
 
-        foreach (var handle in EnumerateTaskbars())
+        foreach (var taskbar in TaskbarWindowCatalog.GetCurrent())
         {
-            if (GetWindowRect(handle, out var rect) && IsNear(point, rect, hoverDistance))
+            if (GetWindowRect(taskbar.Handle, out var rect) && IsNear(point, rect, hoverDistance))
             {
                 return true;
             }
@@ -174,27 +174,6 @@ public sealed class RuntimeStateSensorService : IDisposable
             && point.X <= rect.Right + clampedDistance
             && point.Y >= rect.Top - clampedDistance
             && point.Y <= rect.Bottom + clampedDistance;
-    }
-
-    private static IEnumerable<IntPtr> EnumerateTaskbars()
-    {
-        var primary = FindWindow("Shell_TrayWnd", null);
-        if (primary != IntPtr.Zero)
-        {
-            yield return primary;
-        }
-
-        var current = IntPtr.Zero;
-        while (true)
-        {
-            current = FindWindowEx(IntPtr.Zero, current, "Shell_SecondaryTrayWnd", null);
-            if (current == IntPtr.Zero)
-            {
-                yield break;
-            }
-
-            yield return current;
-        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -245,9 +224,4 @@ public sealed class RuntimeStateSensorService : IDisposable
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]
     private static extern bool GetMonitorInfo(IntPtr monitor, ref MonitorInfo monitorInfo);
 
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern IntPtr FindWindow(string lpClassName, string? lpWindowName);
-
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern IntPtr FindWindowEx(IntPtr parentHandle, IntPtr childAfter, string className, string? windowTitle);
 }

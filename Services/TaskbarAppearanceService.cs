@@ -22,7 +22,10 @@ public sealed class TaskbarAppearanceService
 
     public int Apply(TaskbarProfile profile, byte opacity, IReadOnlyCollection<MonitorProfile>? monitors = null)
     {
-        var targets = EnumerateTaskbars().GroupBy(target => target.Handle).Select(group => group.First()).ToArray();
+        var targets = TaskbarWindowCatalog.GetCurrent()
+            .GroupBy(target => target.Handle)
+            .Select(group => group.First())
+            .ToArray();
         var monitorLookup = (monitors ?? [])
             .GroupBy(monitor => monitor.DeviceName, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
@@ -37,39 +40,6 @@ public sealed class TaskbarAppearanceService
 
         AnimateTaskbarAlpha(alphaTargets, profile);
         return targets.Length;
-    }
-
-    private static IEnumerable<TaskbarTarget> EnumerateTaskbars()
-    {
-        var primary = FindWindow("Shell_TrayWnd", null);
-        if (primary != IntPtr.Zero)
-        {
-            yield return BuildTarget(primary, "Shell_TrayWnd");
-        }
-
-        var current = IntPtr.Zero;
-        while (true)
-        {
-            current = FindWindowEx(IntPtr.Zero, current, "Shell_SecondaryTrayWnd", null);
-            if (current == IntPtr.Zero)
-            {
-                yield break;
-            }
-
-            yield return BuildTarget(current, "Shell_SecondaryTrayWnd");
-        }
-    }
-
-    private static TaskbarTarget BuildTarget(IntPtr handle, string fallbackDeviceName)
-    {
-        var monitor = MonitorFromWindow(handle, 2);
-        var info = new MonitorInfo { Size = Marshal.SizeOf<MonitorInfo>() };
-        var hasInfo = monitor != IntPtr.Zero && GetMonitorInfo(monitor, ref info);
-        var deviceName = hasInfo && !string.IsNullOrWhiteSpace(info.DeviceName)
-            ? info.DeviceName
-            : fallbackDeviceName;
-
-        return new TaskbarTarget(handle, deviceName);
     }
 
     private void ApplyIfChanged(IntPtr handle, TaskbarProfile profile, byte opacity)
@@ -336,40 +306,7 @@ public sealed class TaskbarAppearanceService
         public int SizeOfData;
     }
 
-    private readonly record struct TaskbarTarget(IntPtr Handle, string DeviceName);
     private readonly record struct AppearanceRequest(int AccentState, int GradientColor);
-
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    private struct MonitorInfo
-    {
-        public int Size;
-        public Rect Monitor;
-        public Rect WorkArea;
-        public int Flags;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
-        public string DeviceName;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct Rect
-    {
-        public int Left;
-        public int Top;
-        public int Right;
-        public int Bottom;
-    }
-
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern IntPtr FindWindow(string lpClassName, string? lpWindowName);
-
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern IntPtr FindWindowEx(IntPtr parentHandle, IntPtr childAfter, string className, string? windowTitle);
-
-    [DllImport("user32.dll")]
-    private static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint flags);
-
-    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-    private static extern bool GetMonitorInfo(IntPtr monitor, ref MonitorInfo monitorInfo);
 
     [DllImport("user32.dll")]
     private static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
