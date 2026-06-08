@@ -40,6 +40,11 @@ public sealed record TaskbarProfile(
         };
     }
 
+    public TaskbarProfile WithVisualMode(TaskbarVisualMode mode)
+    {
+        return this with { Mode = mode };
+    }
+
     public static TaskbarProfile OxygenClear { get; } = new("Oxygen Clear", TaskbarVisualMode.Clear, 32, "#FFFFFF", 180, "CubicOut")
     {
         FadeInMilliseconds = 180,

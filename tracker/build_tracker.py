@@ -61,6 +61,7 @@ ITEMS = [
     [44, "Features", "Tray command dispatch audit", "Verify tray menu labels and command routing for dashboard, tuning, apply, toggle, and exit.", "P1", "Done", "Tray command labels and dispatch are covered by focused tests; live hidden-window validation confirmed background toggle and dashboard restore outcomes."],
     [45, "Infrastructure", "Settings persistence hardening", "Protect local settings writes and verify relaunch persistence.", "P1", "Done", "SettingsStore now writes atomically; tests cover round-trip, corrupt fallback, and legacy fade migration; Computer Use confirmed Tuning sensor settings persist on a 3440-wide relaunch."],
     [46, "Features", "Tuning profile name edit stability", "Preserve unsaved profile name edits while other Tuning settings refresh.", "P1", "Done", "Tuning no longer overwrites dirty preset-name input during state refresh; Computer Use reproduced the bug and verified save plus relaunch on a 3440-wide monitor."],
+    [47, "Features", "Tuning material and reset edge cases", "Ensure material buttons and Reset behave intentionally from the Tuning screen.", "P1", "Done", "Clear, Acrylic, Mica, and Solid are wired; material changes preserve current tuning values; Reset restores Oxygen Clear; Computer Use verified Solid persistence and Reset on a 3440-wide monitor."],
 ]
 
 TAB_COLORS = {

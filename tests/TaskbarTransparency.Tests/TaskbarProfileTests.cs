@@ -58,4 +58,19 @@ public sealed class TaskbarProfileTests
 
         Assert.Equal(TaskbarProfile.FocusGlass.Name, tuned.Name);
     }
+
+    [Fact]
+    public void WithVisualMode_PreservesTuningValues()
+    {
+        var profile = TaskbarProfile.OxygenClear.WithTuningValues("Quiet", 63, 260, 140, "Linear");
+
+        var mica = profile.WithVisualMode(TaskbarVisualMode.Mica);
+
+        Assert.Equal("Quiet", mica.Name);
+        Assert.Equal(TaskbarVisualMode.Mica, mica.Mode);
+        Assert.Equal(63, mica.Opacity);
+        Assert.Equal(260, mica.FadeInMilliseconds);
+        Assert.Equal(140, mica.FadeOutMilliseconds);
+        Assert.Equal("Linear", mica.Easing);
+    }
 }

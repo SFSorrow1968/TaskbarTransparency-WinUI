@@ -140,19 +140,27 @@ public sealed partial class PresetsPage : Page
         }
     }
 
-    private void Clear_Click(object sender, RoutedEventArgs e) => Apply(TaskbarProfile.OxygenClear);
-    private void Glass_Click(object sender, RoutedEventArgs e) => Apply(TaskbarProfile.FocusGlass);
-    private void Solid_Click(object sender, RoutedEventArgs e) => Apply(TaskbarProfile.NightSolid);
+    private void Clear_Click(object sender, RoutedEventArgs e) => Apply(CurrentTuningProfile(TaskbarVisualMode.Clear));
+    private void Acrylic_Click(object sender, RoutedEventArgs e) => Apply(CurrentTuningProfile(TaskbarVisualMode.Acrylic));
+    private void Mica_Click(object sender, RoutedEventArgs e) => Apply(CurrentTuningProfile(TaskbarVisualMode.Mica));
+    private void Solid_Click(object sender, RoutedEventArgs e) => Apply(CurrentTuningProfile(TaskbarVisualMode.Solid));
+    private void Reset_Click(object sender, RoutedEventArgs e) => Apply(TaskbarProfile.OxygenClear);
+
     private void SaveChanges_Click(object sender, RoutedEventArgs e)
     {
-        Apply(_state.Settings.ActiveProfile.WithTuningValues(
+        Apply(CurrentTuningProfile(_state.Settings.ActiveProfile.Mode));
+        _state.SetTrayVisible(TraySwitch.IsOn);
+        _state.SetStartWithWindows(StartupSwitch.IsOn);
+    }
+
+    private TaskbarProfile CurrentTuningProfile(TaskbarVisualMode mode)
+    {
+        return _state.Settings.ActiveProfile.WithTuningValues(
             PresetNameText.Text,
             (byte)Math.Round(PresetOpacitySlider.Value),
             (int)Math.Round(FadeInDurationSlider.Value),
             (int)Math.Round(FadeOutDurationSlider.Value),
-            SelectedEasing()));
-        _state.SetTrayVisible(TraySwitch.IsOn);
-        _state.SetStartWithWindows(StartupSwitch.IsOn);
+            SelectedEasing()).WithVisualMode(mode);
     }
 
     private string SelectedEasing()

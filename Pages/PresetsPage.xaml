@@ -38,9 +38,9 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <Button Click="Clear_Click" Style="{StaticResource GlassButtonStyle}" Content="Clear" />
-                        <Button Grid.Column="1" Click="Glass_Click" Style="{StaticResource GlassButtonStyle}" BorderBrush="{StaticResource OxygenBlueBrush}" Content="Acrylic" />
-                        <Button Grid.Column="2" Style="{StaticResource GlassButtonStyle}" Content="Mica" />
-                        <Button Grid.Column="3" Click="Glass_Click" Style="{StaticResource GlassButtonStyle}" Background="#332878FF" Content="Glass" />
+                        <Button Grid.Column="1" Click="Acrylic_Click" Style="{StaticResource GlassButtonStyle}" BorderBrush="{StaticResource OxygenBlueBrush}" Content="Acrylic" />
+                        <Button Grid.Column="2" Click="Mica_Click" Style="{StaticResource GlassButtonStyle}" Content="Mica" />
+                        <Button Grid.Column="3" Click="Solid_Click" Style="{StaticResource GlassButtonStyle}" Background="#332878FF" Content="Solid" />
                     </Grid>
                     <Grid ColumnSpacing="18">
                         <Grid.ColumnDefinitions>
@@ -176,7 +176,7 @@
                     <ColumnDefinition Width="220" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Save applies the current tuning profile and app settings." VerticalAlignment="Center" />
-                <Button Grid.Column="1" Style="{StaticResource GlassButtonStyle}" Click="Glass_Click" Content="Reset" />
+                <Button Grid.Column="1" Style="{StaticResource GlassButtonStyle}" Click="Reset_Click" Content="Reset" />
                 <Button Grid.Column="2" Style="{StaticResource GlassButtonStyle}" Background="{StaticResource OxygenBlueBrush}" Click="SaveChanges_Click" Content="Save changes" />
             </Grid>
         </Grid>
