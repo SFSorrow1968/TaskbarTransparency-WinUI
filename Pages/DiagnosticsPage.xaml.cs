@@ -1,5 +1,8 @@
+using System.Diagnostics;
+using Windows.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using TaskbarTransparency.Models;
 using TaskbarTransparency.Services;
 
@@ -19,7 +22,16 @@ public sealed partial class DiagnosticsPage : Page
     private void Refresh()
     {
         var runtime = _state.Runtime;
+        var taskbarsFound = runtime.TaskbarsUpdated > 0;
         MessageText.Text = runtime.LastMessage;
+        SubtitleText.Text = taskbarsFound
+            ? $"Oxygen Taskbar updated {runtime.TaskbarsUpdated} taskbar{(runtime.TaskbarsUpdated == 1 ? string.Empty : "s")} and recorded the result below."
+            : "Oxygen Taskbar could not find a valid taskbar window to attach to.";
+        HeaderIcon.Glyph = taskbarsFound ? "\uE930" : "\uE783";
+        HeaderIcon.Foreground = (Brush)Application.Current.Resources[taskbarsFound ? "OxygenMintBrush" : "OxygenDangerBrush"];
+        HeaderIconBorder.Background = new SolidColorBrush(taskbarsFound
+            ? Color.FromArgb(0x33, 0x23, 0xC5, 0x8E)
+            : Color.FromArgb(0x33, 0xFF, 0x6B, 0x78));
         DetailsText.Text = $"State: {runtime.State}\nProfile: {runtime.AppliedProfile}\nTaskbars updated: {runtime.TaskbarsUpdated}\nLast applied: {runtime.LastAppliedAt:O}";
         SensorTimelineList.ItemsSource = runtime.RecentEvents
             .Select(item => new SensorTimelineRow(
@@ -42,6 +54,33 @@ public sealed partial class DiagnosticsPage : Page
     private void ApplyHover_Click(object sender, RoutedEventArgs e) => _state.ApplyNow(AutomationTrigger.Hover);
     private void ApplyFullscreen_Click(object sender, RoutedEventArgs e) => _state.ApplyNow(AutomationTrigger.Fullscreen);
     private void ResetHotkeys_Click(object sender, RoutedEventArgs e) => _state.ResetHotkeys();
+    private void OpenLogFolder_Click(object sender, RoutedEventArgs e)
+    {
+        var folder = FindLauncherLogFolder();
+        Directory.CreateDirectory(folder);
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = folder,
+            UseShellExecute = true
+        });
+    }
+
+    private static string FindLauncherLogFolder()
+    {
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        while (directory is not null)
+        {
+            var candidate = Path.Combine(directory.FullName, "launcher-logs");
+            if (Directory.Exists(candidate))
+            {
+                return candidate;
+            }
+
+            directory = directory.Parent;
+        }
+
+        return Path.Combine(AppContext.BaseDirectory, "launcher-logs");
+    }
 
     private static string FormatTrigger(string state)
     {

@@ -15,12 +15,12 @@
             <StackPanel Spacing="8">
                 <TextBlock Style="{StaticResource SectionHeaderTextBlockStyle}" Foreground="{StaticResource OxygenBlueBrush}" Text="DIAGNOSTICS" />
                 <StackPanel Orientation="Horizontal" Spacing="18">
-                    <Border Width="58" Height="58" Background="#33FF6B78" CornerRadius="29">
-                        <FontIcon Foreground="{StaticResource OxygenDangerBrush}" FontSize="30" Glyph="&#xE783;" />
+                    <Border x:Name="HeaderIconBorder" Width="58" Height="58" Background="#3323C58E" CornerRadius="29">
+                        <FontIcon x:Name="HeaderIcon" Foreground="{StaticResource OxygenMintBrush}" FontSize="30" Glyph="&#xE930;" />
                     </Border>
                     <StackPanel Spacing="4">
                         <TextBlock x:Name="MessageText" Style="{StaticResource OxygenPageTitleTextBlockStyle}" Text="No taskbar window detected" />
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" FontSize="18" Text="Oxygen Taskbar could not find a valid taskbar window to attach to." />
+                        <TextBlock x:Name="SubtitleText" Foreground="{StaticResource OxygenMutedTextBrush}" FontSize="18" Text="Oxygen Taskbar could not find a valid taskbar window to attach to." />
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
@@ -39,8 +39,8 @@
                     </StackPanel>
                     <StackPanel Grid.Column="1" Spacing="12">
                         <Button Click="ApplyDesktop_Click" Style="{StaticResource GlassButtonStyle}" Background="{StaticResource OxygenBlueBrush}" Content="Retry detection" />
-                        <Button Click="ApplyFullscreen_Click" Style="{StaticResource GlassButtonStyle}" Content="Apply defaults" />
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Restores safe defaults and tries again." TextWrapping="Wrap" />
+                        <Button Click="ApplyDesktop_Click" Style="{StaticResource GlassButtonStyle}" Content="Apply safe desktop" />
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Applies the desktop rule and tries again without changing your saved settings." TextWrapping="Wrap" />
                     </StackPanel>
                 </Grid>
             </Border>
@@ -55,7 +55,7 @@
                         <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Latest launcher log" />
                         <TextBlock Foreground="{StaticResource OxygenBlueBrush}" Text="launcher-logs\build-and-launch-latest.txt" />
                     </StackPanel>
-                    <Button Grid.Column="1" Style="{StaticResource GlassButtonStyle}" Width="160" Content="Open folder" />
+                    <Button Grid.Column="1" Click="OpenLogFolder_Click" Style="{StaticResource GlassButtonStyle}" Width="160" Content="Open folder" />
                 </Grid>
             </Border>
 

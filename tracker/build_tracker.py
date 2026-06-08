@@ -66,6 +66,7 @@ ITEMS = [
     [49, "Features", "Transparency toggle baseline stability", "Reset stale transparency-toggle restore state when the user applies a new profile or explicit opacity.", "P1", "Done", "Computer Use reproduced Night Solid inheriting an old 32% toggle baseline after a transparent state, then verified profile changes establish a fresh toggle baseline."],
     [50, "Features", "Automation policy preview accuracy", "Show actual automation rule targets and live runtime preview instead of static mock values.", "P1", "Done", "Computer Use reproduced the 72/85/60/42/Hidden mismatch and verified policy-driven values on a 3440-wide monitor."],
     [51, "Features", "Automation paused recovery", "Let the Automation conflict card re-enable paused automation directly.", "P1", "Done", "Computer Use reproduced the disabled paused-state recovery button and verified Enable automation now restores live automation on a 3440-wide monitor."],
+    [52, "Features", "Diagnostics recovery action accuracy", "Keep Diagnostics recovery controls truthful and non-destructive.", "P1", "Done", "Computer Use reproduced the inert Open folder button, misleading error header, and fullscreen Apply defaults behavior; Diagnostics now opens logs, reports healthy taskbar updates, and applies safe desktop without changing saved settings."],
 ]
 
 TAB_COLORS = {
