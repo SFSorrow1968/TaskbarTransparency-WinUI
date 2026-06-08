@@ -129,4 +129,54 @@ public sealed class RuntimeStateSensorServiceTests
         Assert.False(outsideAtMaximumDistance);
         Assert.True(insideAtMaximumDistance);
     }
+
+    [Fact]
+    public void IsPointNearRectForTest_ZeroDistanceOnlyMatchesInsideTaskbar()
+    {
+        var onePixelOutside = RuntimeStateSensorService.IsPointNearRectForTest(
+            x: 50,
+            y: 99,
+            left: 0,
+            top: 100,
+            right: 100,
+            bottom: 120,
+            distance: 0);
+
+        var onTaskbarEdge = RuntimeStateSensorService.IsPointNearRectForTest(
+            x: 50,
+            y: 100,
+            left: 0,
+            top: 100,
+            right: 100,
+            bottom: 120,
+            distance: 0);
+
+        Assert.False(onePixelOutside);
+        Assert.True(onTaskbarEdge);
+    }
+
+    [Fact]
+    public void IsPointNearRectForTest_ClampsNegativeHoverDistanceToZero()
+    {
+        var onePixelOutside = RuntimeStateSensorService.IsPointNearRectForTest(
+            x: 50,
+            y: 99,
+            left: 0,
+            top: 100,
+            right: 100,
+            bottom: 120,
+            distance: -10);
+
+        var onTaskbarEdge = RuntimeStateSensorService.IsPointNearRectForTest(
+            x: 50,
+            y: 100,
+            left: 0,
+            top: 100,
+            right: 100,
+            bottom: 120,
+            distance: -10);
+
+        Assert.False(onePixelOutside);
+        Assert.True(onTaskbarEdge);
+    }
 }
