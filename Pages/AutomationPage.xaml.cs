@@ -8,6 +8,7 @@ namespace TaskbarTransparency.Pages;
 public sealed partial class AutomationPage : Page
 {
     private readonly AppState _state = ((App)Microsoft.UI.Xaml.Application.Current).State;
+    private readonly RefreshCoalescer _refreshCoalescer = new();
 
     public AutomationPage()
     {
@@ -29,7 +30,7 @@ public sealed partial class AutomationPage : Page
 
     private void State_Changed(object? sender, EventArgs e)
     {
-        DispatcherQueue.TryEnqueue(Refresh);
+        _refreshCoalescer.Request(action => DispatcherQueue.TryEnqueue(() => action()), Refresh);
     }
 
     private void Refresh()

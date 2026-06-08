@@ -12,6 +12,7 @@ namespace TaskbarTransparency.Pages;
 public sealed partial class HomePage : Page
 {
     private readonly AppState _state = ((App)Microsoft.UI.Xaml.Application.Current).State;
+    private readonly RefreshCoalescer _refreshCoalescer = new();
     private readonly DispatcherQueueTimer _opacityCommitTimer;
     private double _pendingOpacity;
     private int _recentEventsVersion = -1;
@@ -45,7 +46,7 @@ public sealed partial class HomePage : Page
 
     private void State_Changed(object? sender, EventArgs e)
     {
-        DispatcherQueue.TryEnqueue(Refresh);
+        _refreshCoalescer.Request(action => DispatcherQueue.TryEnqueue(() => action()), Refresh);
     }
 
     private void Refresh()

@@ -11,6 +11,7 @@ namespace TaskbarTransparency.Pages;
 public sealed partial class DiagnosticsPage : Page
 {
     private readonly AppState _state = ((App)Application.Current).State;
+    private readonly RefreshCoalescer _refreshCoalescer = new();
     private int _timelineVersion = -1;
 
     public DiagnosticsPage()
@@ -33,7 +34,7 @@ public sealed partial class DiagnosticsPage : Page
 
     private void State_Changed(object? sender, EventArgs e)
     {
-        DispatcherQueue.TryEnqueue(Refresh);
+        _refreshCoalescer.Request(action => DispatcherQueue.TryEnqueue(() => action()), Refresh);
     }
 
     private void Refresh()

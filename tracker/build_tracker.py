@@ -92,6 +92,7 @@ ITEMS = [
     [75, "Infrastructure", "Same-page navigation no-op guard", "Avoid recreating the current WinUI page when tray, hotkey, or navigation requests target the page already displayed.", "P1", "Done", "Main window navigation now skips same-page requests so loaded pages keep their existing controls, timers, and subscriptions instead of churning through unload/reload work."],
     [76, "Infrastructure", "Runtime event refresh versioning", "Avoid rebuilding runtime history signature strings on every Dashboard, Monitors, and Diagnostics refresh.", "P1", "Done", "RuntimeSnapshot now exposes a RecentEventsVersion counter so pages use integer change checks before rebuilding history list item sources."],
     [77, "Infrastructure", "Monitor list refresh versioning", "Avoid rebuilding monitor overview signature strings on every Monitors page refresh.", "P1", "Done", "AppState now tracks MonitorsVersion so monitor overview rows rebuild only when the live monitor collection or overrides change."],
+    [78, "Infrastructure", "Loaded page refresh coalescing", "Avoid queuing duplicate UI refreshes for loaded pages during quick AppState change bursts.", "P1", "Done", "State-listening pages now share a RefreshCoalescer so repeated change notifications collapse to one pending dispatcher refresh per page."],
 ]
 
 TAB_COLORS = {

@@ -3,12 +3,14 @@
 
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml;
+using TaskbarTransparency.Services;
 
 namespace TaskbarTransparency.Pages;
 
 public sealed partial class SettingsPage : Page
 {
     private readonly Services.AppState _state = ((App)Microsoft.UI.Xaml.Application.Current).State;
+    private readonly RefreshCoalescer _refreshCoalescer = new();
     private bool _loading = true;
 
     public SettingsPage()
@@ -31,7 +33,7 @@ public sealed partial class SettingsPage : Page
 
     private void State_Changed(object? sender, EventArgs e)
     {
-        DispatcherQueue.TryEnqueue(Refresh);
+        _refreshCoalescer.Request(action => DispatcherQueue.TryEnqueue(() => action()), Refresh);
     }
 
     private void Refresh()

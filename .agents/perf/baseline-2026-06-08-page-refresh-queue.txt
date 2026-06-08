@@ -1,0 +1,13 @@
+Target: loaded page refresh queueing
+Date: 2026-06-08
+Runtime: .NET 10.0.203 SDK, WinUI desktop app
+
+Baseline evidence:
+- No dedicated benchmark project exists in this repository.
+- Home, Presets, Monitors, Automation, Diagnostics, and Settings subscribed to AppState.Changed while loaded.
+- Each State_Changed handler called DispatcherQueue.TryEnqueue(Refresh) directly.
+- Quick bursts of AppState.Changed notifications could enqueue duplicate refresh work for the same page before the UI dispatcher processed the first one.
+
+Validation baseline:
+- Pre-change repo state was clean on main...origin/main.
+- Previous pass snapshot baseline: v0.1.52.

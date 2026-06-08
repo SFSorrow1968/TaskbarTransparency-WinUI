@@ -8,6 +8,7 @@ namespace TaskbarTransparency.Pages;
 public sealed partial class MonitorsPage : Page
 {
     private readonly AppState _state = ((App)Application.Current).State;
+    private readonly RefreshCoalescer _refreshCoalescer = new();
     private int _monitorListVersion = -1;
     private int _recentActionsVersion = -1;
     private bool _loading;
@@ -32,7 +33,7 @@ public sealed partial class MonitorsPage : Page
 
     private void State_Changed(object? sender, EventArgs e)
     {
-        DispatcherQueue.TryEnqueue(Refresh);
+        _refreshCoalescer.Request(action => DispatcherQueue.TryEnqueue(() => action()), Refresh);
     }
 
     private void Refresh()

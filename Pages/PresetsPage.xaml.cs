@@ -2,12 +2,14 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Dispatching;
 using TaskbarTransparency.Models;
+using TaskbarTransparency.Services;
 
 namespace TaskbarTransparency.Pages;
 
 public sealed partial class PresetsPage : Page
 {
     private readonly Services.AppState _state = ((App)Application.Current).State;
+    private readonly RefreshCoalescer _refreshCoalescer = new();
     private readonly DispatcherQueueTimer _hoverDistanceCommitTimer;
     private double _pendingHoverDistance;
     private bool _loading = true;
@@ -42,7 +44,7 @@ public sealed partial class PresetsPage : Page
 
     private void State_Changed(object? sender, EventArgs e)
     {
-        DispatcherQueue.TryEnqueue(Refresh);
+        _refreshCoalescer.Request(action => DispatcherQueue.TryEnqueue(() => action()), Refresh);
     }
 
     private void Apply(TaskbarProfile profile)
