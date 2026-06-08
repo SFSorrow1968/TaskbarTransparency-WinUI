@@ -59,6 +59,7 @@ ITEMS = [
     [42, "Screens", "Ultrawide layout readability", "Keep primary app pages readable on widescreen monitors.", "P1", "Done", "Dashboard, Tuning, Monitors, Automation, Diagnostics, About, and Settings page content is centered with a readable max width."],
     [43, "Features", "Hotkey registration diagnostics", "Report actual Windows hotkey registration success instead of only validating shortcut text.", "P1", "Done", "Diagnostics now distinguishes registered shortcuts, invalid formats, and Windows registration failures with error codes."],
     [44, "Features", "Tray command dispatch audit", "Verify tray menu labels and command routing for dashboard, tuning, apply, toggle, and exit.", "P1", "Done", "Tray command labels and dispatch are covered by focused tests; live hidden-window validation confirmed background toggle and dashboard restore outcomes."],
+    [45, "Infrastructure", "Settings persistence hardening", "Protect local settings writes and verify relaunch persistence.", "P1", "Done", "SettingsStore now writes atomically; tests cover round-trip, corrupt fallback, and legacy fade migration; Computer Use confirmed Tuning sensor settings persist on a 3440-wide relaunch."],
 ]
 
 TAB_COLORS = {

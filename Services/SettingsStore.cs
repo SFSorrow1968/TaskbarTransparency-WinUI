@@ -6,10 +6,20 @@ namespace TaskbarTransparency.Services;
 
 public sealed class SettingsStore
 {
-    public string SettingsPath { get; } = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "OxygenTaskbar",
-        "settings.json");
+    public SettingsStore()
+        : this(Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "OxygenTaskbar",
+            "settings.json"))
+    {
+    }
+
+    internal SettingsStore(string settingsPath)
+    {
+        SettingsPath = settingsPath;
+    }
+
+    public string SettingsPath { get; }
 
     public AppSettings Load()
     {
@@ -33,8 +43,11 @@ public sealed class SettingsStore
 
     public void Save(AppSettings settings)
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath)!);
-        File.WriteAllText(SettingsPath, JsonSerializer.Serialize(settings, SettingsJsonContext.Default.AppSettings));
+        var directory = Path.GetDirectoryName(SettingsPath)!;
+        Directory.CreateDirectory(directory);
+        var tempPath = Path.Combine(directory, $"{Path.GetFileName(SettingsPath)}.{Guid.NewGuid():N}.tmp");
+        File.WriteAllText(tempPath, JsonSerializer.Serialize(settings, SettingsJsonContext.Default.AppSettings));
+        File.Move(tempPath, SettingsPath, overwrite: true);
     }
 }
 
