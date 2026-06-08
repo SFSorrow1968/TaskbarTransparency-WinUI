@@ -154,8 +154,13 @@ public sealed class AppState
 
     public void ResetHotkeys()
     {
-        Settings.OpenHotkey = "Ctrl+Alt+G";
-        Settings.ToggleHotkey = "Ctrl+Alt+T";
+        SetHotkeys("Ctrl+Alt+G", "Ctrl+Alt+T");
+    }
+
+    public void SetHotkeys(string openHotkey, string toggleHotkey)
+    {
+        Settings.OpenHotkey = NormalizeHotkey(openHotkey, "Ctrl+Alt+G");
+        Settings.ToggleHotkey = NormalizeHotkey(toggleHotkey, "Ctrl+Alt+T");
         _hotkeys.Reconfigure(Settings.OpenHotkey, Settings.ToggleHotkey);
         SaveAndNotify();
     }
@@ -224,6 +229,11 @@ public sealed class AppState
     private void Save()
     {
         _store.Save(Settings);
+    }
+
+    private static string NormalizeHotkey(string hotkey, string fallback)
+    {
+        return string.IsNullOrWhiteSpace(hotkey) ? fallback : hotkey.Trim();
     }
 }
 

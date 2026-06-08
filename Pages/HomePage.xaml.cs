@@ -10,7 +10,7 @@ namespace TaskbarTransparency.Pages;
 public sealed partial class HomePage : Page
 {
     private readonly AppState _state = ((App)Microsoft.UI.Xaml.Application.Current).State;
-    private bool _loading;
+    private bool _loading = true;
 
     public HomePage()
     {

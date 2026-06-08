@@ -8,7 +8,7 @@ namespace TaskbarTransparency.Pages;
 public sealed partial class SettingsPage : Page
 {
     private readonly Services.AppState _state = ((App)Microsoft.UI.Xaml.Application.Current).State;
-    private bool _loading;
+    private bool _loading = true;
 
     public SettingsPage()
     {
@@ -53,6 +53,11 @@ public sealed partial class SettingsPage : Page
     {
         _state.SetStartWithWindows(StartupSwitch.IsOn);
         _state.SetTrayVisible(TraySwitch.IsOn);
+        _state.SetHotkeys(OpenHotkeyText.Text, ToggleHotkeyText.Text);
+        HotkeySaveInfo.Severity = _state.HotkeyStatus.IsReady ? InfoBarSeverity.Success : InfoBarSeverity.Warning;
+        HotkeySaveInfo.Message = _state.HotkeyStatus.IsReady
+            ? "Hotkeys were saved and registered with Windows."
+            : "Hotkeys were saved, but one or more shortcuts need attention in Diagnostics.";
     }
 
     private void RetryStartup_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)

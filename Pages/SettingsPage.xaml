@@ -21,7 +21,7 @@
                 <TextBlock FontSize="18" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Customize keyboard shortcuts for quick access to Oxygen Taskbar features." />
             </StackPanel>
 
-            <InfoBar Grid.Row="1" IsOpen="True" Severity="Success" Title="Your changes are ready to save." Message="Review your hotkeys below and click Save to apply them." />
+            <InfoBar x:Name="HotkeySaveInfo" Grid.Row="1" IsOpen="True" Severity="Informational" Title="Hotkey editing" Message="Edit shortcuts below, then click Save to apply them and update Windows registration." />
 
             <Border Grid.Row="2" Style="{StaticResource OxygenCardBorderStyle}">
                 <StackPanel Spacing="18">
@@ -30,27 +30,23 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="360" />
-                            <ColumnDefinition Width="56" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="4">
                             <TextBlock Foreground="White" FontSize="18" Text="Dashboard" />
                             <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Open or focus the Oxygen Taskbar dashboard." />
                         </StackPanel>
-                        <TextBox x:Name="OpenHotkeyText" Grid.Column="1" IsReadOnly="True" />
-                        <Button Grid.Column="2" Content="Edit" />
+                        <TextBox x:Name="OpenHotkeyText" Grid.Column="1" PlaceholderText="Ctrl+Alt+G" />
                     </Grid>
                     <Grid ColumnSpacing="14">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="360" />
-                            <ColumnDefinition Width="56" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="4">
                             <TextBlock Foreground="White" FontSize="18" Text="Transparency Toggle" />
                             <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Toggle taskbar translucency on or off." />
                         </StackPanel>
-                        <TextBox x:Name="ToggleHotkeyText" Grid.Column="1" IsReadOnly="True" />
-                        <Button Grid.Column="2" Content="Edit" />
+                        <TextBox x:Name="ToggleHotkeyText" Grid.Column="1" PlaceholderText="Ctrl+Alt+T" />
                     </Grid>
                     <InfoBar IsOpen="True" Severity="Warning" Title="Shortcut conflict" Message="This shortcut may conflict with an existing system or app shortcut." />
                 </StackPanel>

@@ -7,7 +7,7 @@ namespace TaskbarTransparency.Pages;
 public sealed partial class PresetsPage : Page
 {
     private readonly Services.AppState _state = ((App)Application.Current).State;
-    private bool _loading;
+    private bool _loading = true;
     private bool _profileNameDirty;
     private bool _profileTuningDirty;
 
@@ -165,9 +165,17 @@ public sealed partial class PresetsPage : Page
 
     private void SaveChanges_Click(object sender, RoutedEventArgs e)
     {
-        Apply(CurrentTuningProfile(_state.Settings.ActiveProfile.Mode));
+        var openHotkey = OpenHotkeyText.Text;
+        var toggleHotkey = ToggleHotkeyText.Text;
+
+        if (_profileNameDirty || _profileTuningDirty)
+        {
+            Apply(CurrentTuningProfile(_state.Settings.ActiveProfile.Mode));
+        }
+
         _state.SetTrayVisible(TraySwitch.IsOn);
         _state.SetStartWithWindows(StartupSwitch.IsOn);
+        _state.SetHotkeys(openHotkey, toggleHotkey);
     }
 
     private TaskbarProfile CurrentTuningProfile(TaskbarVisualMode mode)

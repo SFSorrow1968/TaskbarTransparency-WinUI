@@ -153,7 +153,7 @@
                             <TextBlock Foreground="White" FontSize="18" Text="Dashboard hotkey" />
                             <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Open or focus the Oxygen Taskbar dashboard." />
                         </StackPanel>
-                        <TextBox x:Name="OpenHotkeyText" Grid.Column="1" IsReadOnly="True" />
+                        <TextBox x:Name="OpenHotkeyText" Grid.Column="1" PlaceholderText="Ctrl+Alt+G" />
                     </Grid>
                     <Grid ColumnSpacing="14">
                         <Grid.ColumnDefinitions>
@@ -164,7 +164,7 @@
                             <TextBlock Foreground="White" FontSize="18" Text="Transparency toggle hotkey" />
                             <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Toggle taskbar translucency on or off." />
                         </StackPanel>
-                        <TextBox x:Name="ToggleHotkeyText" Grid.Column="1" IsReadOnly="True" />
+                        <TextBox x:Name="ToggleHotkeyText" Grid.Column="1" PlaceholderText="Ctrl+Alt+T" />
                     </Grid>
                 </StackPanel>
             </Border>
