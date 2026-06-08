@@ -31,7 +31,7 @@
                 <Border Style="{StaticResource OxygenCardBorderStyle}">
                     <StackPanel Spacing="14">
                         <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Rule order &amp; per-state opacity" />
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Drag to reorder later. The first matching rule applies." />
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Preview-only rule order. Edit the underlying settings in Tuning." />
                         <Grid ColumnSpacing="12">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="44" />
@@ -57,8 +57,8 @@
                                 <TextBlock Foreground="White" Text="1" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Foreground="White" Text="Desktop" VerticalAlignment="Center" />
                                 <ToggleSwitch x:Name="AutomationSwitch" Grid.Column="2" IsEnabled="False" Toggled="AutomationSwitch_Toggled" />
-                                <Slider Grid.Column="3" Maximum="100" Minimum="0" IsEnabled="False" Value="72" />
-                                <TextBlock Grid.Column="4" Foreground="White" Text="72%" VerticalAlignment="Center" />
+                                <Slider x:Name="DesktopOpacitySlider" Grid.Column="3" Maximum="100" Minimum="0" IsEnabled="False" />
+                                <TextBlock x:Name="DesktopOpacityText" Grid.Column="4" Foreground="White" VerticalAlignment="Center" />
                             </Grid>
                             <Grid ColumnSpacing="12">
                                 <Grid.ColumnDefinitions>
@@ -71,8 +71,8 @@
                                 <TextBlock Foreground="White" Text="2" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Foreground="White" Text="Hover" VerticalAlignment="Center" />
                                 <ToggleSwitch x:Name="HoverSwitch" Grid.Column="2" IsEnabled="False" Toggled="HoverSwitch_Toggled" />
-                                <Slider Grid.Column="3" Maximum="100" Minimum="0" IsEnabled="False" Value="85" />
-                                <TextBlock Grid.Column="4" Foreground="White" Text="85%" VerticalAlignment="Center" />
+                                <Slider x:Name="HoverOpacitySlider" Grid.Column="3" Maximum="100" Minimum="0" IsEnabled="False" />
+                                <TextBlock x:Name="HoverOpacityText" Grid.Column="4" Foreground="White" VerticalAlignment="Center" />
                             </Grid>
                             <Grid ColumnSpacing="12">
                                 <Grid.ColumnDefinitions>
@@ -85,8 +85,8 @@
                                 <TextBlock Foreground="White" Text="3" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Foreground="White" Text="Visible window" VerticalAlignment="Center" />
                                 <ToggleSwitch Grid.Column="2" IsEnabled="False" IsOn="True" />
-                                <Slider Grid.Column="3" Maximum="100" Minimum="0" IsEnabled="False" Value="60" />
-                                <TextBlock Grid.Column="4" Foreground="White" Text="60%" VerticalAlignment="Center" />
+                                <Slider x:Name="WindowVisibleOpacitySlider" Grid.Column="3" Maximum="100" Minimum="0" IsEnabled="False" />
+                                <TextBlock x:Name="WindowVisibleOpacityText" Grid.Column="4" Foreground="White" VerticalAlignment="Center" />
                             </Grid>
                             <Grid ColumnSpacing="12">
                                 <Grid.ColumnDefinitions>
@@ -99,8 +99,8 @@
                                 <TextBlock Foreground="White" Text="4" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Foreground="White" Text="Maximized window" VerticalAlignment="Center" />
                                 <ToggleSwitch Grid.Column="2" IsEnabled="False" IsOn="True" />
-                                <Slider Grid.Column="3" Maximum="100" Minimum="0" IsEnabled="False" Value="42" />
-                                <TextBlock Grid.Column="4" Foreground="White" Text="42%" VerticalAlignment="Center" />
+                                <Slider x:Name="WindowMaximizedOpacitySlider" Grid.Column="3" Maximum="100" Minimum="0" IsEnabled="False" />
+                                <TextBlock x:Name="WindowMaximizedOpacityText" Grid.Column="4" Foreground="White" VerticalAlignment="Center" />
                             </Grid>
                             <Grid ColumnSpacing="12">
                                 <Grid.ColumnDefinitions>
@@ -113,8 +113,8 @@
                                 <TextBlock Foreground="White" Text="5" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Foreground="White" Text="Fullscreen" VerticalAlignment="Center" />
                                 <ToggleSwitch x:Name="FullscreenSwitch" Grid.Column="2" IsEnabled="False" Toggled="FullscreenSwitch_Toggled" />
-                                <Slider Grid.Column="3" Maximum="100" Minimum="0" IsEnabled="False" Value="0" />
-                                <TextBlock Grid.Column="4" Foreground="White" Text="Hidden" VerticalAlignment="Center" />
+                                <Slider x:Name="FullscreenOpacitySlider" Grid.Column="3" Maximum="100" Minimum="0" IsEnabled="False" />
+                                <TextBlock x:Name="FullscreenOpacityText" Grid.Column="4" Foreground="White" VerticalAlignment="Center" />
                             </Grid>
                         </StackPanel>
                     </StackPanel>
@@ -126,13 +126,13 @@
                         <Border Padding="18" Background="#3323C58E" CornerRadius="8">
                             <StackPanel Spacing="6">
                                 <TextBlock Foreground="{StaticResource OxygenMintBrush}" Text="Current state" />
-                                <TextBlock FontSize="26" FontWeight="SemiBold" Foreground="White" Text="Visible window" />
-                                <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="A window is open and not maximized." />
+                                <TextBlock x:Name="PreviewStateText" FontSize="26" FontWeight="SemiBold" Foreground="White" />
+                                <TextBlock x:Name="PreviewStateDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" />
                             </StackPanel>
                         </Border>
                         <TextBlock FontSize="18" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Effective opacity" />
-                        <TextBlock FontSize="44" FontWeight="SemiBold" Foreground="{StaticResource OxygenBlueBrush}" Text="60%" />
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Matched rule: Visible window (Priority 3)" />
+                        <TextBlock x:Name="PreviewOpacityText" FontSize="44" FontWeight="SemiBold" Foreground="{StaticResource OxygenBlueBrush}" />
+                        <TextBlock x:Name="PreviewMatchedRuleText" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" />
                         <Button Click="Preview_Click" Style="{StaticResource GlassButtonStyle}" Content="Preview on this monitor" />
                     </StackPanel>
                 </Border>
