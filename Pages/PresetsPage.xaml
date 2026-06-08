@@ -87,7 +87,7 @@
                         <Slider x:Name="FadeOutDurationSlider" Grid.Column="1" Maximum="1000" Minimum="0" StepFrequency="10" ValueChanged="FadeOutDurationSlider_ValueChanged" />
                         <TextBlock x:Name="FadeOutDurationText" Grid.Column="2" FontSize="22" FontWeight="SemiBold" Foreground="White" Text="180 ms" VerticalAlignment="Center" />
                     </Grid>
-                    <ComboBox x:Name="EasingComboBox" Header="Easing" SelectedIndex="0" HorizontalAlignment="Stretch">
+                    <ComboBox x:Name="EasingComboBox" Header="Easing" SelectedIndex="0" SelectionChanged="EasingComboBox_SelectionChanged" HorizontalAlignment="Stretch">
                         <ComboBoxItem Content="Smooth cubic out" Tag="CubicOut" />
                         <ComboBoxItem Content="Quick quint out" Tag="QuintOut" />
                         <ComboBoxItem Content="Linear" Tag="Linear" />

@@ -9,6 +9,7 @@ public sealed partial class PresetsPage : Page
     private readonly Services.AppState _state = ((App)Application.Current).State;
     private bool _loading;
     private bool _profileNameDirty;
+    private bool _profileTuningDirty;
 
     public PresetsPage()
     {
@@ -20,6 +21,7 @@ public sealed partial class PresetsPage : Page
     private void Apply(TaskbarProfile profile)
     {
         _profileNameDirty = false;
+        _profileTuningDirty = false;
         _state.SetProfile(profile);
     }
 
@@ -33,12 +35,22 @@ public sealed partial class PresetsPage : Page
             PresetNameText.Text = profile.Name;
         }
 
-        PresetOpacitySlider.Value = profile.Opacity;
-        PresetOpacityText.Text = $"{PresetOpacitySlider.Value:0}%";
-        FadeInDurationSlider.Value = profile.FadeInMilliseconds;
-        FadeInDurationText.Text = $"{profile.FadeInMilliseconds} ms";
-        FadeOutDurationSlider.Value = profile.FadeOutMilliseconds;
-        FadeOutDurationText.Text = $"{profile.FadeOutMilliseconds} ms";
+        if (!_profileTuningDirty)
+        {
+            PresetOpacitySlider.Value = profile.Opacity;
+            PresetOpacityText.Text = $"{PresetOpacitySlider.Value:0}%";
+            FadeInDurationSlider.Value = profile.FadeInMilliseconds;
+            FadeInDurationText.Text = $"{profile.FadeInMilliseconds} ms";
+            FadeOutDurationSlider.Value = profile.FadeOutMilliseconds;
+            FadeOutDurationText.Text = $"{profile.FadeOutMilliseconds} ms";
+            EasingComboBox.SelectedIndex = profile.Easing switch
+            {
+                "QuintOut" => 1,
+                "Linear" => 2,
+                _ => 0
+            };
+        }
+
         HoverDistanceSlider.Value = settings.HoverDistance;
         HoverDistanceText.Text = $"{settings.HoverDistance} px";
         AutomationSwitch.IsOn = settings.AutomationEnabled;
@@ -50,12 +62,6 @@ public sealed partial class PresetsPage : Page
         ToggleHotkeyText.Text = settings.ToggleHotkey;
         StartupPermissionInfo.Severity = _state.StartupRegistrationFailed ? InfoBarSeverity.Warning : InfoBarSeverity.Success;
         StartupPermissionInfo.Message = _state.StartupStatusMessage;
-        EasingComboBox.SelectedIndex = profile.Easing switch
-        {
-            "QuintOut" => 1,
-            "Linear" => 2,
-            _ => 0
-        };
         _loading = false;
     }
 
@@ -71,6 +77,7 @@ public sealed partial class PresetsPage : Page
     {
         if (!_loading)
         {
+            _profileTuningDirty = true;
             PresetOpacityText.Text = $"{e.NewValue:0}%";
         }
     }
@@ -79,6 +86,7 @@ public sealed partial class PresetsPage : Page
     {
         if (!_loading)
         {
+            _profileTuningDirty = true;
             FadeInDurationText.Text = $"{e.NewValue:0} ms";
         }
     }
@@ -87,7 +95,16 @@ public sealed partial class PresetsPage : Page
     {
         if (!_loading)
         {
+            _profileTuningDirty = true;
             FadeOutDurationText.Text = $"{e.NewValue:0} ms";
+        }
+    }
+
+    private void EasingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (!_loading)
+        {
+            _profileTuningDirty = true;
         }
     }
 

@@ -8,7 +8,7 @@ from openpyxl.formatting.rule import DataBarRule, FormulaRule
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.worksheet.datavalidation import DataValidation
 
-LAST_UPDATED = "2026-06-07"
+LAST_UPDATED = "2026-06-08"
 
 COLUMNS = ["#", "Area", "Item", "Description", "Priority", "Status", "Notes"]
 STATUSES = ["Done", "In Progress", "Not Started", "Blocked"]
@@ -62,6 +62,7 @@ ITEMS = [
     [45, "Infrastructure", "Settings persistence hardening", "Protect local settings writes and verify relaunch persistence.", "P1", "Done", "SettingsStore now writes atomically; tests cover round-trip, corrupt fallback, and legacy fade migration; Computer Use confirmed Tuning sensor settings persist on a 3440-wide relaunch."],
     [46, "Features", "Tuning profile name edit stability", "Preserve unsaved profile name edits while other Tuning settings refresh.", "P1", "Done", "Tuning no longer overwrites dirty preset-name input during state refresh; Computer Use reproduced the bug and verified save plus relaunch on a 3440-wide monitor."],
     [47, "Features", "Tuning material and reset edge cases", "Ensure material buttons and Reset behave intentionally from the Tuning screen.", "P1", "Done", "Clear, Acrylic, Mica, and Solid are wired; material changes preserve current tuning values; Reset restores Oxygen Clear; Computer Use verified Solid persistence and Reset on a 3440-wide monitor."],
+    [48, "Features", "Tuning slider refresh stability", "Preserve unsaved opacity, fade, and easing edits while other Tuning settings refresh.", "P1", "Done", "Computer Use reproduced hover proximity refresh wiping dirty opacity/fade edits, then verified the dirty tuning values survive on a 3440-wide monitor."],
 ]
 
 TAB_COLORS = {
