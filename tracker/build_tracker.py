@@ -69,6 +69,7 @@ ITEMS = [
     [52, "Features", "Diagnostics recovery action accuracy", "Keep Diagnostics recovery controls truthful and non-destructive.", "P1", "Done", "Computer Use reproduced the inert Open folder button, misleading error header, and fullscreen Apply defaults behavior; Diagnostics now opens logs, reports healthy taskbar updates, and applies safe desktop without changing saved settings."],
     [53, "Features", "Tuning hotkey editing", "Make the unified Tuning hotkey fields actually editable and persist them through Windows hotkey registration.", "P1", "Done", "Computer Use reproduced read-only hotkey fields on the Tuning page; Save changes now writes and re-registers edited shortcuts without overwriting opacity or transition values, with initialization guards added to live-control pages."],
     [54, "Features", "Settings hotkey warning accuracy", "Keep the legacy Settings hotkey status truthful if the surface is reached.", "P2", "Done", "Replaced the always-visible shortcut conflict warning with the same real Windows registration state used by Diagnostics."],
+    [55, "Infrastructure", "Mockup handoff documentation freshness", "Remove stale active-prompt claims after generated mockups are organized.", "P2", "Done", "Computer Use swept the live app surfaces, then README and walkthrough were updated so V1 P2 prompt handoff is no longer described as active."],
 ]
 
 TAB_COLORS = {

@@ -2,7 +2,6 @@
 
 ## Structure
 
-- `References/V1 P2 Mockups/Prompt_V1_P2_Mockups.txt`: active prompt for the third visual mockup generation pass.
 - `Onboarding/Onboarding_FirstRun_Default.png`: generated first-run setup mockup.
 - `Onboarding/Onboarding_FirstRun_Ready.png`: alternate generated first-run setup mockup with readiness checks.
 - `Presets/Presets_Customize_Edit.png`: generated preset customization mockup.
@@ -58,6 +57,6 @@
 
 Dashboard reference was received in chat on 2026-06-07 and used to refine the live WinUI Dashboard screen. The V1 P1 first-run onboarding mockup was generated, visually inspected as a single standalone full-screen UI mockup, renamed, and moved into `Onboarding/`. The remaining V1 P1 generated mockups were also visually inspected, renamed, and organized into their matching logical folders. The tray menu mockup is a desktop tray context state rather than an app-window screen, but it is a single standalone state and not a collage. V1 P2 generated mockups were visually inspected, renamed, and organized into matching logical folders.
 
-The active prompt folder is `References/V1 P2 Mockups/`. Use the prompt file as the handoff artifact for external generation.
+There is no active prompt handoff folder at this time. The previous V1 P2 prompt was completed and removed from `References/` to avoid confusing it with pending generation work.
 
 After generated images are placed in this root `SCREEN IMAGES/` directory, verify each file is a single standalone full-screen UI mockup, then rename and move each image into a logical screen folder. Reject and regenerate any storyboard sheet, collage, split-screen, comparison image, contact sheet, or multi-panel grid.

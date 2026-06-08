@@ -5,16 +5,16 @@ A from-scratch WinUI 3 rebuild of TaskbarTransparency. The app keeps the origina
 ## Current build
 
 - WinUI 3 navigation shell with Mica backdrop
-- Dashboard with live opacity, preset, and runtime controls
-- Presets for Clear, Acrylic glass, and Solid taskbar states
+- Dashboard with live opacity, profile, and runtime controls
+- Tuning screen for Clear, Acrylic glass, Mica, Solid, opacity, fade timing, hover proximity, startup, tray, and hotkey settings
 - Taskbar composition interop for primary and secondary taskbars
 - Automation policy model for desktop, hover, maximized, fullscreen, and visible-window states
 - Settings persistence under `%LocalAppData%\OxygenTaskbar\settings.json`
-- Monitor screen prepared for per-display overrides
-- Diagnostics screen for applying simulated runtime states
-- Unit tests for opacity policy and accent color composition
+- Monitor screen with detected display overview and per-display overrides
+- Diagnostics screen for runtime timeline, recovery actions, launcher logs, and hotkey registration status
+- Unit tests for settings persistence, taskbar appearance, runtime sensors, hotkeys, tray commands, policy, and snapshots
 - Tracker workbook generated from `tracker/build_tracker.py`
-- Active mockup prompt handoff in `SCREEN IMAGES/References/V1 P2 Mockups`
+- Generated mockups organized under `SCREEN IMAGES/`
 - Self-contained unpackaged Windows App SDK output for local launcher runs
 
 ## Build
