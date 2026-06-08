@@ -10,6 +10,7 @@ public sealed class RuntimeStateSensorService : IDisposable
     private readonly Func<AppSettings> _getSettings;
     private Action<AutomationTrigger>? _stateChanged;
     private AutomationTrigger? _lastTrigger;
+    private int _isTicking;
 
     public RuntimeStateSensorService(Func<AppSettings> getSettings)
     {
@@ -29,6 +30,11 @@ public sealed class RuntimeStateSensorService : IDisposable
 
     private void Tick()
     {
+        if (Interlocked.Exchange(ref _isTicking, 1) == 1)
+        {
+            return;
+        }
+
         AutomationTrigger trigger;
         try
         {
@@ -39,13 +45,20 @@ public sealed class RuntimeStateSensorService : IDisposable
             trigger = AutomationTrigger.Desktop;
         }
 
-        if (trigger == _lastTrigger)
+        try
         {
-            return;
-        }
+            if (trigger == _lastTrigger)
+            {
+                return;
+            }
 
-        _lastTrigger = trigger;
-        _stateChanged?.Invoke(trigger);
+            _lastTrigger = trigger;
+            _stateChanged?.Invoke(trigger);
+        }
+        finally
+        {
+            Volatile.Write(ref _isTicking, 0);
+        }
     }
 
     public static AutomationTrigger ResolveTrigger(

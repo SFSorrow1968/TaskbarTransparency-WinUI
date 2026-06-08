@@ -45,9 +45,31 @@ public sealed class SettingsStore
     {
         var directory = Path.GetDirectoryName(SettingsPath)!;
         Directory.CreateDirectory(directory);
+        var json = JsonSerializer.Serialize(settings, SettingsJsonContext.Default.AppSettings);
+        if (ExistingSettingsMatch(json))
+        {
+            return;
+        }
+
         var tempPath = Path.Combine(directory, $"{Path.GetFileName(SettingsPath)}.{Guid.NewGuid():N}.tmp");
-        File.WriteAllText(tempPath, JsonSerializer.Serialize(settings, SettingsJsonContext.Default.AppSettings));
+        File.WriteAllText(tempPath, json);
         File.Move(tempPath, SettingsPath, overwrite: true);
+    }
+
+    private bool ExistingSettingsMatch(string json)
+    {
+        try
+        {
+            return File.Exists(SettingsPath) && string.Equals(File.ReadAllText(SettingsPath), json, StringComparison.Ordinal);
+        }
+        catch (IOException)
+        {
+            return false;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return false;
+        }
     }
 }
 

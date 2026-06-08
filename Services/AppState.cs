@@ -44,8 +44,8 @@ public sealed class AppState
             ToggleTransparency,
             RequestExit);
         _tray.SetVisible(Settings.ShowTrayIcon);
-        ApplyNow();
-        _sensors.Start(trigger => ApplyNow(trigger));
+        ApplyNow(persistSettings: false);
+        _sensors.Start(trigger => ApplyNow(trigger, persistSettings: false));
     }
 
     public void AttachWindow(IntPtr hwnd)
@@ -90,14 +90,14 @@ public sealed class AppState
     {
         _opacityBeforeToggle = null;
         Settings.ActiveProfile = profile;
-        ApplyNow();
+        ApplyNow(persistSettings: true);
     }
 
     public void SetOpacity(double value)
     {
         _opacityBeforeToggle = null;
         Settings.ActiveProfile = Settings.ActiveProfile with { Opacity = (byte)Math.Round(value) };
-        ApplyNow();
+        ApplyNow(persistSettings: true);
     }
 
     public void SetMonitorOverride(string deviceName, double opacity, bool syncWithPrimary)
@@ -118,13 +118,13 @@ public sealed class AppState
             liveMonitor.SyncWithPrimary = syncWithPrimary;
         }
 
-        ApplyNow();
+        ApplyNow(persistSettings: true);
     }
 
     public void SetAutomation(bool enabled)
     {
         Settings.AutomationEnabled = enabled;
-        ApplyNow();
+        ApplyNow(persistSettings: true);
     }
 
     public void SetHoverReveal(bool enabled)
@@ -199,7 +199,7 @@ public sealed class AppState
             _opacityBeforeToggle = null;
         }
 
-        ApplyNow();
+        ApplyNow(persistSettings: true);
     }
 
     public void CompleteFirstRun(TaskbarProfile profile)
@@ -207,14 +207,18 @@ public sealed class AppState
         _opacityBeforeToggle = null;
         Settings.FirstRunCompleted = true;
         Settings.ActiveProfile = profile;
-        ApplyNow();
+        ApplyNow(persistSettings: true);
     }
 
-    public void ApplyNow() => ApplyNow(AutomationTrigger.Desktop);
+    public void ApplyNow() => ApplyNow(AutomationTrigger.Desktop, persistSettings: false);
 
-    public void ReapplyCurrentRuntimeState() => ApplyNow(RuntimeTriggerText.Parse(Runtime.State));
+    public void ReapplyCurrentRuntimeState() => ApplyNow(RuntimeTriggerText.Parse(Runtime.State), persistSettings: false);
 
-    public void ApplyNow(AutomationTrigger trigger)
+    public void ApplyNow(AutomationTrigger trigger) => ApplyNow(trigger, persistSettings: false);
+
+    private void ApplyNow(bool persistSettings) => ApplyNow(AutomationTrigger.Desktop, persistSettings);
+
+    private void ApplyNow(AutomationTrigger trigger, bool persistSettings)
     {
         var opacity = OpacityPolicy.Resolve(Settings.ActiveProfile, trigger, Settings.AutomationEnabled);
         var previousState = Runtime.State;
@@ -240,7 +244,13 @@ public sealed class AppState
             });
         }
 
-        SaveAndNotify();
+        if (persistSettings)
+        {
+            SaveAndNotify();
+            return;
+        }
+
+        Changed?.Invoke(this, EventArgs.Empty);
     }
 
     private void SaveAndNotify()

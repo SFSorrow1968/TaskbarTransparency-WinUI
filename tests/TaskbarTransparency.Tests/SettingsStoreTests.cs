@@ -99,6 +99,26 @@ public sealed class SettingsStoreTests : IDisposable
         Assert.Equal(TaskbarProfile.OxygenClear, loaded.ActiveProfile);
     }
 
+    [Fact]
+    public void Save_SkipsRewrite_WhenSerializedSettingsAreUnchanged()
+    {
+        var path = Path.Combine(_directory, "settings.json");
+        var store = new SettingsStore(path);
+        var settings = new AppSettings
+        {
+            FirstRunCompleted = true,
+            ActiveProfile = TaskbarProfile.FocusGlass
+        };
+
+        store.Save(settings);
+        var firstWrite = File.GetLastWriteTimeUtc(path);
+        Thread.Sleep(1200);
+        store.Save(settings);
+
+        Assert.Equal(firstWrite, File.GetLastWriteTimeUtc(path));
+        Assert.Empty(Directory.GetFiles(_directory, "*.tmp"));
+    }
+
     public void Dispose()
     {
         if (Directory.Exists(_directory))
