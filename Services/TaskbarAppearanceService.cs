@@ -16,6 +16,7 @@ public sealed class TaskbarAppearanceService
     private const int AccentEnableAcrylicBlurBehind = 4;
     private const int MinimumFrameMilliseconds = 16;
     private readonly ConcurrentDictionary<IntPtr, byte> _currentAlphas = new();
+    private readonly ConcurrentDictionary<IntPtr, AppearanceRequest> _currentAppearances = new();
     private readonly object _animationSync = new();
     private CancellationTokenSource? _animationCancellation;
 
@@ -30,8 +31,7 @@ public sealed class TaskbarAppearanceService
         {
             var monitor = monitorLookup.GetValueOrDefault(target.DeviceName);
             var targetOpacity = ResolveMonitorOpacity(opacity, monitor);
-            Apply(target.Handle, profile, targetOpacity);
-            EnsureLayeredWindow(target.Handle);
+            ApplyIfChanged(target.Handle, profile, targetOpacity);
             alphaTargets[target.Handle] = targetOpacity;
         }
 
@@ -72,19 +72,24 @@ public sealed class TaskbarAppearanceService
         return new TaskbarTarget(handle, deviceName);
     }
 
-    private static void Apply(IntPtr handle, TaskbarProfile profile, byte opacity)
+    private void ApplyIfChanged(IntPtr handle, TaskbarProfile profile, byte opacity)
+    {
+        var request = CreateAppearanceRequest(profile, opacity);
+        if (_currentAppearances.TryGetValue(handle, out var current) && current == request)
+        {
+            return;
+        }
+
+        Apply(handle, request);
+        _currentAppearances[handle] = request;
+    }
+
+    private static void Apply(IntPtr handle, AppearanceRequest request)
     {
         var accent = new AccentPolicy
         {
-            AccentState = profile.Mode switch
-            {
-                TaskbarVisualMode.Clear => AccentEnableTransparentGradient,
-                TaskbarVisualMode.Acrylic => AccentEnableAcrylicBlurBehind,
-                TaskbarVisualMode.Mica => AccentEnableBlurBehind,
-                TaskbarVisualMode.Solid => AccentEnableGradient,
-                _ => AccentDisabled
-            },
-            GradientColor = ComposeColor(profile.AccentHex, opacity)
+            AccentState = request.AccentState,
+            GradientColor = request.GradientColor
         };
 
         var accentSize = Marshal.SizeOf<AccentPolicy>();
@@ -112,6 +117,8 @@ public sealed class TaskbarAppearanceService
     public static int SelectFadeMillisecondsForTest(TaskbarProfile profile, byte startAlpha, byte targetAlpha) => SelectFadeMilliseconds(profile, startAlpha, targetAlpha);
     public static IReadOnlyDictionary<IntPtr, int> SelectFadeDurationsForTest(TaskbarProfile profile, IReadOnlyDictionary<IntPtr, byte> starts, IReadOnlyDictionary<IntPtr, byte> targetAlphas) => SelectFadeDurations(profile, starts, targetAlphas);
     public static byte ResolveMonitorOpacityForTest(byte opacity, MonitorProfile? monitor) => ResolveMonitorOpacity(opacity, monitor);
+    public static bool ShouldApplyLayeredAlphaForTest(byte? currentAlpha, byte targetAlpha) => ShouldApplyLayeredAlpha(currentAlpha, targetAlpha);
+    public static bool AppearanceRequestMatchesForTest(TaskbarProfile leftProfile, byte leftOpacity, TaskbarProfile rightProfile, byte rightOpacity) => CreateAppearanceRequest(leftProfile, leftOpacity) == CreateAppearanceRequest(rightProfile, rightOpacity);
 
     private static int ComposeColor(string hex, byte opacity)
     {
@@ -123,11 +130,36 @@ public sealed class TaskbarAppearanceService
         return (alpha << 24) | (b << 16) | (g << 8) | r;
     }
 
+    private static AppearanceRequest CreateAppearanceRequest(TaskbarProfile profile, byte opacity)
+    {
+        return new AppearanceRequest(
+            profile.Mode switch
+            {
+                TaskbarVisualMode.Clear => AccentEnableTransparentGradient,
+                TaskbarVisualMode.Acrylic => AccentEnableAcrylicBlurBehind,
+                TaskbarVisualMode.Mica => AccentEnableBlurBehind,
+                TaskbarVisualMode.Solid => AccentEnableGradient,
+                _ => AccentDisabled
+            },
+            ComposeColor(profile.AccentHex, opacity));
+    }
+
     private void AnimateTaskbarAlpha(IReadOnlyDictionary<IntPtr, byte> targetOpacities, TaskbarProfile profile)
     {
         if (targetOpacities.Count == 0)
         {
             _currentAlphas.Clear();
+            _currentAppearances.Clear();
+            return;
+        }
+
+        var targetAlphas = targetOpacities
+            .Select(pair => new KeyValuePair<IntPtr, byte>(pair.Key, ConvertOpacityToAlpha(pair.Value)))
+            .Where(pair => ShouldApplyLayeredAlpha(GetCurrentAlpha(pair.Key), pair.Value))
+            .ToDictionary(pair => pair.Key, pair => pair.Value);
+
+        if (targetAlphas.Count == 0)
+        {
             return;
         }
 
@@ -140,7 +172,6 @@ public sealed class TaskbarAppearanceService
             cancellation = _animationCancellation;
         }
 
-        var targetAlphas = targetOpacities.ToDictionary(pair => pair.Key, pair => ConvertOpacityToAlpha(pair.Value));
         var starts = targetAlphas.ToDictionary(pair => pair.Key, pair => _currentAlphas.GetValueOrDefault(pair.Key, pair.Value));
         var fadeDurations = SelectFadeDurations(profile, starts, targetAlphas);
 
@@ -207,9 +238,26 @@ public sealed class TaskbarAppearanceService
 
     private void ApplyLayeredAlpha(IntPtr handle, byte alpha)
     {
+        if (!ShouldApplyLayeredAlpha(GetCurrentAlpha(handle), alpha))
+        {
+            return;
+        }
+
         EnsureLayeredWindow(handle);
         SetLayeredWindowAttributes(handle, 0, alpha, LwaAlpha);
         _currentAlphas[handle] = alpha;
+    }
+
+    private static bool ShouldApplyLayeredAlpha(byte? currentAlpha, byte targetAlpha)
+    {
+        return currentAlpha != targetAlpha;
+    }
+
+    private byte? GetCurrentAlpha(IntPtr handle)
+    {
+        return _currentAlphas.TryGetValue(handle, out var alpha)
+            ? alpha
+            : null;
     }
 
     private static byte ConvertOpacityToAlpha(byte opacity)
@@ -289,6 +337,7 @@ public sealed class TaskbarAppearanceService
     }
 
     private readonly record struct TaskbarTarget(IntPtr Handle, string DeviceName);
+    private readonly record struct AppearanceRequest(int AccentState, int GradientColor);
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     private struct MonitorInfo

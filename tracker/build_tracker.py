@@ -82,6 +82,7 @@ ITEMS = [
     [65, "Features", "Hidden-window hotkey restore audit", "Verify the global open hotkey restores Oxygen after the dashboard has been hidden to tray.", "P1", "Done", "Computer Use closed Oxygen to tray on a 1426 by 913 widescreen app surface, sent Ctrl+Alt+G through Windows, and confirmed the Dashboard window returned at the same bounds."],
     [66, "Features", "Tray popup command audit", "Verify the notification-area popup exposes the intended commands and routes key commands from the hidden tray state.", "P1", "Done", "Windows tray overflow exposed Oxygen Taskbar; native popup extraction confirmed Open Dashboard, Reapply Current State, Toggle Transparency, Open Tuning, and Exit labels. Open Tuning restored Tuning, and Exit terminated the background process."],
     [67, "Infrastructure", "Runtime smoothness optimization", "Reduce redundant disk writes and overlapping runtime sensor work during frequent taskbar applies.", "P1", "Done", "Runtime applies now update transient state without saving unchanged settings; identical settings saves are skipped; sensor ticks avoid overlap."],
+    [68, "Infrastructure", "Taskbar interop no-op optimization", "Avoid redundant native taskbar composition and alpha calls when visual requests are unchanged.", "P1", "Done", "Taskbar appearance requests are cached per handle and unchanged layered-alpha requests are skipped, reducing work during rapid controls and repeated applies."],
 ]
 
 TAB_COLORS = {

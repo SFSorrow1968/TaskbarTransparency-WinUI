@@ -119,4 +119,25 @@ public sealed class TaskbarAppearanceServiceTests
 
         Assert.Equal(83, opacity);
     }
+
+    [Fact]
+    public void ShouldApplyLayeredAlphaForTest_SkipsUnchangedAlpha()
+    {
+        Assert.False(TaskbarAppearanceService.ShouldApplyLayeredAlphaForTest(128, 128));
+        Assert.True(TaskbarAppearanceService.ShouldApplyLayeredAlphaForTest(127, 128));
+        Assert.True(TaskbarAppearanceService.ShouldApplyLayeredAlphaForTest(null, 128));
+    }
+
+    [Fact]
+    public void AppearanceRequestMatchesForTest_ChangesOnlyForNativeCompositionInputs()
+    {
+        var first = TaskbarProfile.FocusGlass with { FadeInMilliseconds = 50, FadeOutMilliseconds = 100, Easing = "Linear" };
+        var sameNativeRequest = first with { FadeInMilliseconds = 500, FadeOutMilliseconds = 900, Easing = "QuintOut" };
+        var differentOpacity = first with { Opacity = 73 };
+        var differentMode = first with { Mode = TaskbarVisualMode.Solid };
+
+        Assert.True(TaskbarAppearanceService.AppearanceRequestMatchesForTest(first, 72, sameNativeRequest, 72));
+        Assert.False(TaskbarAppearanceService.AppearanceRequestMatchesForTest(first, 72, differentOpacity, 73));
+        Assert.False(TaskbarAppearanceService.AppearanceRequestMatchesForTest(first, 72, differentMode, 72));
+    }
 }
