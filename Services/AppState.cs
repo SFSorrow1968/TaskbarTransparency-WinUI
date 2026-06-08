@@ -88,12 +88,14 @@ public sealed class AppState
 
     public void SetProfile(TaskbarProfile profile)
     {
+        _opacityBeforeToggle = null;
         Settings.ActiveProfile = profile;
         ApplyNow();
     }
 
     public void SetOpacity(double value)
     {
+        _opacityBeforeToggle = null;
         Settings.ActiveProfile = Settings.ActiveProfile with { Opacity = (byte)Math.Round(value) };
         ApplyNow();
     }
@@ -176,6 +178,7 @@ public sealed class AppState
 
     public void CompleteFirstRun(TaskbarProfile profile)
     {
+        _opacityBeforeToggle = null;
         Settings.FirstRunCompleted = true;
         Settings.ActiveProfile = profile;
         ApplyNow();
