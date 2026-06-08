@@ -45,7 +45,7 @@ public sealed class TaskbarAppearanceService
             alphaTargets[target.Handle] = targetOpacity;
         }
 
-        PruneStaleHandles(targets.Select(target => target.Handle));
+        PruneStaleHandles(targets);
         var alphaSummary = AnimateTaskbarAlpha(alphaTargets, profile);
         Diagnostics = TaskbarApplyDiagnostics.Create(
             targets.Count,
@@ -253,14 +253,35 @@ public sealed class TaskbarAppearanceService
         return new AlphaApplySummary(targetAlphas.Count, skipped, AnimationStarted: true);
     }
 
-    private void PruneStaleHandles(IEnumerable<IntPtr> liveHandles)
+    private void PruneStaleHandles(IReadOnlyList<TaskbarWindowInfo> liveTargets)
     {
-        var cachedHandles = _currentAlphas.Keys.Concat(_currentAppearances.Keys);
-        foreach (var handle in FindStaleHandles(cachedHandles, liveHandles))
+        var liveHandles = BuildLiveHandleSet(liveTargets);
+        foreach (var handle in _currentAlphas.Keys)
         {
-            _currentAlphas.TryRemove(handle, out _);
-            _currentAppearances.TryRemove(handle, out _);
+            if (!liveHandles.Contains(handle))
+            {
+                _currentAlphas.TryRemove(handle, out _);
+            }
         }
+
+        foreach (var handle in _currentAppearances.Keys)
+        {
+            if (!liveHandles.Contains(handle))
+            {
+                _currentAppearances.TryRemove(handle, out _);
+            }
+        }
+    }
+
+    private static HashSet<IntPtr> BuildLiveHandleSet(IReadOnlyList<TaskbarWindowInfo> liveTargets)
+    {
+        var liveHandles = new HashSet<IntPtr>();
+        foreach (var target in liveTargets)
+        {
+            liveHandles.Add(target.Handle);
+        }
+
+        return liveHandles;
     }
 
     private static IReadOnlyCollection<IntPtr> FindStaleHandles(IEnumerable<IntPtr> cachedHandles, IEnumerable<IntPtr> liveHandles)

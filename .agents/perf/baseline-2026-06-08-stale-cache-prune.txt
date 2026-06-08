@@ -1,0 +1,12 @@
+Target: taskbar stale cache pruning
+Date: 2026-06-08
+Runtime: .NET 10.0.203 SDK, WinUI desktop app
+
+Baseline evidence:
+- TaskbarAppearanceService.Apply passed targets.Select(handle) into stale cache pruning.
+- Pruning combined cached alpha and appearance keys, built a live handle set, distinct-filtered stale handles, then materialized an array before removal.
+- This path runs after every taskbar apply.
+
+Validation baseline:
+- Pre-change repo state was clean on main...origin/main.
+- Previous pass snapshot baseline: v0.1.57.
