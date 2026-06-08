@@ -70,6 +70,7 @@ ITEMS = [
     [53, "Features", "Tuning hotkey editing", "Make the unified Tuning hotkey fields actually editable and persist them through Windows hotkey registration.", "P1", "Done", "Computer Use reproduced read-only hotkey fields on the Tuning page; Save changes now writes and re-registers edited shortcuts without overwriting opacity or transition values, with initialization guards added to live-control pages."],
     [54, "Features", "Settings hotkey warning accuracy", "Keep the legacy Settings hotkey status truthful if the surface is reached.", "P2", "Done", "Replaced the always-visible shortcut conflict warning with the same real Windows registration state used by Diagnostics."],
     [55, "Infrastructure", "Mockup handoff documentation freshness", "Remove stale active-prompt claims after generated mockups are organized.", "P2", "Done", "Computer Use swept the live app surfaces, then README and walkthrough were updated so V1 P2 prompt handoff is no longer described as active."],
+    [56, "Features", "Automation preview affordance clarity", "Make Automation read like an intentional policy preview instead of a disabled editor.", "P2", "Done", "Computer Use reproduced disabled Add custom rule, reset, discard, and save controls; Automation now uses read-only policy output with an active Open Tuning edit path."],
 ]
 
 TAB_COLORS = {

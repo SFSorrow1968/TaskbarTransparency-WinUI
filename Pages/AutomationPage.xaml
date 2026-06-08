@@ -10,7 +10,6 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <Grid>
@@ -19,7 +18,7 @@
                     <TextBlock Style="{StaticResource OxygenPageTitleTextBlockStyle}" Text="Taskbar Opacity Rules" />
                     <TextBlock FontSize="18" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Define how the taskbar should appear in different states. Rules are evaluated from top to bottom." />
                 </StackPanel>
-                <Button HorizontalAlignment="Right" VerticalAlignment="Top" Style="{StaticResource GlassButtonStyle}" Width="210" IsEnabled="False" Content="Add custom rule" />
+                <Button HorizontalAlignment="Right" VerticalAlignment="Top" Click="OpenTuning_Click" Style="{StaticResource GlassButtonStyle}" Width="210" Content="Open Tuning" />
             </Grid>
 
             <Grid Grid.Row="1" ColumnSpacing="16">
@@ -31,7 +30,7 @@
                 <Border Style="{StaticResource OxygenCardBorderStyle}">
                     <StackPanel Spacing="14">
                         <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Rule order &amp; per-state opacity" />
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Preview-only rule order. Edit the underlying settings in Tuning." />
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Preview-only policy output. Edit source settings in Tuning." />
                         <Grid ColumnSpacing="12">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="44" />
@@ -42,7 +41,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="#" />
                             <TextBlock Grid.Column="1" Foreground="{StaticResource OxygenMutedTextBrush}" Text="State" />
-                            <TextBlock Grid.Column="2" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Enable" />
+                            <TextBlock Grid.Column="2" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Source" />
                             <TextBlock Grid.Column="3" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Target opacity" />
                         </Grid>
                         <StackPanel Spacing="8">
@@ -56,8 +55,8 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Foreground="White" Text="1" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Foreground="White" Text="Desktop" VerticalAlignment="Center" />
-                                <ToggleSwitch x:Name="AutomationSwitch" Grid.Column="2" IsEnabled="False" Toggled="AutomationSwitch_Toggled" />
-                                <Slider x:Name="DesktopOpacitySlider" Grid.Column="3" Maximum="100" Minimum="0" IsEnabled="False" />
+                                <TextBlock x:Name="AutomationRuleText" Grid.Column="2" Foreground="{StaticResource OxygenMutedTextBrush}" VerticalAlignment="Center" />
+                                <ProgressBar x:Name="DesktopOpacityBar" Grid.Column="3" Maximum="100" Minimum="0" />
                                 <TextBlock x:Name="DesktopOpacityText" Grid.Column="4" Foreground="White" VerticalAlignment="Center" />
                             </Grid>
                             <Grid ColumnSpacing="12">
@@ -70,8 +69,8 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Foreground="White" Text="2" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Foreground="White" Text="Hover" VerticalAlignment="Center" />
-                                <ToggleSwitch x:Name="HoverSwitch" Grid.Column="2" IsEnabled="False" Toggled="HoverSwitch_Toggled" />
-                                <Slider x:Name="HoverOpacitySlider" Grid.Column="3" Maximum="100" Minimum="0" IsEnabled="False" />
+                                <TextBlock x:Name="HoverRuleText" Grid.Column="2" Foreground="{StaticResource OxygenMutedTextBrush}" VerticalAlignment="Center" />
+                                <ProgressBar x:Name="HoverOpacityBar" Grid.Column="3" Maximum="100" Minimum="0" />
                                 <TextBlock x:Name="HoverOpacityText" Grid.Column="4" Foreground="White" VerticalAlignment="Center" />
                             </Grid>
                             <Grid ColumnSpacing="12">
@@ -84,8 +83,8 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Foreground="White" Text="3" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Foreground="White" Text="Visible window" VerticalAlignment="Center" />
-                                <ToggleSwitch Grid.Column="2" IsEnabled="False" IsOn="True" />
-                                <Slider x:Name="WindowVisibleOpacitySlider" Grid.Column="3" Maximum="100" Minimum="0" IsEnabled="False" />
+                                <TextBlock Grid.Column="2" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Window sensor" VerticalAlignment="Center" />
+                                <ProgressBar x:Name="WindowVisibleOpacityBar" Grid.Column="3" Maximum="100" Minimum="0" />
                                 <TextBlock x:Name="WindowVisibleOpacityText" Grid.Column="4" Foreground="White" VerticalAlignment="Center" />
                             </Grid>
                             <Grid ColumnSpacing="12">
@@ -98,8 +97,8 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Foreground="White" Text="4" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Foreground="White" Text="Maximized window" VerticalAlignment="Center" />
-                                <ToggleSwitch Grid.Column="2" IsEnabled="False" IsOn="True" />
-                                <Slider x:Name="WindowMaximizedOpacitySlider" Grid.Column="3" Maximum="100" Minimum="0" IsEnabled="False" />
+                                <TextBlock Grid.Column="2" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Window sensor" VerticalAlignment="Center" />
+                                <ProgressBar x:Name="WindowMaximizedOpacityBar" Grid.Column="3" Maximum="100" Minimum="0" />
                                 <TextBlock x:Name="WindowMaximizedOpacityText" Grid.Column="4" Foreground="White" VerticalAlignment="Center" />
                             </Grid>
                             <Grid ColumnSpacing="12">
@@ -112,8 +111,8 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Foreground="White" Text="5" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Foreground="White" Text="Fullscreen" VerticalAlignment="Center" />
-                                <ToggleSwitch x:Name="FullscreenSwitch" Grid.Column="2" IsEnabled="False" Toggled="FullscreenSwitch_Toggled" />
-                                <Slider x:Name="FullscreenOpacitySlider" Grid.Column="3" Maximum="100" Minimum="0" IsEnabled="False" />
+                                <TextBlock x:Name="FullscreenRuleText" Grid.Column="2" Foreground="{StaticResource OxygenMutedTextBrush}" VerticalAlignment="Center" />
+                                <ProgressBar x:Name="FullscreenOpacityBar" Grid.Column="3" Maximum="100" Minimum="0" />
                                 <TextBlock x:Name="FullscreenOpacityText" Grid.Column="4" Foreground="White" VerticalAlignment="Center" />
                             </Grid>
                         </StackPanel>
@@ -157,17 +156,6 @@
                         <Button x:Name="ResolveConflictButton" Click="ResolveConflict_Click" Style="{StaticResource GlassButtonStyle}" Content="Enable automation now" />
                     </StackPanel>
                 </Border>
-            </Grid>
-
-            <Grid Grid.Row="3" ColumnSpacing="14">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="190" />
-                    <ColumnDefinition Width="190" />
-                </Grid.ColumnDefinitions>
-                <Button Style="{StaticResource GlassButtonStyle}" Width="210" HorizontalAlignment="Left" IsEnabled="False" Content="Reset to defaults" />
-                <Button Grid.Column="1" Style="{StaticResource GlassButtonStyle}" IsEnabled="False" Content="Discard changes" />
-                <Button Grid.Column="2" Click="Save_Click" Style="{StaticResource GlassButtonStyle}" Background="{StaticResource OxygenBlueBrush}" IsEnabled="False" Content="Save in Tuning" />
             </Grid>
         </Grid>
     </ScrollViewer>

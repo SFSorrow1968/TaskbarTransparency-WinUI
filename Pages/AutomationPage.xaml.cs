@@ -7,7 +7,6 @@ namespace TaskbarTransparency.Pages;
 public sealed partial class AutomationPage : Page
 {
     private readonly AppState _state = ((App)Microsoft.UI.Xaml.Application.Current).State;
-    private bool _loading = true;
 
     public AutomationPage()
     {
@@ -19,15 +18,14 @@ public sealed partial class AutomationPage : Page
     private void Refresh()
     {
         var settings = _state.Settings;
-        _loading = true;
-        AutomationSwitch.IsOn = settings.AutomationEnabled;
-        HoverSwitch.IsOn = settings.HoverReveal;
-        FullscreenSwitch.IsOn = settings.FullscreenOverlap;
-        SetRule(DesktopOpacitySlider, DesktopOpacityText, RuleOpacity(settings, AutomationTrigger.Desktop));
-        SetRule(HoverOpacitySlider, HoverOpacityText, RuleOpacity(settings, AutomationTrigger.Hover));
-        SetRule(WindowVisibleOpacitySlider, WindowVisibleOpacityText, RuleOpacity(settings, AutomationTrigger.WindowVisible));
-        SetRule(WindowMaximizedOpacitySlider, WindowMaximizedOpacityText, RuleOpacity(settings, AutomationTrigger.WindowMaximized));
-        SetRule(FullscreenOpacitySlider, FullscreenOpacityText, RuleOpacity(settings, AutomationTrigger.Fullscreen));
+        AutomationRuleText.Text = settings.AutomationEnabled ? "Automation" : "Paused";
+        HoverRuleText.Text = settings.HoverReveal ? "Hover sensor" : "Hover off";
+        FullscreenRuleText.Text = settings.FullscreenOverlap ? "Fullscreen sensor" : "Fullscreen off";
+        SetRule(DesktopOpacityBar, DesktopOpacityText, RuleOpacity(settings, AutomationTrigger.Desktop));
+        SetRule(HoverOpacityBar, HoverOpacityText, RuleOpacity(settings, AutomationTrigger.Hover));
+        SetRule(WindowVisibleOpacityBar, WindowVisibleOpacityText, RuleOpacity(settings, AutomationTrigger.WindowVisible));
+        SetRule(WindowMaximizedOpacityBar, WindowMaximizedOpacityText, RuleOpacity(settings, AutomationTrigger.WindowMaximized));
+        SetRule(FullscreenOpacityBar, FullscreenOpacityText, RuleOpacity(settings, AutomationTrigger.Fullscreen));
 
         var runtimeState = FormatTrigger(_state.Runtime.State);
         PreviewStateText.Text = runtimeState;
@@ -46,31 +44,6 @@ public sealed partial class AutomationPage : Page
         RuleHealthDetailText.Text = settings.AutomationEnabled
             ? "Rules are ready for live evaluation."
             : "Enable automation to let sensor matches apply rule opacity.";
-        _loading = false;
-    }
-
-    private void AutomationSwitch_Toggled(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
-    {
-        if (!_loading)
-        {
-            _state.SetAutomation(AutomationSwitch.IsOn);
-        }
-    }
-
-    private void HoverSwitch_Toggled(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
-    {
-        if (!_loading)
-        {
-            _state.SetHoverReveal(HoverSwitch.IsOn);
-        }
-    }
-
-    private void FullscreenSwitch_Toggled(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
-    {
-        if (!_loading)
-        {
-            _state.SetFullscreenOverlap(FullscreenSwitch.IsOn);
-        }
     }
 
     private void Preview_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
@@ -78,9 +51,9 @@ public sealed partial class AutomationPage : Page
         _state.ApplyNow(AutomationTrigger.WindowVisible);
     }
 
-    private void Save_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private void OpenTuning_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        _state.ApplyNow(AutomationTrigger.WindowVisible);
+        _state.RequestView(AppView.Tuning);
     }
 
     private void ResolveConflict_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
@@ -93,9 +66,9 @@ public sealed partial class AutomationPage : Page
         return OpacityPolicy.Resolve(settings.ActiveProfile, trigger, automationEnabled: true);
     }
 
-    private static void SetRule(Slider slider, TextBlock text, byte opacity)
+    private static void SetRule(ProgressBar bar, TextBlock text, byte opacity)
     {
-        slider.Value = opacity;
+        bar.Value = opacity;
         text.Text = $"{opacity}%";
     }
 
