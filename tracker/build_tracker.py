@@ -94,6 +94,7 @@ ITEMS = [
     [77, "Infrastructure", "Monitor list refresh versioning", "Avoid rebuilding monitor overview signature strings on every Monitors page refresh.", "P1", "Done", "AppState now tracks MonitorsVersion so monitor overview rows rebuild only when the live monitor collection or overrides change."],
     [78, "Infrastructure", "Loaded page refresh coalescing", "Avoid queuing duplicate UI refreshes for loaded pages during quick AppState change bursts.", "P1", "Done", "State-listening pages now share a RefreshCoalescer so repeated change notifications collapse to one pending dispatcher refresh per page."],
     [79, "Infrastructure", "Synced monitor apply lookup skip", "Avoid building per-monitor override lookup dictionaries when all monitors follow the primary opacity.", "P1", "Done", "TaskbarAppearanceService now creates the monitor override lookup only when at least one monitor is unsynced."],
+    [80, "Infrastructure", "Taskbar apply diagnostics counters", "Expose lightweight counters for native composition skips, alpha skips, monitor lookup use, and animation starts.", "P1", "Done", "Diagnostics now shows latest apply counters so future optimization passes can be guided by measured skip behavior instead of source inspection alone."],
 ]
 
 TAB_COLORS = {

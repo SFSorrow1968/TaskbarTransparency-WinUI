@@ -134,6 +134,25 @@ public sealed class TaskbarAppearanceServiceTests
     }
 
     [Fact]
+    public void CreateDiagnosticsForTest_ComputesSkipRatiosAndClampsCounts()
+    {
+        var diagnostics = TaskbarAppearanceService.CreateDiagnosticsForTest(
+            targetCount: 2,
+            compositionApplied: 1,
+            compositionSkipped: 3,
+            layeredAlphaChanges: -5,
+            layeredAlphaNoOps: 2,
+            monitorLookupBuilt: true,
+            animationStarted: false);
+
+        Assert.Equal(2, diagnostics.TargetCount);
+        Assert.Equal(0.75, diagnostics.CompositionSkipRatio, precision: 3);
+        Assert.Equal(1d, diagnostics.LayeredAlphaSkipRatio, precision: 3);
+        Assert.True(diagnostics.MonitorLookupBuilt);
+        Assert.False(diagnostics.AnimationStarted);
+    }
+
+    [Fact]
     public void ShouldApplyLayeredAlphaForTest_SkipsUnchangedAlpha()
     {
         Assert.False(TaskbarAppearanceService.ShouldApplyLayeredAlphaForTest(128, 128));

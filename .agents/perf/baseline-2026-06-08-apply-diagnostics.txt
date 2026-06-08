@@ -1,0 +1,12 @@
+Target: taskbar apply diagnostics counters
+Date: 2026-06-08
+Runtime: .NET 10.0.203 SDK, WinUI desktop app
+
+Baseline evidence:
+- No dedicated runtime benchmark or live counter harness existed for the taskbar apply path.
+- Previous optimization passes reduced obvious repeated work, but future apply-path decisions needed measured skip evidence.
+- TaskbarAppearanceService already knew whether composition calls and layered alpha calls were applied or skipped, but those decisions were not exposed.
+
+Validation baseline:
+- Pre-change repo state was clean on main...origin/main.
+- Previous pass snapshot baseline: v0.1.54.

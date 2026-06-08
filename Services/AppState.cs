@@ -26,6 +26,7 @@ public sealed class AppState
     public string StartupStatusMessage { get; private set; } = "Startup registration is ready.";
     public bool ExitRequested { get; private set; }
     public HotkeyConfigurationStatus HotkeyStatus => _hotkeys.Status;
+    public TaskbarApplyDiagnostics ApplyDiagnostics => _taskbar.Diagnostics;
 
     public event EventHandler? Changed;
     public event EventHandler<AppViewRequestedEventArgs>? ShowWindowRequested;

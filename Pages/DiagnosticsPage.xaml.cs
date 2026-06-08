@@ -59,7 +59,7 @@ public sealed partial class DiagnosticsPage : Page
         RecoverySecondaryButton.Content = recovery.SecondaryAction;
         RecoverySecondaryButton.Visibility = recovery.ShowSecondaryAction ? Visibility.Visible : Visibility.Collapsed;
         RecoveryHelperText.Text = recovery.HelperText;
-        DetailsText.Text = $"State: {runtime.State}\nProfile: {runtime.AppliedProfile}\nTaskbars updated: {runtime.TaskbarsUpdated}\nLast applied: {runtime.LastAppliedAt:O}";
+        DetailsText.Text = $"State: {runtime.State}\nProfile: {runtime.AppliedProfile}\nTaskbars updated: {runtime.TaskbarsUpdated}\nLast applied: {runtime.LastAppliedAt:O}\n{ApplyDiagnosticsText(_state.ApplyDiagnostics)}";
         if (_timelineVersion != runtime.RecentEventsVersion)
         {
             _timelineVersion = runtime.RecentEventsVersion;
@@ -111,6 +111,11 @@ public sealed partial class DiagnosticsPage : Page
         }
 
         return Path.Combine(AppContext.BaseDirectory, "launcher-logs");
+    }
+
+    private static string ApplyDiagnosticsText(TaskbarApplyDiagnostics diagnostics)
+    {
+        return $"Apply diagnostics: targets {diagnostics.TargetCount}, composition {diagnostics.CompositionApplied} applied/{diagnostics.CompositionSkipped} skipped ({diagnostics.CompositionSkipRatio:P0} skipped), alpha {diagnostics.LayeredAlphaChanges} queued/{diagnostics.LayeredAlphaNoOps} skipped ({diagnostics.LayeredAlphaSkipRatio:P0} skipped), monitor lookup {(diagnostics.MonitorLookupBuilt ? "built" : "skipped")}, animation {(diagnostics.AnimationStarted ? "started" : "not started")}.";
     }
 
     private sealed record SensorTimelineRow(string TimeText, string State, string Detail);

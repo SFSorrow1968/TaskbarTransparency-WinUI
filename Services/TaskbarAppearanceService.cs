@@ -20,6 +20,8 @@ public sealed class TaskbarAppearanceService
     private readonly object _animationSync = new();
     private CancellationTokenSource? _animationCancellation;
 
+    public TaskbarApplyDiagnostics Diagnostics { get; private set; } = TaskbarApplyDiagnostics.Empty;
+
     public int Apply(TaskbarProfile profile, byte opacity, IReadOnlyCollection<MonitorProfile>? monitors = null)
     {
         var targets = TaskbarWindowCatalog.GetCurrent()
@@ -28,29 +30,49 @@ public sealed class TaskbarAppearanceService
             .ToArray();
         var monitorLookup = BuildMonitorOverrideLookup(monitors);
         var alphaTargets = new Dictionary<IntPtr, byte>();
+        var compositionApplied = 0;
+        var compositionSkipped = 0;
         foreach (var target in targets)
         {
             var monitor = monitorLookup?.GetValueOrDefault(target.DeviceName);
             var targetOpacity = ResolveMonitorOpacity(opacity, monitor);
-            ApplyIfChanged(target.Handle, profile, targetOpacity);
+            if (ApplyIfChanged(target.Handle, profile, targetOpacity))
+            {
+                compositionApplied++;
+            }
+            else
+            {
+                compositionSkipped++;
+            }
+
             alphaTargets[target.Handle] = targetOpacity;
         }
 
         PruneStaleHandles(targets.Select(target => target.Handle));
-        AnimateTaskbarAlpha(alphaTargets, profile);
+        var alphaSummary = AnimateTaskbarAlpha(alphaTargets, profile);
+        Diagnostics = TaskbarApplyDiagnostics.Create(
+            targets.Length,
+            compositionApplied,
+            compositionSkipped,
+            alphaSummary.LayeredAlphaChanges,
+            alphaSummary.LayeredAlphaNoOps,
+            monitorLookup is not null,
+            alphaSummary.AnimationStarted,
+            DateTimeOffset.Now);
         return targets.Length;
     }
 
-    private void ApplyIfChanged(IntPtr handle, TaskbarProfile profile, byte opacity)
+    private bool ApplyIfChanged(IntPtr handle, TaskbarProfile profile, byte opacity)
     {
         var request = CreateAppearanceRequest(profile, opacity);
         if (_currentAppearances.TryGetValue(handle, out var current) && current == request)
         {
-            return;
+            return false;
         }
 
         Apply(handle, request);
         _currentAppearances[handle] = request;
+        return true;
     }
 
     private static void Apply(IntPtr handle, AppearanceRequest request)
@@ -88,6 +110,7 @@ public sealed class TaskbarAppearanceService
     public static byte ResolveMonitorOpacityForTest(byte opacity, MonitorProfile? monitor) => ResolveMonitorOpacity(opacity, monitor);
     public static bool ShouldApplyLayeredAlphaForTest(byte? currentAlpha, byte targetAlpha) => ShouldApplyLayeredAlpha(currentAlpha, targetAlpha);
     public static bool AppearanceRequestMatchesForTest(TaskbarProfile leftProfile, byte leftOpacity, TaskbarProfile rightProfile, byte rightOpacity) => CreateAppearanceRequest(leftProfile, leftOpacity) == CreateAppearanceRequest(rightProfile, rightOpacity);
+    public static TaskbarApplyDiagnostics CreateDiagnosticsForTest(int targetCount, int compositionApplied, int compositionSkipped, int layeredAlphaChanges, int layeredAlphaNoOps, bool monitorLookupBuilt, bool animationStarted) => TaskbarApplyDiagnostics.Create(targetCount, compositionApplied, compositionSkipped, layeredAlphaChanges, layeredAlphaNoOps, monitorLookupBuilt, animationStarted, DateTimeOffset.UnixEpoch);
     public static IReadOnlyCollection<IntPtr> FindStaleHandlesForTest(IEnumerable<IntPtr> cachedHandles, IEnumerable<IntPtr> liveHandles) => FindStaleHandles(cachedHandles, liveHandles);
     public static bool NeedsMonitorOverrideLookupForTest(IReadOnlyCollection<MonitorProfile>? monitors) => NeedsMonitorOverrideLookup(monitors);
 
@@ -115,23 +138,24 @@ public sealed class TaskbarAppearanceService
             ComposeColor(profile.AccentHex, opacity));
     }
 
-    private void AnimateTaskbarAlpha(IReadOnlyDictionary<IntPtr, byte> targetOpacities, TaskbarProfile profile)
+    private AlphaApplySummary AnimateTaskbarAlpha(IReadOnlyDictionary<IntPtr, byte> targetOpacities, TaskbarProfile profile)
     {
         if (targetOpacities.Count == 0)
         {
             _currentAlphas.Clear();
             _currentAppearances.Clear();
-            return;
+            return AlphaApplySummary.Empty;
         }
 
         var targetAlphas = targetOpacities
             .Select(pair => new KeyValuePair<IntPtr, byte>(pair.Key, ConvertOpacityToAlpha(pair.Value)))
             .Where(pair => ShouldApplyLayeredAlpha(GetCurrentAlpha(pair.Key), pair.Value))
             .ToDictionary(pair => pair.Key, pair => pair.Value);
+        var skipped = targetOpacities.Count - targetAlphas.Count;
 
         if (targetAlphas.Count == 0)
         {
-            return;
+            return new AlphaApplySummary(0, skipped, AnimationStarted: false);
         }
 
         CancellationTokenSource cancellation;
@@ -153,7 +177,7 @@ public sealed class TaskbarAppearanceService
                 ApplyLayeredAlpha(pair.Key, pair.Value);
             }
 
-            return;
+            return new AlphaApplySummary(targetAlphas.Count, skipped, AnimationStarted: false);
         }
 
         _ = Task.Run(async () =>
@@ -198,6 +222,8 @@ public sealed class TaskbarAppearanceService
                 ClearAnimationCancellation(cancellation);
             }
         }, cancellation.Token);
+
+        return new AlphaApplySummary(targetAlphas.Count, skipped, AnimationStarted: true);
     }
 
     private void PruneStaleHandles(IEnumerable<IntPtr> liveHandles)
@@ -364,6 +390,10 @@ public sealed class TaskbarAppearanceService
     }
 
     private readonly record struct AppearanceRequest(int AccentState, int GradientColor);
+    private readonly record struct AlphaApplySummary(int LayeredAlphaChanges, int LayeredAlphaNoOps, bool AnimationStarted)
+    {
+        public static AlphaApplySummary Empty { get; } = new(0, 0, AnimationStarted: false);
+    }
 
     [DllImport("user32.dll")]
     private static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
@@ -382,4 +412,47 @@ public sealed class TaskbarAppearanceService
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern bool SetLayeredWindowAttributes(IntPtr hwnd, uint colorKey, byte alpha, uint flags);
+}
+
+public sealed record TaskbarApplyDiagnostics(
+    int TargetCount,
+    int CompositionApplied,
+    int CompositionSkipped,
+    int LayeredAlphaChanges,
+    int LayeredAlphaNoOps,
+    bool MonitorLookupBuilt,
+    bool AnimationStarted,
+    DateTimeOffset UpdatedAt)
+{
+    public static TaskbarApplyDiagnostics Empty { get; } = Create(0, 0, 0, 0, 0, false, false, DateTimeOffset.UnixEpoch);
+
+    public double CompositionSkipRatio => Ratio(CompositionSkipped, CompositionApplied + CompositionSkipped);
+
+    public double LayeredAlphaSkipRatio => Ratio(LayeredAlphaNoOps, LayeredAlphaChanges + LayeredAlphaNoOps);
+
+    public static TaskbarApplyDiagnostics Create(
+        int targetCount,
+        int compositionApplied,
+        int compositionSkipped,
+        int layeredAlphaChanges,
+        int layeredAlphaNoOps,
+        bool monitorLookupBuilt,
+        bool animationStarted,
+        DateTimeOffset updatedAt)
+    {
+        return new TaskbarApplyDiagnostics(
+            Math.Max(0, targetCount),
+            Math.Max(0, compositionApplied),
+            Math.Max(0, compositionSkipped),
+            Math.Max(0, layeredAlphaChanges),
+            Math.Max(0, layeredAlphaNoOps),
+            monitorLookupBuilt,
+            animationStarted,
+            updatedAt);
+    }
+
+    private static double Ratio(int numerator, int denominator)
+    {
+        return denominator <= 0 ? 0d : numerator / (double)denominator;
+    }
 }
