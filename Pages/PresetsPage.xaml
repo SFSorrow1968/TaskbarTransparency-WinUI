@@ -28,7 +28,7 @@
 
             <Border Grid.Row="1" Style="{StaticResource OxygenCardBorderStyle}">
                 <StackPanel Spacing="18">
-                    <TextBox x:Name="PresetNameText" Header="Preset name" Text="Focus Glass" />
+                    <TextBox x:Name="PresetNameText" Header="Preset name" Text="Focus Glass" TextChanged="PresetNameText_TextChanged" />
                     <TextBlock FontSize="19" FontWeight="SemiBold" Foreground="White" Text="Material" />
                     <Grid ColumnSpacing="14">
                         <Grid.ColumnDefinitions>

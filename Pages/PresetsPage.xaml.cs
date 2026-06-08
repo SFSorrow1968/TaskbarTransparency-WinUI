@@ -8,6 +8,7 @@ public sealed partial class PresetsPage : Page
 {
     private readonly Services.AppState _state = ((App)Application.Current).State;
     private bool _loading;
+    private bool _profileNameDirty;
 
     public PresetsPage()
     {
@@ -16,13 +17,22 @@ public sealed partial class PresetsPage : Page
         _state.Changed += (_, _) => DispatcherQueue.TryEnqueue(Refresh);
     }
 
-    private void Apply(TaskbarProfile profile) => _state.SetProfile(profile);
+    private void Apply(TaskbarProfile profile)
+    {
+        _profileNameDirty = false;
+        _state.SetProfile(profile);
+    }
+
     private void Refresh()
     {
         var settings = _state.Settings;
         var profile = settings.ActiveProfile;
         _loading = true;
-        PresetNameText.Text = profile.Name;
+        if (!_profileNameDirty)
+        {
+            PresetNameText.Text = profile.Name;
+        }
+
         PresetOpacitySlider.Value = profile.Opacity;
         PresetOpacityText.Text = $"{PresetOpacitySlider.Value:0}%";
         FadeInDurationSlider.Value = profile.FadeInMilliseconds;
@@ -47,6 +57,14 @@ public sealed partial class PresetsPage : Page
             _ => 0
         };
         _loading = false;
+    }
+
+    private void PresetNameText_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (!_loading)
+        {
+            _profileNameDirty = true;
+        }
     }
 
     private void PresetOpacitySlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
