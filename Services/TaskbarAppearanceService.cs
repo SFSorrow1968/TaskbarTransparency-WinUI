@@ -110,6 +110,7 @@ public sealed class TaskbarAppearanceService
     public static byte ConvertOpacityToAlphaForTest(byte opacity) => ConvertOpacityToAlpha(opacity);
     public static double EaseProgressForTest(double progress, string easing) => EaseProgress(progress, easing);
     public static int SelectFadeMillisecondsForTest(TaskbarProfile profile, byte startAlpha, byte targetAlpha) => SelectFadeMilliseconds(profile, startAlpha, targetAlpha);
+    public static IReadOnlyDictionary<IntPtr, int> SelectFadeDurationsForTest(TaskbarProfile profile, IReadOnlyDictionary<IntPtr, byte> starts, IReadOnlyDictionary<IntPtr, byte> targetAlphas) => SelectFadeDurations(profile, starts, targetAlphas);
     public static byte ResolveMonitorOpacityForTest(byte opacity, MonitorProfile? monitor) => ResolveMonitorOpacity(opacity, monitor);
 
     private static int ComposeColor(string hex, byte opacity)
@@ -141,11 +142,9 @@ public sealed class TaskbarAppearanceService
 
         var targetAlphas = targetOpacities.ToDictionary(pair => pair.Key, pair => ConvertOpacityToAlpha(pair.Value));
         var starts = targetAlphas.ToDictionary(pair => pair.Key, pair => _currentAlphas.GetValueOrDefault(pair.Key, pair.Value));
-        var representativeStart = starts.Values.FirstOrDefault();
-        var representativeTarget = targetAlphas.Values.FirstOrDefault();
-        var fadeMilliseconds = SelectFadeMilliseconds(profile, representativeStart, representativeTarget);
+        var fadeDurations = SelectFadeDurations(profile, starts, targetAlphas);
 
-        if (fadeMilliseconds <= 0)
+        if (fadeDurations.Values.All(duration => duration <= 0))
         {
             foreach (var pair in targetAlphas)
             {
@@ -165,18 +164,23 @@ public sealed class TaskbarAppearanceService
                 {
                     token.ThrowIfCancellationRequested();
                     var elapsed = Environment.TickCount64 - started;
-                    var progress = Math.Clamp(elapsed / (double)fadeMilliseconds, 0d, 1d);
-                    var eased = EaseProgress(progress, profile.Easing);
+                    var allComplete = true;
 
                     foreach (var pair in targetAlphas)
                     {
                         var handle = pair.Key;
                         var start = starts[handle];
+                        var duration = fadeDurations[handle];
+                        var progress = duration <= 0
+                            ? 1d
+                            : Math.Clamp(elapsed / (double)duration, 0d, 1d);
+                        var eased = EaseProgress(progress, profile.Easing);
                         var alpha = (byte)Math.Clamp((int)Math.Round(start + ((pair.Value - start) * eased)), 0, 255);
                         ApplyLayeredAlpha(handle, alpha);
+                        allComplete &= progress >= 1d;
                     }
 
-                    if (progress >= 1d)
+                    if (allComplete)
                     {
                         break;
                     }
@@ -188,6 +192,17 @@ public sealed class TaskbarAppearanceService
             {
             }
         }, cancellation.Token);
+    }
+
+    private static Dictionary<IntPtr, int> SelectFadeDurations(TaskbarProfile profile, IReadOnlyDictionary<IntPtr, byte> starts, IReadOnlyDictionary<IntPtr, byte> targetAlphas)
+    {
+        return targetAlphas.ToDictionary(
+            pair => pair.Key,
+            pair =>
+            {
+                var start = starts.GetValueOrDefault(pair.Key, pair.Value);
+                return start == pair.Value ? 0 : SelectFadeMilliseconds(profile, start, pair.Value);
+            });
     }
 
     private void ApplyLayeredAlpha(IntPtr handle, byte alpha)

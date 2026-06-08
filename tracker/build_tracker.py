@@ -74,6 +74,7 @@ ITEMS = [
     [57, "Features", "Diagnostics recovery card state", "Keep the Diagnostics recovery card aligned with healthy versus failed taskbar detection.", "P1", "Done", "Computer Use found a healthy Diagnostics page still showing probable failure causes; recovery copy is now state-aware and tested."],
     [58, "Features", "About page version and utility actions", "Keep About version labels and utility buttons truthful for local snapshot builds.", "P1", "Done", "Computer Use found hard-coded 1.0.0 version labels and inert utility buttons; About now reads assembly metadata, opens logs/settings, and reports snapshot update status."],
     [59, "Features", "Monitor override apply persistence", "Make monitor override controls apply to the selected display instead of the global active profile.", "P1", "Done", "Computer Use found monitor Apply reverting edited override values and recording a global desktop apply; monitor overrides now persist per display and feed taskbar opacity resolution."],
+    [60, "Features", "Per-monitor transition direction audit", "Ensure fade-in and fade-out speeds are honored independently when different taskbars change in different directions.", "P1", "Done", "Code audit found multi-monitor animation used the first taskbar as the representative duration; each taskbar now selects its own fade direction, while unchanged taskbars skip no-op animation time."],
 ]
 
 TAB_COLORS = {

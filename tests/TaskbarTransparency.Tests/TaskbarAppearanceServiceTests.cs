@@ -70,6 +70,33 @@ public sealed class TaskbarAppearanceServiceTests
     }
 
     [Fact]
+    public void SelectFadeDurationsForTest_UsesEachTaskbarDirection()
+    {
+        var profile = TaskbarProfile.FocusGlass with
+        {
+            FadeInMilliseconds = 400,
+            FadeOutMilliseconds = 90
+        };
+        var primary = new IntPtr(1);
+        var secondary = new IntPtr(2);
+        var starts = new Dictionary<IntPtr, byte>
+        {
+            [primary] = 80,
+            [secondary] = 160
+        };
+        var targets = new Dictionary<IntPtr, byte>
+        {
+            [primary] = 80,
+            [secondary] = 70
+        };
+
+        var durations = TaskbarAppearanceService.SelectFadeDurationsForTest(profile, starts, targets);
+
+        Assert.Equal(0, durations[primary]);
+        Assert.Equal(90, durations[secondary]);
+    }
+
+    [Fact]
     public void ResolveMonitorOpacityForTest_UsesGlobalOpacity_WhenMonitorIsSynced()
     {
         var opacity = TaskbarAppearanceService.ResolveMonitorOpacityForTest(41, new MonitorProfile
