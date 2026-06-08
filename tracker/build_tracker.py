@@ -78,6 +78,7 @@ ITEMS = [
     [61, "Features", "Hover proximity boundary audit", "Verify hover proximity edge settings behave intentionally at 0 px and 48 px.", "P1", "Done", "Computer Use verified Tuning accepts and persists 0 px and 48 px hover proximity; sensor tests now lock zero and negative-distance boundary behavior."],
     [62, "Features", "Runtime state vocabulary consistency", "Keep runtime state labels consistent across Dashboard, Automation, Monitors, and Diagnostics.", "P1", "Done", "Source audit found Dashboard, Automation, Monitors, and Diagnostics using different names for the same runtime states; pages now share one runtime vocabulary with tests."],
     [63, "Features", "Manual apply semantics clarity", "Make manual runtime actions describe whether they reapply the current state or simulate a specific state.", "P1", "Done", "Audit found Dashboard and tray Apply forced Desktop while Automation preview simulated Visible window; controls now say and do Reapply current state or Simulate visible window explicitly."],
+    [64, "Features", "Close-to-tray lifecycle audit", "Verify closing the app with the tray icon enabled hides the window without exiting the background service.", "P1", "Done", "Computer Use closed the Oxygen window; process inspection confirmed TaskbarTransparency stayed alive with no visible main window and ShowTrayIcon enabled. Hidden-window hotkey restore needs a tray/menu-specific validation path."],
 ]
 
 TAB_COLORS = {
