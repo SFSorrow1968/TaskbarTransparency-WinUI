@@ -90,6 +90,7 @@ ITEMS = [
     [73, "Infrastructure", "Taskbar animation cache cleanup", "Clean up stale animation/taskbar caches and completed animation cancellation tokens.", "P1", "Done", "Appearance apply now prunes handles no longer present in the live taskbar set and clears completed animation cancellation state without waiting for the next animation."],
     [74, "Infrastructure", "AppState no-op setter guards", "Avoid redundant save, notify, apply, tray, startup, and hotkey work when requested settings already match current state.", "P1", "Done", "State setters now short-circuit duplicate values while preserving debounced preview commits and retry paths for failed startup or hotkey registration."],
     [75, "Infrastructure", "Same-page navigation no-op guard", "Avoid recreating the current WinUI page when tray, hotkey, or navigation requests target the page already displayed.", "P1", "Done", "Main window navigation now skips same-page requests so loaded pages keep their existing controls, timers, and subscriptions instead of churning through unload/reload work."],
+    [76, "Infrastructure", "Runtime event refresh versioning", "Avoid rebuilding runtime history signature strings on every Dashboard, Monitors, and Diagnostics refresh.", "P1", "Done", "RuntimeSnapshot now exposes a RecentEventsVersion counter so pages use integer change checks before rebuilding history list item sources."],
 ]
 
 TAB_COLORS = {

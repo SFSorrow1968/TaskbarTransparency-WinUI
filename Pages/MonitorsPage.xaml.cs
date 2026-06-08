@@ -9,7 +9,7 @@ public sealed partial class MonitorsPage : Page
 {
     private readonly AppState _state = ((App)Application.Current).State;
     private string _monitorListSignature = string.Empty;
-    private string _recentActionsSignature = string.Empty;
+    private int _recentActionsVersion = -1;
     private bool _loading;
 
     public MonitorsPage()
@@ -55,10 +55,9 @@ public sealed partial class MonitorsPage : Page
                 .ToList();
         }
 
-        var recentActionsSignature = RuntimeEventsSignature();
-        if (_recentActionsSignature != recentActionsSignature)
+        if (_recentActionsVersion != _state.Runtime.RecentEventsVersion)
         {
-            _recentActionsSignature = recentActionsSignature;
+            _recentActionsVersion = _state.Runtime.RecentEventsVersion;
             RecentMonitorActionsList.ItemsSource = _state.Runtime.RecentEvents
                 .Select(item => new MonitorActionRow(
                     $"{RuntimeTriggerText.Label(item.State)} - {item.Opacity}%",
@@ -138,12 +137,6 @@ public sealed partial class MonitorsPage : Page
     {
         return string.Join('|', _state.Monitors.Select(item =>
             $"{item.DeviceName}:{item.FriendlyName}:{item.IsPrimary}:{item.SyncWithPrimary}:{item.OverrideOpacity}"));
-    }
-
-    private string RuntimeEventsSignature()
-    {
-        return string.Join('|', _state.Runtime.RecentEvents.Select(item =>
-            $"{item.Time.UtcTicks}:{item.State}:{item.Opacity}:{item.TaskbarsUpdated}"));
     }
 
     private sealed record MonitorOverviewRow(string Name, string Device, string SyncState, string OpacityText);

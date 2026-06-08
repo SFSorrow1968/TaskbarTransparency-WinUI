@@ -26,4 +26,15 @@ public sealed class RuntimeSnapshotTests
         Assert.Equal("State 9", snapshot.RecentEvents[0].State);
         Assert.Equal("State 2", snapshot.RecentEvents[^1].State);
     }
+
+    [Fact]
+    public void RecordEvent_IncrementsRecentEventsVersion()
+    {
+        var snapshot = new RuntimeSnapshot();
+
+        snapshot.RecordEvent(new RuntimeEvent { State = "Desktop" });
+        snapshot.RecordEvent(new RuntimeEvent { State = "Hover" });
+
+        Assert.Equal(2, snapshot.RecentEventsVersion);
+    }
 }

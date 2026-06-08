@@ -11,10 +11,12 @@ public sealed class RuntimeSnapshot
     public int TaskbarsUpdated { get; set; }
     public string LastMessage { get; set; } = "Ready";
     public List<RuntimeEvent> RecentEvents { get; } = [];
+    public int RecentEventsVersion { get; private set; }
 
     public void RecordEvent(RuntimeEvent runtimeEvent)
     {
         RecentEvents.Insert(0, runtimeEvent);
+        RecentEventsVersion++;
 
         if (RecentEvents.Count > MaxEvents)
         {

@@ -14,7 +14,7 @@ public sealed partial class HomePage : Page
     private readonly AppState _state = ((App)Microsoft.UI.Xaml.Application.Current).State;
     private readonly DispatcherQueueTimer _opacityCommitTimer;
     private double _pendingOpacity;
-    private string _recentEventsSignature = string.Empty;
+    private int _recentEventsVersion = -1;
     private bool _loading = true;
 
     public HomePage()
@@ -65,10 +65,9 @@ public sealed partial class HomePage : Page
         RuntimeMessageText.Text = _state.Runtime.LastMessage;
         RuntimeTimeText.Text = _state.Runtime.LastAppliedAt.ToString("MMM d, h:mm tt");
         SyncStateText.Text = _state.Monitors.Count <= 1 ? "Primary taskbar in sync" : "All taskbars in sync";
-        var recentEventsSignature = RuntimeEventsSignature();
-        if (_recentEventsSignature != recentEventsSignature)
+        if (_recentEventsVersion != _state.Runtime.RecentEventsVersion)
         {
-            _recentEventsSignature = recentEventsSignature;
+            _recentEventsVersion = _state.Runtime.RecentEventsVersion;
             RecentEventsList.ItemsSource = _state.Runtime.RecentEvents
                 .Select(item => new RuntimeEventRow(
                     item.Time.ToString("h:mm:ss tt"),
@@ -116,12 +115,6 @@ public sealed partial class HomePage : Page
             nameof(AutomationTrigger.Hover) => "Pointer is near a taskbar edge",
             _ => "Watching windows, fullscreen, and hover"
         };
-    }
-
-    private string RuntimeEventsSignature()
-    {
-        return string.Join('|', _state.Runtime.RecentEvents.Select(item =>
-            $"{item.Time.UtcTicks}:{item.State}:{item.Profile}:{item.Opacity}:{item.TaskbarsUpdated}:{item.Message}"));
     }
 
     private sealed record RuntimeEventRow(string TimeText, string State, string Detail, string OpacityText);

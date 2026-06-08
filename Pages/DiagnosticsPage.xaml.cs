@@ -11,7 +11,7 @@ namespace TaskbarTransparency.Pages;
 public sealed partial class DiagnosticsPage : Page
 {
     private readonly AppState _state = ((App)Application.Current).State;
-    private string _timelineSignature = string.Empty;
+    private int _timelineVersion = -1;
 
     public DiagnosticsPage()
     {
@@ -59,10 +59,9 @@ public sealed partial class DiagnosticsPage : Page
         RecoverySecondaryButton.Visibility = recovery.ShowSecondaryAction ? Visibility.Visible : Visibility.Collapsed;
         RecoveryHelperText.Text = recovery.HelperText;
         DetailsText.Text = $"State: {runtime.State}\nProfile: {runtime.AppliedProfile}\nTaskbars updated: {runtime.TaskbarsUpdated}\nLast applied: {runtime.LastAppliedAt:O}";
-        var timelineSignature = RuntimeEventsSignature(runtime);
-        if (_timelineSignature != timelineSignature)
+        if (_timelineVersion != runtime.RecentEventsVersion)
         {
-            _timelineSignature = timelineSignature;
+            _timelineVersion = runtime.RecentEventsVersion;
             SensorTimelineList.ItemsSource = runtime.RecentEvents
                 .Select(item => new SensorTimelineRow(
                     item.Time.ToString("h:mm:ss tt"),
@@ -111,12 +110,6 @@ public sealed partial class DiagnosticsPage : Page
         }
 
         return Path.Combine(AppContext.BaseDirectory, "launcher-logs");
-    }
-
-    private static string RuntimeEventsSignature(RuntimeSnapshot runtime)
-    {
-        return string.Join('|', runtime.RecentEvents.Select(item =>
-            $"{item.Time.UtcTicks}:{item.State}:{item.Profile}:{item.Opacity}:{item.TaskbarsUpdated}:{item.Message}"));
     }
 
     private sealed record SensorTimelineRow(string TimeText, string State, string Detail);
