@@ -62,6 +62,13 @@ public sealed class GlobalHotkeyService : IDisposable
         return Status;
     }
 
+    public static bool CanSkipReconfigure(string currentOpen, string currentToggle, string nextOpen, string nextToggle, bool hotkeysReady)
+    {
+        return hotkeysReady
+            && string.Equals(currentOpen, nextOpen, StringComparison.Ordinal)
+            && string.Equals(currentToggle, nextToggle, StringComparison.Ordinal);
+    }
+
     public void Dispose()
     {
         if (_hwnd != IntPtr.Zero)

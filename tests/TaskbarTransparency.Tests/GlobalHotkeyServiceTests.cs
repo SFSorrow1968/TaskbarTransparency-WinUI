@@ -47,4 +47,12 @@ public sealed class GlobalHotkeyServiceTests
 
         Assert.Equal("Ctrl+Alt+T: registration failed (1409)", status.Summary);
     }
+
+    [Fact]
+    public void HotkeysCanSkipReconfigureForTest_OnlySkipsWhenValuesMatchAndReady()
+    {
+        Assert.True(GlobalHotkeyService.CanSkipReconfigure("Ctrl+Alt+G", "Ctrl+Alt+T", "Ctrl+Alt+G", "Ctrl+Alt+T", hotkeysReady: true));
+        Assert.False(GlobalHotkeyService.CanSkipReconfigure("Ctrl+Alt+G", "Ctrl+Alt+T", "Ctrl+Alt+G", "Ctrl+Shift+T", hotkeysReady: true));
+        Assert.False(GlobalHotkeyService.CanSkipReconfigure("Ctrl+Alt+G", "Ctrl+Alt+T", "Ctrl+Alt+G", "Ctrl+Alt+T", hotkeysReady: false));
+    }
 }

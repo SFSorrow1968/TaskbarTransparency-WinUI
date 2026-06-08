@@ -14,6 +14,8 @@ public sealed class AppState
     private readonly GlobalHotkeyService _hotkeys = new();
     private readonly RuntimeStateSensorService _sensors;
     private byte? _opacityBeforeToggle;
+    private bool _opacityPreviewPending;
+    private bool _hoverDistancePreviewPending;
 
     public AppSettings Settings { get; private set; } = new();
     public RuntimeSnapshot Runtime { get; } = new();
@@ -99,7 +101,13 @@ public sealed class AppState
 
     public void SetProfile(TaskbarProfile profile)
     {
+        if (Settings.ActiveProfile == profile)
+        {
+            return;
+        }
+
         _opacityBeforeToggle = null;
+        _opacityPreviewPending = false;
         Settings.ActiveProfile = profile;
         ApplyNow(persistSettings: true);
     }
@@ -119,8 +127,9 @@ public sealed class AppState
         var opacity = (byte)Math.Clamp((int)Math.Round(value), 0, 100);
         if (Settings.ActiveProfile.Opacity == opacity)
         {
-            if (persistSettings)
+            if (persistSettings && _opacityPreviewPending)
             {
+                _opacityPreviewPending = false;
                 SaveAndNotify();
             }
 
@@ -129,6 +138,7 @@ public sealed class AppState
 
         _opacityBeforeToggle = null;
         Settings.ActiveProfile = Settings.ActiveProfile with { Opacity = opacity };
+        _opacityPreviewPending = !persistSettings;
         ApplyNow(persistSettings);
     }
 
@@ -140,7 +150,13 @@ public sealed class AppState
             return;
         }
 
-        monitor.OverrideOpacity = (byte)Math.Clamp((int)Math.Round(opacity), 0, 100);
+        var nextOpacity = (byte)Math.Clamp((int)Math.Round(opacity), 0, 100);
+        if (monitor.OverrideOpacity == nextOpacity && monitor.SyncWithPrimary == syncWithPrimary)
+        {
+            return;
+        }
+
+        monitor.OverrideOpacity = nextOpacity;
         monitor.SyncWithPrimary = syncWithPrimary;
 
         var liveMonitor = Monitors.FirstOrDefault(item => string.Equals(item.DeviceName, deviceName, StringComparison.OrdinalIgnoreCase));
@@ -155,12 +171,22 @@ public sealed class AppState
 
     public void SetAutomation(bool enabled)
     {
+        if (Settings.AutomationEnabled == enabled)
+        {
+            return;
+        }
+
         Settings.AutomationEnabled = enabled;
         ApplyNow(persistSettings: true);
     }
 
     public void SetHoverReveal(bool enabled)
     {
+        if (Settings.HoverReveal == enabled)
+        {
+            return;
+        }
+
         Settings.HoverReveal = enabled;
         SaveAndNotify();
     }
@@ -180,8 +206,9 @@ public sealed class AppState
         var distance = Math.Clamp((int)Math.Round(value), 0, 48);
         if (Settings.HoverDistance == distance)
         {
-            if (persistSettings)
+            if (persistSettings && _hoverDistancePreviewPending)
             {
+                _hoverDistancePreviewPending = false;
                 SaveAndNotify();
             }
 
@@ -189,6 +216,7 @@ public sealed class AppState
         }
 
         Settings.HoverDistance = distance;
+        _hoverDistancePreviewPending = !persistSettings;
         if (persistSettings)
         {
             SaveAndNotify();
@@ -200,12 +228,22 @@ public sealed class AppState
 
     public void SetFullscreenOverlap(bool enabled)
     {
+        if (Settings.FullscreenOverlap == enabled)
+        {
+            return;
+        }
+
         Settings.FullscreenOverlap = enabled;
         SaveAndNotify();
     }
 
     public void SetTrayVisible(bool enabled)
     {
+        if (Settings.ShowTrayIcon == enabled)
+        {
+            return;
+        }
+
         Settings.ShowTrayIcon = enabled;
         _tray.SetVisible(enabled);
         SaveAndNotify();
@@ -213,6 +251,11 @@ public sealed class AppState
 
     public void SetStartWithWindows(bool enabled)
     {
+        if (Settings.StartWithWindows == enabled && !StartupRegistrationFailed)
+        {
+            return;
+        }
+
         try
         {
             _startup.SetEnabled(enabled);
@@ -239,8 +282,15 @@ public sealed class AppState
 
     public void SetHotkeys(string openHotkey, string toggleHotkey)
     {
-        Settings.OpenHotkey = NormalizeHotkey(openHotkey, "Ctrl+Alt+G");
-        Settings.ToggleHotkey = NormalizeHotkey(toggleHotkey, "Ctrl+Alt+T");
+        var normalizedOpen = NormalizeHotkey(openHotkey, "Ctrl+Alt+G");
+        var normalizedToggle = NormalizeHotkey(toggleHotkey, "Ctrl+Alt+T");
+        if (GlobalHotkeyService.CanSkipReconfigure(Settings.OpenHotkey, Settings.ToggleHotkey, normalizedOpen, normalizedToggle, HotkeyStatus.IsReady))
+        {
+            return;
+        }
+
+        Settings.OpenHotkey = normalizedOpen;
+        Settings.ToggleHotkey = normalizedToggle;
         _hotkeys.Reconfigure(Settings.OpenHotkey, Settings.ToggleHotkey);
         SaveAndNotify();
     }
@@ -263,7 +313,13 @@ public sealed class AppState
 
     public void CompleteFirstRun(TaskbarProfile profile)
     {
+        if (Settings.FirstRunCompleted && Settings.ActiveProfile == profile)
+        {
+            return;
+        }
+
         _opacityBeforeToggle = null;
+        _opacityPreviewPending = false;
         Settings.FirstRunCompleted = true;
         Settings.ActiveProfile = profile;
         ApplyNow(persistSettings: true);
@@ -327,6 +383,7 @@ public sealed class AppState
     {
         return string.IsNullOrWhiteSpace(hotkey) ? fallback : hotkey.Trim();
     }
+
 }
 
 public enum AppView
