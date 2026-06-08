@@ -1,0 +1,14 @@
+Baseline evidence for taskbar catalog list allocation pass.
+
+Source path:
+- Services/TaskbarWindowCatalog.cs
+
+Observed pattern before change:
+- GetCurrent() returned EnumerateCurrent().ToArray().
+- EnumerateCurrent() used yield return for primary and secondary taskbar windows.
+- Every catalog refresh allocated an iterator state machine plus an array materialization, even though the expected taskbar count is small.
+
+Optimization target:
+- Keep the same FindWindow / FindWindowEx enumeration order.
+- Build a small List<TaskbarWindowInfo> directly and return it through the existing IReadOnlyList<TaskbarWindowInfo> contract.
+- Preserve primary taskbar detection, secondary taskbar collection, and monitor metadata lookup behavior.

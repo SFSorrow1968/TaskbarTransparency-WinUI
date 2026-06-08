@@ -9,15 +9,11 @@ public static class TaskbarWindowCatalog
 
     public static IReadOnlyList<TaskbarWindowInfo> GetCurrent()
     {
-        return EnumerateCurrent().ToArray();
-    }
-
-    private static IEnumerable<TaskbarWindowInfo> EnumerateCurrent()
-    {
+        var taskbars = new List<TaskbarWindowInfo>(capacity: 2);
         var primary = FindWindow(PrimaryTaskbarClassName, null);
         if (primary != IntPtr.Zero)
         {
-            yield return BuildInfo(primary, PrimaryTaskbarClassName);
+            taskbars.Add(BuildInfo(primary, PrimaryTaskbarClassName));
         }
 
         var current = IntPtr.Zero;
@@ -26,10 +22,10 @@ public static class TaskbarWindowCatalog
             current = FindWindowEx(IntPtr.Zero, current, SecondaryTaskbarClassName, null);
             if (current == IntPtr.Zero)
             {
-                yield break;
+                return taskbars;
             }
 
-            yield return BuildInfo(current, SecondaryTaskbarClassName);
+            taskbars.Add(BuildInfo(current, SecondaryTaskbarClassName));
         }
     }
 
