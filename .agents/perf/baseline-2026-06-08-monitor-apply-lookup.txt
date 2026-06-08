@@ -1,0 +1,13 @@
+Target: taskbar apply monitor override lookup
+Date: 2026-06-08
+Runtime: .NET 10.0.203 SDK, WinUI desktop app
+
+Baseline evidence:
+- No dedicated benchmark project exists in this repository.
+- TaskbarAppearanceService.Apply built a monitor lookup dictionary on every apply when a monitors collection was provided.
+- The default monitor behavior is SyncWithPrimary=true, where every taskbar uses the resolved primary opacity and no per-monitor lookup is needed.
+- Runtime sensors, manual reapply, profile changes, and startup can all call Apply.
+
+Validation baseline:
+- Pre-change repo state was clean on main...origin/main.
+- Previous pass snapshot baseline: v0.1.53.

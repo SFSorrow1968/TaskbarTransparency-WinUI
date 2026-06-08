@@ -121,6 +121,19 @@ public sealed class TaskbarAppearanceServiceTests
     }
 
     [Fact]
+    public void NeedsMonitorOverrideLookupForTest_SkipsDefaultSyncedMonitorSets()
+    {
+        Assert.False(TaskbarAppearanceService.NeedsMonitorOverrideLookupForTest(null));
+        Assert.False(TaskbarAppearanceService.NeedsMonitorOverrideLookupForTest([
+            new MonitorProfile { DeviceName = "Primary", SyncWithPrimary = true },
+            new MonitorProfile { DeviceName = "Secondary", SyncWithPrimary = true }
+        ]));
+        Assert.True(TaskbarAppearanceService.NeedsMonitorOverrideLookupForTest([
+            new MonitorProfile { DeviceName = "Secondary", SyncWithPrimary = false }
+        ]));
+    }
+
+    [Fact]
     public void ShouldApplyLayeredAlphaForTest_SkipsUnchangedAlpha()
     {
         Assert.False(TaskbarAppearanceService.ShouldApplyLayeredAlphaForTest(128, 128));

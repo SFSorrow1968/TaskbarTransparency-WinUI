@@ -26,13 +26,11 @@ public sealed class TaskbarAppearanceService
             .GroupBy(target => target.Handle)
             .Select(group => group.First())
             .ToArray();
-        var monitorLookup = (monitors ?? [])
-            .GroupBy(monitor => monitor.DeviceName, StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
+        var monitorLookup = BuildMonitorOverrideLookup(monitors);
         var alphaTargets = new Dictionary<IntPtr, byte>();
         foreach (var target in targets)
         {
-            var monitor = monitorLookup.GetValueOrDefault(target.DeviceName);
+            var monitor = monitorLookup?.GetValueOrDefault(target.DeviceName);
             var targetOpacity = ResolveMonitorOpacity(opacity, monitor);
             ApplyIfChanged(target.Handle, profile, targetOpacity);
             alphaTargets[target.Handle] = targetOpacity;
@@ -91,6 +89,7 @@ public sealed class TaskbarAppearanceService
     public static bool ShouldApplyLayeredAlphaForTest(byte? currentAlpha, byte targetAlpha) => ShouldApplyLayeredAlpha(currentAlpha, targetAlpha);
     public static bool AppearanceRequestMatchesForTest(TaskbarProfile leftProfile, byte leftOpacity, TaskbarProfile rightProfile, byte rightOpacity) => CreateAppearanceRequest(leftProfile, leftOpacity) == CreateAppearanceRequest(rightProfile, rightOpacity);
     public static IReadOnlyCollection<IntPtr> FindStaleHandlesForTest(IEnumerable<IntPtr> cachedHandles, IEnumerable<IntPtr> liveHandles) => FindStaleHandles(cachedHandles, liveHandles);
+    public static bool NeedsMonitorOverrideLookupForTest(IReadOnlyCollection<MonitorProfile>? monitors) => NeedsMonitorOverrideLookup(monitors);
 
     private static int ComposeColor(string hex, byte opacity)
     {
@@ -218,6 +217,24 @@ public sealed class TaskbarAppearanceService
             .Distinct()
             .Where(handle => !live.Contains(handle))
             .ToArray();
+    }
+
+    private static Dictionary<string, MonitorProfile>? BuildMonitorOverrideLookup(IReadOnlyCollection<MonitorProfile>? monitors)
+    {
+        if (!NeedsMonitorOverrideLookup(monitors))
+        {
+            return null;
+        }
+
+        return monitors!
+            .Where(monitor => !monitor.SyncWithPrimary)
+            .GroupBy(monitor => monitor.DeviceName, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static bool NeedsMonitorOverrideLookup(IReadOnlyCollection<MonitorProfile>? monitors)
+    {
+        return monitors is not null && monitors.Any(monitor => !monitor.SyncWithPrimary);
     }
 
     private void ClearAnimationCancellation(CancellationTokenSource cancellation)
