@@ -1,0 +1,12 @@
+Target: layered alpha change collection
+Date: 2026-06-08
+Runtime: .NET 10.0.203 SDK, WinUI desktop app
+
+Baseline evidence:
+- TaskbarAppearanceService.AnimateTaskbarAlpha collected changed alpha targets with Select + Where + ToDictionary.
+- The same pass also needed a skipped-count for diagnostics.
+- This path runs during every taskbar apply with live taskbar targets.
+
+Validation baseline:
+- Pre-change repo state was clean on main...origin/main.
+- Previous pass snapshot baseline: v0.1.55.

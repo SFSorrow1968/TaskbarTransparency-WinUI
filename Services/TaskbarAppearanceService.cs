@@ -147,11 +147,20 @@ public sealed class TaskbarAppearanceService
             return AlphaApplySummary.Empty;
         }
 
-        var targetAlphas = targetOpacities
-            .Select(pair => new KeyValuePair<IntPtr, byte>(pair.Key, ConvertOpacityToAlpha(pair.Value)))
-            .Where(pair => ShouldApplyLayeredAlpha(GetCurrentAlpha(pair.Key), pair.Value))
-            .ToDictionary(pair => pair.Key, pair => pair.Value);
-        var skipped = targetOpacities.Count - targetAlphas.Count;
+        var targetAlphas = new Dictionary<IntPtr, byte>(targetOpacities.Count);
+        var skipped = 0;
+        foreach (var pair in targetOpacities)
+        {
+            var alpha = ConvertOpacityToAlpha(pair.Value);
+            if (ShouldApplyLayeredAlpha(GetCurrentAlpha(pair.Key), alpha))
+            {
+                targetAlphas[pair.Key] = alpha;
+            }
+            else
+            {
+                skipped++;
+            }
+        }
 
         if (targetAlphas.Count == 0)
         {

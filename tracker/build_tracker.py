@@ -95,6 +95,7 @@ ITEMS = [
     [78, "Infrastructure", "Loaded page refresh coalescing", "Avoid queuing duplicate UI refreshes for loaded pages during quick AppState change bursts.", "P1", "Done", "State-listening pages now share a RefreshCoalescer so repeated change notifications collapse to one pending dispatcher refresh per page."],
     [79, "Infrastructure", "Synced monitor apply lookup skip", "Avoid building per-monitor override lookup dictionaries when all monitors follow the primary opacity.", "P1", "Done", "TaskbarAppearanceService now creates the monitor override lookup only when at least one monitor is unsynced."],
     [80, "Infrastructure", "Taskbar apply diagnostics counters", "Expose lightweight counters for native composition skips, alpha skips, monitor lookup use, and animation starts.", "P1", "Done", "Diagnostics now shows latest apply counters so future optimization passes can be guided by measured skip behavior instead of source inspection alone."],
+    [81, "Infrastructure", "Layered alpha change loop allocation reduction", "Avoid LINQ iterator and dictionary projection overhead while collecting changed layered-alpha targets.", "P1", "Done", "TaskbarAppearanceService now builds alpha-change targets in one pre-sized loop while preserving skip counters for Diagnostics."],
 ]
 
 TAB_COLORS = {
