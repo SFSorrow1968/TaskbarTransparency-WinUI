@@ -68,4 +68,28 @@ public sealed class TaskbarAppearanceServiceTests
 
         Assert.Equal(90, duration);
     }
+
+    [Fact]
+    public void ResolveMonitorOpacityForTest_UsesGlobalOpacity_WhenMonitorIsSynced()
+    {
+        var opacity = TaskbarAppearanceService.ResolveMonitorOpacityForTest(41, new MonitorProfile
+        {
+            SyncWithPrimary = true,
+            OverrideOpacity = 83
+        });
+
+        Assert.Equal(41, opacity);
+    }
+
+    [Fact]
+    public void ResolveMonitorOpacityForTest_UsesOverrideOpacity_WhenMonitorIsNotSynced()
+    {
+        var opacity = TaskbarAppearanceService.ResolveMonitorOpacityForTest(41, new MonitorProfile
+        {
+            SyncWithPrimary = false,
+            OverrideOpacity = 83
+        });
+
+        Assert.Equal(83, opacity);
+    }
 }

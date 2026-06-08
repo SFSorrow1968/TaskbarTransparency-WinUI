@@ -100,6 +100,27 @@ public sealed class AppState
         ApplyNow();
     }
 
+    public void SetMonitorOverride(string deviceName, double opacity, bool syncWithPrimary)
+    {
+        var monitor = Settings.Monitors.FirstOrDefault(item => string.Equals(item.DeviceName, deviceName, StringComparison.OrdinalIgnoreCase));
+        if (monitor is null)
+        {
+            return;
+        }
+
+        monitor.OverrideOpacity = (byte)Math.Clamp((int)Math.Round(opacity), 0, 100);
+        monitor.SyncWithPrimary = syncWithPrimary;
+
+        var liveMonitor = Monitors.FirstOrDefault(item => string.Equals(item.DeviceName, deviceName, StringComparison.OrdinalIgnoreCase));
+        if (liveMonitor is not null)
+        {
+            liveMonitor.OverrideOpacity = monitor.OverrideOpacity;
+            liveMonitor.SyncWithPrimary = syncWithPrimary;
+        }
+
+        ApplyNow();
+    }
+
     public void SetAutomation(bool enabled)
     {
         Settings.AutomationEnabled = enabled;
@@ -196,7 +217,7 @@ public sealed class AppState
         var opacity = OpacityPolicy.Resolve(Settings.ActiveProfile, trigger, Settings.AutomationEnabled);
         var previousState = Runtime.State;
         var previousOpacity = Runtime.ResolvedOpacity;
-        Runtime.TaskbarsUpdated = _taskbar.Apply(Settings.ActiveProfile, opacity);
+        Runtime.TaskbarsUpdated = _taskbar.Apply(Settings.ActiveProfile, opacity, Settings.Monitors);
         Runtime.LastAppliedAt = DateTimeOffset.Now;
         Runtime.State = trigger.ToString();
         Runtime.AppliedProfile = Settings.ActiveProfile.Name;

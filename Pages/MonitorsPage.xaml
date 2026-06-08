@@ -15,7 +15,7 @@
             </Grid.RowDefinitions>
             <StackPanel Spacing="6">
                 <TextBlock Style="{StaticResource SectionHeaderTextBlockStyle}" Foreground="{StaticResource OxygenBlueBrush}" Text="MONITORS" />
-                <TextBlock Style="{StaticResource OxygenPageTitleTextBlockStyle}" Text="Display 2" />
+                <TextBlock x:Name="PageTitleText" Style="{StaticResource OxygenPageTitleTextBlockStyle}" Text="Display 2" />
                 <TextBlock FontSize="18" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Configure taskbar appearance and behavior for this display only." />
             </StackPanel>
 
@@ -124,7 +124,7 @@
                         <TextBlock x:Name="MonitorDeviceText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Shell_TrayWnd" TextWrapping="Wrap" />
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <Border Padding="12,8" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
-                                <TextBlock Foreground="White" Text="Display 2" />
+                                <TextBlock x:Name="DisplayBadgeText" Foreground="White" Text="Display 2" />
                             </Border>
                             <Border Padding="12,8" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
                                 <TextBlock Foreground="White" Text="2560 x 1440" />
@@ -137,7 +137,7 @@
                     <StackPanel Grid.Column="1" Spacing="12">
                         <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Sync with primary settings" />
                         <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="When on, this display follows your primary display settings." TextWrapping="Wrap" />
-                        <ToggleSwitch x:Name="SyncSwitch" Header="Sync" IsOn="False" />
+                        <ToggleSwitch x:Name="SyncSwitch" Header="Sync" IsOn="False" Toggled="SyncSwitch_Toggled" />
                     </StackPanel>
                 </Grid>
             </Border>
@@ -190,7 +190,7 @@
                     <ColumnDefinition Width="180" />
                     <ColumnDefinition Width="180" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="This override affects the selected display only." VerticalAlignment="Center" />
+                <TextBlock x:Name="OverrideScopeText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="This override affects the selected display only." VerticalAlignment="Center" />
                 <Button Grid.Column="1" Click="Refresh_Click" Style="{StaticResource GlassButtonStyle}" Content="Revert" />
                 <Button Grid.Column="2" Click="ApplyOverride_Click" Style="{StaticResource GlassButtonStyle}" Background="{StaticResource OxygenBlueBrush}" Content="Apply" />
             </Grid>

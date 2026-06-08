@@ -19,25 +19,32 @@ public sealed class TaskbarAppearanceService
     private readonly object _animationSync = new();
     private CancellationTokenSource? _animationCancellation;
 
-    public int Apply(TaskbarProfile profile, byte opacity)
+    public int Apply(TaskbarProfile profile, byte opacity, IReadOnlyCollection<MonitorProfile>? monitors = null)
     {
-        var handles = EnumerateTaskbars().Distinct().Where(handle => handle != IntPtr.Zero).ToArray();
-        foreach (var handle in handles)
+        var targets = EnumerateTaskbars().GroupBy(target => target.Handle).Select(group => group.First()).ToArray();
+        var monitorLookup = (monitors ?? [])
+            .GroupBy(monitor => monitor.DeviceName, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
+        var alphaTargets = new Dictionary<IntPtr, byte>();
+        foreach (var target in targets)
         {
-            Apply(handle, profile, opacity);
-            EnsureLayeredWindow(handle);
+            var monitor = monitorLookup.GetValueOrDefault(target.DeviceName);
+            var targetOpacity = ResolveMonitorOpacity(opacity, monitor);
+            Apply(target.Handle, profile, targetOpacity);
+            EnsureLayeredWindow(target.Handle);
+            alphaTargets[target.Handle] = targetOpacity;
         }
 
-        AnimateWholeTaskbarAlpha(handles, opacity, profile);
-        return handles.Length;
+        AnimateTaskbarAlpha(alphaTargets, profile);
+        return targets.Length;
     }
 
-    private static IEnumerable<IntPtr> EnumerateTaskbars()
+    private static IEnumerable<TaskbarTarget> EnumerateTaskbars()
     {
         var primary = FindWindow("Shell_TrayWnd", null);
         if (primary != IntPtr.Zero)
         {
-            yield return primary;
+            yield return BuildTarget(primary, "Shell_TrayWnd");
         }
 
         var current = IntPtr.Zero;
@@ -49,8 +56,20 @@ public sealed class TaskbarAppearanceService
                 yield break;
             }
 
-            yield return current;
+            yield return BuildTarget(current, "Shell_SecondaryTrayWnd");
         }
+    }
+
+    private static TaskbarTarget BuildTarget(IntPtr handle, string fallbackDeviceName)
+    {
+        var monitor = MonitorFromWindow(handle, 2);
+        var info = new MonitorInfo { Size = Marshal.SizeOf<MonitorInfo>() };
+        var hasInfo = monitor != IntPtr.Zero && GetMonitorInfo(monitor, ref info);
+        var deviceName = hasInfo && !string.IsNullOrWhiteSpace(info.DeviceName)
+            ? info.DeviceName
+            : fallbackDeviceName;
+
+        return new TaskbarTarget(handle, deviceName);
     }
 
     private static void Apply(IntPtr handle, TaskbarProfile profile, byte opacity)
@@ -91,6 +110,7 @@ public sealed class TaskbarAppearanceService
     public static byte ConvertOpacityToAlphaForTest(byte opacity) => ConvertOpacityToAlpha(opacity);
     public static double EaseProgressForTest(double progress, string easing) => EaseProgress(progress, easing);
     public static int SelectFadeMillisecondsForTest(TaskbarProfile profile, byte startAlpha, byte targetAlpha) => SelectFadeMilliseconds(profile, startAlpha, targetAlpha);
+    public static byte ResolveMonitorOpacityForTest(byte opacity, MonitorProfile? monitor) => ResolveMonitorOpacity(opacity, monitor);
 
     private static int ComposeColor(string hex, byte opacity)
     {
@@ -102,10 +122,9 @@ public sealed class TaskbarAppearanceService
         return (alpha << 24) | (b << 16) | (g << 8) | r;
     }
 
-    private void AnimateWholeTaskbarAlpha(IReadOnlyCollection<IntPtr> handles, byte opacity, TaskbarProfile profile)
+    private void AnimateTaskbarAlpha(IReadOnlyDictionary<IntPtr, byte> targetOpacities, TaskbarProfile profile)
     {
-        var targetAlpha = ConvertOpacityToAlpha(opacity);
-        if (handles.Count == 0)
+        if (targetOpacities.Count == 0)
         {
             _currentAlphas.Clear();
             return;
@@ -120,15 +139,17 @@ public sealed class TaskbarAppearanceService
             cancellation = _animationCancellation;
         }
 
-        var starts = handles.ToDictionary(handle => handle, handle => _currentAlphas.GetValueOrDefault(handle, targetAlpha));
-        var representativeStart = starts.Values.FirstOrDefault(targetAlpha);
-        var fadeMilliseconds = SelectFadeMilliseconds(profile, representativeStart, targetAlpha);
+        var targetAlphas = targetOpacities.ToDictionary(pair => pair.Key, pair => ConvertOpacityToAlpha(pair.Value));
+        var starts = targetAlphas.ToDictionary(pair => pair.Key, pair => _currentAlphas.GetValueOrDefault(pair.Key, pair.Value));
+        var representativeStart = starts.Values.FirstOrDefault();
+        var representativeTarget = targetAlphas.Values.FirstOrDefault();
+        var fadeMilliseconds = SelectFadeMilliseconds(profile, representativeStart, representativeTarget);
 
         if (fadeMilliseconds <= 0)
         {
-            foreach (var handle in handles)
+            foreach (var pair in targetAlphas)
             {
-                ApplyLayeredAlpha(handle, targetAlpha);
+                ApplyLayeredAlpha(pair.Key, pair.Value);
             }
 
             return;
@@ -147,10 +168,11 @@ public sealed class TaskbarAppearanceService
                     var progress = Math.Clamp(elapsed / (double)fadeMilliseconds, 0d, 1d);
                     var eased = EaseProgress(progress, profile.Easing);
 
-                    foreach (var handle in handles)
+                    foreach (var pair in targetAlphas)
                     {
+                        var handle = pair.Key;
                         var start = starts[handle];
-                        var alpha = (byte)Math.Clamp((int)Math.Round(start + ((targetAlpha - start) * eased)), 0, 255);
+                        var alpha = (byte)Math.Clamp((int)Math.Round(start + ((pair.Value - start) * eased)), 0, 255);
                         ApplyLayeredAlpha(handle, alpha);
                     }
 
@@ -178,6 +200,13 @@ public sealed class TaskbarAppearanceService
     private static byte ConvertOpacityToAlpha(byte opacity)
     {
         return (byte)Math.Clamp(opacity * 255 / 100, 0, 255);
+    }
+
+    private static byte ResolveMonitorOpacity(byte opacity, MonitorProfile? monitor)
+    {
+        return monitor is { SyncWithPrimary: false }
+            ? monitor.OverrideOpacity
+            : opacity;
     }
 
     private static double EaseProgress(double progress, string easing)
@@ -244,11 +273,39 @@ public sealed class TaskbarAppearanceService
         public int SizeOfData;
     }
 
+    private readonly record struct TaskbarTarget(IntPtr Handle, string DeviceName);
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    private struct MonitorInfo
+    {
+        public int Size;
+        public Rect Monitor;
+        public Rect WorkArea;
+        public int Flags;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+        public string DeviceName;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct Rect
+    {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
+    }
+
     [DllImport("user32.dll", SetLastError = true)]
     private static extern IntPtr FindWindow(string lpClassName, string? lpWindowName);
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern IntPtr FindWindowEx(IntPtr parentHandle, IntPtr childAfter, string className, string? windowTitle);
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint flags);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern bool GetMonitorInfo(IntPtr monitor, ref MonitorInfo monitorInfo);
 
     [DllImport("user32.dll")]
     private static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);

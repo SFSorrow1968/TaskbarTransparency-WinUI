@@ -21,7 +21,18 @@ public sealed class SettingsStoreTests : IDisposable
             FullscreenOverlap = false,
             HoverReveal = false,
             HoverDistance = 31,
-            ActiveProfile = TaskbarProfile.OxygenClear.WithTuningValues("Persistence Check", 41, 260, 140, "Linear")
+            ActiveProfile = TaskbarProfile.OxygenClear.WithTuningValues("Persistence Check", 41, 260, 140, "Linear"),
+            Monitors =
+            [
+                new MonitorProfile
+                {
+                    DeviceName = @"\\.\DISPLAY2",
+                    FriendlyName = "Display 2",
+                    IsPrimary = false,
+                    SyncWithPrimary = false,
+                    OverrideOpacity = 83
+                }
+            ]
         };
 
         store.Save(expected);
@@ -39,6 +50,10 @@ public sealed class SettingsStoreTests : IDisposable
         Assert.Equal(260, loaded.ActiveProfile.FadeInMilliseconds);
         Assert.Equal(140, loaded.ActiveProfile.FadeOutMilliseconds);
         Assert.Equal("Linear", loaded.ActiveProfile.Easing);
+        Assert.Single(loaded.Monitors);
+        Assert.Equal(@"\\.\DISPLAY2", loaded.Monitors[0].DeviceName);
+        Assert.False(loaded.Monitors[0].SyncWithPrimary);
+        Assert.Equal(83, loaded.Monitors[0].OverrideOpacity);
         Assert.Empty(Directory.GetFiles(_directory, "*.tmp"));
     }
 
