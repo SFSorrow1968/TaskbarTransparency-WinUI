@@ -1,0 +1,14 @@
+Baseline evidence for fade duration projection allocation pass.
+
+Source path:
+- Services/TaskbarAppearanceService.cs
+
+Observed pattern before change:
+- AnimateTaskbarAlpha built the starting alpha dictionary with targetAlphas.ToDictionary(...).
+- SelectFadeDurations built the duration dictionary with another ToDictionary(...).
+- The no-animation fast path checked fadeDurations.Values.All(...).
+
+Optimization target:
+- Keep the same per-handle fade duration semantics.
+- Build the start and duration dictionaries with pre-sized loops.
+- Replace the LINQ all-duration scan with a direct positive-duration check.

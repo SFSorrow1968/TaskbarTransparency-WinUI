@@ -195,10 +195,15 @@ public sealed class TaskbarAppearanceService
             cancellation = _animationCancellation;
         }
 
-        var starts = targetAlphas.ToDictionary(pair => pair.Key, pair => _currentAlphas.GetValueOrDefault(pair.Key, pair.Value));
+        var starts = new Dictionary<IntPtr, byte>(targetAlphas.Count);
+        foreach (var pair in targetAlphas)
+        {
+            starts[pair.Key] = _currentAlphas.GetValueOrDefault(pair.Key, pair.Value);
+        }
+
         var fadeDurations = SelectFadeDurations(profile, starts, targetAlphas);
 
-        if (fadeDurations.Values.All(duration => duration <= 0))
+        if (!HasAnimatedDuration(fadeDurations))
         {
             foreach (var pair in targetAlphas)
             {
@@ -338,13 +343,27 @@ public sealed class TaskbarAppearanceService
 
     private static Dictionary<IntPtr, int> SelectFadeDurations(TaskbarProfile profile, IReadOnlyDictionary<IntPtr, byte> starts, IReadOnlyDictionary<IntPtr, byte> targetAlphas)
     {
-        return targetAlphas.ToDictionary(
-            pair => pair.Key,
-            pair =>
+        var durations = new Dictionary<IntPtr, int>(targetAlphas.Count);
+        foreach (var pair in targetAlphas)
+        {
+            var start = starts.GetValueOrDefault(pair.Key, pair.Value);
+            durations[pair.Key] = start == pair.Value ? 0 : SelectFadeMilliseconds(profile, start, pair.Value);
+        }
+
+        return durations;
+    }
+
+    private static bool HasAnimatedDuration(IReadOnlyDictionary<IntPtr, int> fadeDurations)
+    {
+        foreach (var duration in fadeDurations.Values)
+        {
+            if (duration > 0)
             {
-                var start = starts.GetValueOrDefault(pair.Key, pair.Value);
-                return start == pair.Value ? 0 : SelectFadeMilliseconds(profile, start, pair.Value);
-            });
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void ApplyLayeredAlpha(IntPtr handle, byte alpha)

@@ -100,6 +100,7 @@ ITEMS = [
     [83, "Infrastructure", "Stale taskbar cache pruning allocation reduction", "Avoid LINQ projection and stale-handle arrays while pruning cached taskbar state after apply.", "P1", "Done", "TaskbarAppearanceService now prunes alpha and appearance caches directly against one live handle set built from current taskbar targets."],
     [84, "Infrastructure", "Monitor override lookup loop allocation reduction", "Avoid double-scanning and LINQ grouping when building per-monitor override lookup data.", "P1", "Done", "TaskbarAppearanceService now builds unsynced monitor override lookup entries in one loop and returns no dictionary for fully synced monitor sets."],
     [85, "Infrastructure", "Taskbar catalog iterator allocation reduction", "Avoid iterator and array materialization when collecting current taskbar windows.", "P1", "Done", "TaskbarWindowCatalog now builds the current taskbar list directly with a small pre-sized list instead of yielding and materializing an array."],
+    [86, "Infrastructure", "Fade duration projection allocation reduction", "Avoid LINQ dictionary projections and duration scans when preparing taskbar fade animations.", "P1", "Done", "TaskbarAppearanceService now builds animation start and duration dictionaries with pre-sized loops and checks for animated durations with a direct scan."],
 ]
 
 TAB_COLORS = {
