@@ -68,6 +68,7 @@ ITEMS = [
     [51, "Features", "Automation paused recovery", "Let the Automation conflict card re-enable paused automation directly.", "P1", "Done", "Computer Use reproduced the disabled paused-state recovery button and verified Enable automation now restores live automation on a 3440-wide monitor."],
     [52, "Features", "Diagnostics recovery action accuracy", "Keep Diagnostics recovery controls truthful and non-destructive.", "P1", "Done", "Computer Use reproduced the inert Open folder button, misleading error header, and fullscreen Apply defaults behavior; Diagnostics now opens logs, reports healthy taskbar updates, and applies safe desktop without changing saved settings."],
     [53, "Features", "Tuning hotkey editing", "Make the unified Tuning hotkey fields actually editable and persist them through Windows hotkey registration.", "P1", "Done", "Computer Use reproduced read-only hotkey fields on the Tuning page; Save changes now writes and re-registers edited shortcuts without overwriting opacity or transition values, with initialization guards added to live-control pages."],
+    [54, "Features", "Settings hotkey warning accuracy", "Keep the legacy Settings hotkey status truthful if the surface is reached.", "P2", "Done", "Replaced the always-visible shortcut conflict warning with the same real Windows registration state used by Diagnostics."],
 ]
 
 TAB_COLORS = {

@@ -30,6 +30,7 @@ public sealed partial class SettingsPage : Page
         StartupStatusText.Text = _state.StartupRegistrationFailed
             ? "Startup could not be changed. Keep using tray launch for now, or retry after checking Windows account permissions."
             : _state.StartupStatusMessage;
+        UpdateHotkeyRegistrationInfo();
         _loading = false;
     }
 
@@ -58,10 +59,20 @@ public sealed partial class SettingsPage : Page
         HotkeySaveInfo.Message = _state.HotkeyStatus.IsReady
             ? "Hotkeys were saved and registered with Windows."
             : "Hotkeys were saved, but one or more shortcuts need attention in Diagnostics.";
+        UpdateHotkeyRegistrationInfo();
     }
 
     private void RetryStartup_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
         _state.SetStartWithWindows(StartupSwitch.IsOn);
+    }
+
+    private void UpdateHotkeyRegistrationInfo()
+    {
+        var status = _state.HotkeyStatus;
+        HotkeyRegistrationInfo.Severity = status.IsReady ? InfoBarSeverity.Success : InfoBarSeverity.Warning;
+        HotkeyRegistrationInfo.Message = status.IsReady
+            ? "Both shortcuts are registered with Windows."
+            : $"Open: {status.Open.Summary} Toggle: {status.Toggle.Summary}";
     }
 }

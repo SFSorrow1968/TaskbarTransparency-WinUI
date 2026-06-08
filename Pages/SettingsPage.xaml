@@ -48,7 +48,7 @@
                         </StackPanel>
                         <TextBox x:Name="ToggleHotkeyText" Grid.Column="1" PlaceholderText="Ctrl+Alt+T" />
                     </Grid>
-                    <InfoBar IsOpen="True" Severity="Warning" Title="Shortcut conflict" Message="This shortcut may conflict with an existing system or app shortcut." />
+                    <InfoBar x:Name="HotkeyRegistrationInfo" IsOpen="True" Title="Shortcut registration" />
                 </StackPanel>
             </Border>
 
