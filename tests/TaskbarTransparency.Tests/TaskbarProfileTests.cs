@@ -73,4 +73,53 @@ public sealed class TaskbarProfileTests
         Assert.Equal(140, mica.FadeOutMilliseconds);
         Assert.Equal("Linear", mica.Easing);
     }
+
+    [Fact]
+    public void MergeDetected_PreservesSavedOverrideSettings()
+    {
+        var detected = new MonitorProfile
+        {
+            DeviceName = @"\\.\DISPLAY2",
+            FriendlyName = "Detected display",
+            IsPrimary = false,
+            SyncWithPrimary = true,
+            OverrideOpacity = 64
+        };
+        var saved = new MonitorProfile
+        {
+            DeviceName = @"\\.\DISPLAY2",
+            FriendlyName = "Old display",
+            IsPrimary = true,
+            SyncWithPrimary = false,
+            OverrideOpacity = 81
+        };
+
+        var merged = MonitorProfile.MergeDetected(detected, saved);
+
+        Assert.Equal(@"\\.\DISPLAY2", merged.DeviceName);
+        Assert.Equal("Detected display", merged.FriendlyName);
+        Assert.False(merged.IsPrimary);
+        Assert.False(merged.SyncWithPrimary);
+        Assert.Equal(81, merged.OverrideOpacity);
+    }
+
+    [Fact]
+    public void SequenceMatches_DetectsMonitorListChanges()
+    {
+        var left = new[]
+        {
+            new MonitorProfile { DeviceName = "A", FriendlyName = "Primary", IsPrimary = true, SyncWithPrimary = true, OverrideOpacity = 32 }
+        };
+        var same = new[]
+        {
+            new MonitorProfile { DeviceName = "A", FriendlyName = "Primary", IsPrimary = true, SyncWithPrimary = true, OverrideOpacity = 32 }
+        };
+        var different = new[]
+        {
+            new MonitorProfile { DeviceName = "A", FriendlyName = "Primary", IsPrimary = true, SyncWithPrimary = false, OverrideOpacity = 32 }
+        };
+
+        Assert.True(MonitorProfile.SequenceMatches(left, same));
+        Assert.False(MonitorProfile.SequenceMatches(left, different));
+    }
 }

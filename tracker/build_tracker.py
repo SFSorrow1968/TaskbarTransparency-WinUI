@@ -85,6 +85,7 @@ ITEMS = [
     [68, "Infrastructure", "Taskbar interop no-op optimization", "Avoid redundant native taskbar composition and alpha calls when visual requests are unchanged.", "P1", "Done", "Taskbar appearance requests are cached per handle and unchanged layered-alpha requests are skipped, reducing work during rapid controls and repeated applies."],
     [69, "Infrastructure", "Slider persistence debounce", "Collapse rapid opacity and hover-distance slider bursts into immediate previews plus one settled settings save.", "P1", "Done", "Dashboard opacity and Tuning hover proximity now preview instantly while debouncing durable settings persistence to reduce drag-time disk churn."],
     [70, "Infrastructure", "Active page refresh optimization", "Limit global state refresh work to loaded pages and avoid replacing unchanged runtime list sources.", "P1", "Done", "Dashboard, Tuning, Automation, Monitors, Diagnostics, and Settings now unsubscribe when unloaded; runtime-heavy lists update only when their source signatures change."],
+    [71, "Infrastructure", "Startup monitor refresh no-op guard", "Avoid startup settings writes and live monitor collection resets when detected monitors match saved state.", "P1", "Done", "Monitor refresh now merges detected display metadata with saved overrides, updates live monitors only when changed, and saves only when the effective monitor list changes."],
 ]
 
 TAB_COLORS = {

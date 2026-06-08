@@ -74,16 +74,27 @@ public sealed class AppState
 
     public void RefreshMonitors()
     {
-        var current = _monitors.GetCurrent();
-        Monitors.Clear();
-        foreach (var monitor in current)
+        var detected = _monitors.GetCurrent();
+        var merged = detected
+            .Select(monitor => MonitorProfile.MergeDetected(
+                monitor,
+                Settings.Monitors.FirstOrDefault(item => string.Equals(item.DeviceName, monitor.DeviceName, StringComparison.Ordinal))))
+            .ToList();
+
+        if (!MonitorProfile.SequenceMatches(Monitors, merged))
         {
-            var saved = Settings.Monitors.FirstOrDefault(item => item.DeviceName == monitor.DeviceName);
-            Monitors.Add(saved ?? monitor);
+            Monitors.Clear();
+            foreach (var monitor in merged)
+            {
+                Monitors.Add(monitor);
+            }
         }
 
-        Settings.Monitors = Monitors.ToList();
-        Save();
+        if (!MonitorProfile.SequenceMatches(Settings.Monitors, merged))
+        {
+            Settings.Monitors = merged;
+            Save();
+        }
     }
 
     public void SetProfile(TaskbarProfile profile)
