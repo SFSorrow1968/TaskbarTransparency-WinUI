@@ -147,4 +147,14 @@ public sealed class TaskbarAppearanceServiceTests
         Assert.True(TaskbarWindowCatalog.IsPrimaryClassForTest(TaskbarWindowCatalog.PrimaryTaskbarClassName));
         Assert.False(TaskbarWindowCatalog.IsPrimaryClassForTest(TaskbarWindowCatalog.SecondaryTaskbarClassName));
     }
+
+    [Fact]
+    public void FindStaleHandlesForTest_ReturnsCachedHandlesMissingFromLiveSet()
+    {
+        var stale = TaskbarAppearanceService.FindStaleHandlesForTest(
+            [new IntPtr(1), new IntPtr(2), new IntPtr(2), new IntPtr(3)],
+            [new IntPtr(2), new IntPtr(4)]);
+
+        Assert.Equal([new IntPtr(1), new IntPtr(3)], stale.OrderBy(item => item.ToInt64()).ToArray());
+    }
 }

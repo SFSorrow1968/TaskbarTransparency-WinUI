@@ -38,6 +38,7 @@ public sealed class TaskbarAppearanceService
             alphaTargets[target.Handle] = targetOpacity;
         }
 
+        PruneStaleHandles(targets.Select(target => target.Handle));
         AnimateTaskbarAlpha(alphaTargets, profile);
         return targets.Length;
     }
@@ -89,6 +90,7 @@ public sealed class TaskbarAppearanceService
     public static byte ResolveMonitorOpacityForTest(byte opacity, MonitorProfile? monitor) => ResolveMonitorOpacity(opacity, monitor);
     public static bool ShouldApplyLayeredAlphaForTest(byte? currentAlpha, byte targetAlpha) => ShouldApplyLayeredAlpha(currentAlpha, targetAlpha);
     public static bool AppearanceRequestMatchesForTest(TaskbarProfile leftProfile, byte leftOpacity, TaskbarProfile rightProfile, byte rightOpacity) => CreateAppearanceRequest(leftProfile, leftOpacity) == CreateAppearanceRequest(rightProfile, rightOpacity);
+    public static IReadOnlyCollection<IntPtr> FindStaleHandlesForTest(IEnumerable<IntPtr> cachedHandles, IEnumerable<IntPtr> liveHandles) => FindStaleHandles(cachedHandles, liveHandles);
 
     private static int ComposeColor(string hex, byte opacity)
     {
@@ -192,7 +194,45 @@ public sealed class TaskbarAppearanceService
             catch (OperationCanceledException)
             {
             }
+            finally
+            {
+                ClearAnimationCancellation(cancellation);
+            }
         }, cancellation.Token);
+    }
+
+    private void PruneStaleHandles(IEnumerable<IntPtr> liveHandles)
+    {
+        var cachedHandles = _currentAlphas.Keys.Concat(_currentAppearances.Keys);
+        foreach (var handle in FindStaleHandles(cachedHandles, liveHandles))
+        {
+            _currentAlphas.TryRemove(handle, out _);
+            _currentAppearances.TryRemove(handle, out _);
+        }
+    }
+
+    private static IReadOnlyCollection<IntPtr> FindStaleHandles(IEnumerable<IntPtr> cachedHandles, IEnumerable<IntPtr> liveHandles)
+    {
+        var live = liveHandles.ToHashSet();
+        return cachedHandles
+            .Distinct()
+            .Where(handle => !live.Contains(handle))
+            .ToArray();
+    }
+
+    private void ClearAnimationCancellation(CancellationTokenSource cancellation)
+    {
+        lock (_animationSync)
+        {
+            if (!ReferenceEquals(_animationCancellation, cancellation))
+            {
+                return;
+            }
+
+            _animationCancellation = null;
+        }
+
+        cancellation.Dispose();
     }
 
     private static Dictionary<IntPtr, int> SelectFadeDurations(TaskbarProfile profile, IReadOnlyDictionary<IntPtr, byte> starts, IReadOnlyDictionary<IntPtr, byte> targetAlphas)
