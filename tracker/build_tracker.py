@@ -80,6 +80,7 @@ ITEMS = [
     [63, "Features", "Manual apply semantics clarity", "Make manual runtime actions describe whether they reapply the current state or simulate a specific state.", "P1", "Done", "Audit found Dashboard and tray Apply forced Desktop while Automation preview simulated Visible window; controls now say and do Reapply current state or Simulate visible window explicitly."],
     [64, "Features", "Close-to-tray lifecycle audit", "Verify closing the app with the tray icon enabled hides the window without exiting the background service.", "P1", "Done", "Computer Use closed the Oxygen window; process inspection confirmed TaskbarTransparency stayed alive with no visible main window and ShowTrayIcon enabled."],
     [65, "Features", "Hidden-window hotkey restore audit", "Verify the global open hotkey restores Oxygen after the dashboard has been hidden to tray.", "P1", "Done", "Computer Use closed Oxygen to tray on a 1426 by 913 widescreen app surface, sent Ctrl+Alt+G through Windows, and confirmed the Dashboard window returned at the same bounds."],
+    [66, "Features", "Tray popup command audit", "Verify the notification-area popup exposes the intended commands and routes key commands from the hidden tray state.", "P1", "Done", "Windows tray overflow exposed Oxygen Taskbar; native popup extraction confirmed Open Dashboard, Reapply Current State, Toggle Transparency, Open Tuning, and Exit labels. Open Tuning restored Tuning, and Exit terminated the background process."],
 ]
 
 TAB_COLORS = {
