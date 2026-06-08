@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Dispatching;
 using TaskbarTransparency.Models;
 using TaskbarTransparency.Services;
 
@@ -10,11 +11,16 @@ namespace TaskbarTransparency.Pages;
 public sealed partial class HomePage : Page
 {
     private readonly AppState _state = ((App)Microsoft.UI.Xaml.Application.Current).State;
+    private readonly DispatcherQueueTimer _opacityCommitTimer;
+    private double _pendingOpacity;
     private bool _loading = true;
 
     public HomePage()
     {
         InitializeComponent();
+        _opacityCommitTimer = DispatcherQueue.CreateTimer();
+        _opacityCommitTimer.Interval = TimeSpan.FromMilliseconds(350);
+        _opacityCommitTimer.Tick += CommitPendingOpacity;
         Loaded += (_, _) => Refresh();
         _state.Changed += (_, _) => DispatcherQueue.TryEnqueue(Refresh);
     }
@@ -51,8 +57,19 @@ public sealed partial class HomePage : Page
     {
         if (!_loading)
         {
-            _state.SetOpacity(e.NewValue);
+            _pendingOpacity = e.NewValue;
+            OpacityText.Text = $"{e.NewValue:0}%";
+            OpacityValueBoxText.Text = $"{e.NewValue:0}%";
+            _state.PreviewOpacity(e.NewValue);
+            _opacityCommitTimer.Stop();
+            _opacityCommitTimer.Start();
         }
+    }
+
+    private void CommitPendingOpacity(DispatcherQueueTimer sender, object args)
+    {
+        sender.Stop();
+        _state.SetOpacity(_pendingOpacity);
     }
 
     private void ApplyClear_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e) => _state.SetProfile(TaskbarProfile.OxygenClear);

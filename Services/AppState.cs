@@ -95,9 +95,30 @@ public sealed class AppState
 
     public void SetOpacity(double value)
     {
+        SetOpacityCore(value, persistSettings: true);
+    }
+
+    public void PreviewOpacity(double value)
+    {
+        SetOpacityCore(value, persistSettings: false);
+    }
+
+    private void SetOpacityCore(double value, bool persistSettings)
+    {
+        var opacity = (byte)Math.Clamp((int)Math.Round(value), 0, 100);
+        if (Settings.ActiveProfile.Opacity == opacity)
+        {
+            if (persistSettings)
+            {
+                SaveAndNotify();
+            }
+
+            return;
+        }
+
         _opacityBeforeToggle = null;
-        Settings.ActiveProfile = Settings.ActiveProfile with { Opacity = (byte)Math.Round(value) };
-        ApplyNow(persistSettings: true);
+        Settings.ActiveProfile = Settings.ActiveProfile with { Opacity = opacity };
+        ApplyNow(persistSettings);
     }
 
     public void SetMonitorOverride(string deviceName, double opacity, bool syncWithPrimary)
@@ -135,8 +156,35 @@ public sealed class AppState
 
     public void SetHoverDistance(double value)
     {
-        Settings.HoverDistance = Math.Clamp((int)Math.Round(value), 0, 48);
-        SaveAndNotify();
+        SetHoverDistanceCore(value, persistSettings: true);
+    }
+
+    public void PreviewHoverDistance(double value)
+    {
+        SetHoverDistanceCore(value, persistSettings: false);
+    }
+
+    private void SetHoverDistanceCore(double value, bool persistSettings)
+    {
+        var distance = Math.Clamp((int)Math.Round(value), 0, 48);
+        if (Settings.HoverDistance == distance)
+        {
+            if (persistSettings)
+            {
+                SaveAndNotify();
+            }
+
+            return;
+        }
+
+        Settings.HoverDistance = distance;
+        if (persistSettings)
+        {
+            SaveAndNotify();
+            return;
+        }
+
+        Changed?.Invoke(this, EventArgs.Empty);
     }
 
     public void SetFullscreenOverlap(bool enabled)

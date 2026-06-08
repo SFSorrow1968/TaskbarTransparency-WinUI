@@ -83,6 +83,7 @@ ITEMS = [
     [66, "Features", "Tray popup command audit", "Verify the notification-area popup exposes the intended commands and routes key commands from the hidden tray state.", "P1", "Done", "Windows tray overflow exposed Oxygen Taskbar; native popup extraction confirmed Open Dashboard, Reapply Current State, Toggle Transparency, Open Tuning, and Exit labels. Open Tuning restored Tuning, and Exit terminated the background process."],
     [67, "Infrastructure", "Runtime smoothness optimization", "Reduce redundant disk writes and overlapping runtime sensor work during frequent taskbar applies.", "P1", "Done", "Runtime applies now update transient state without saving unchanged settings; identical settings saves are skipped; sensor ticks avoid overlap."],
     [68, "Infrastructure", "Taskbar interop no-op optimization", "Avoid redundant native taskbar composition and alpha calls when visual requests are unchanged.", "P1", "Done", "Taskbar appearance requests are cached per handle and unchanged layered-alpha requests are skipped, reducing work during rapid controls and repeated applies."],
+    [69, "Infrastructure", "Slider persistence debounce", "Collapse rapid opacity and hover-distance slider bursts into immediate previews plus one settled settings save.", "P1", "Done", "Dashboard opacity and Tuning hover proximity now preview instantly while debouncing durable settings persistence to reduce drag-time disk churn."],
 ]
 
 TAB_COLORS = {

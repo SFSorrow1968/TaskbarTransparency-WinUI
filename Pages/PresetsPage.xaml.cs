@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Dispatching;
 using TaskbarTransparency.Models;
 
 namespace TaskbarTransparency.Pages;
@@ -7,6 +8,8 @@ namespace TaskbarTransparency.Pages;
 public sealed partial class PresetsPage : Page
 {
     private readonly Services.AppState _state = ((App)Application.Current).State;
+    private readonly DispatcherQueueTimer _hoverDistanceCommitTimer;
+    private double _pendingHoverDistance;
     private bool _loading = true;
     private bool _profileNameDirty;
     private bool _profileTuningDirty;
@@ -14,6 +17,9 @@ public sealed partial class PresetsPage : Page
     public PresetsPage()
     {
         InitializeComponent();
+        _hoverDistanceCommitTimer = DispatcherQueue.CreateTimer();
+        _hoverDistanceCommitTimer.Interval = TimeSpan.FromMilliseconds(350);
+        _hoverDistanceCommitTimer.Tick += CommitPendingHoverDistance;
         Loaded += (_, _) => Refresh();
         _state.Changed += (_, _) => DispatcherQueue.TryEnqueue(Refresh);
     }
@@ -112,9 +118,18 @@ public sealed partial class PresetsPage : Page
     {
         if (!_loading)
         {
+            _pendingHoverDistance = e.NewValue;
             HoverDistanceText.Text = $"{e.NewValue:0} px";
-            _state.SetHoverDistance(e.NewValue);
+            _state.PreviewHoverDistance(e.NewValue);
+            _hoverDistanceCommitTimer.Stop();
+            _hoverDistanceCommitTimer.Start();
         }
+    }
+
+    private void CommitPendingHoverDistance(DispatcherQueueTimer sender, object args)
+    {
+        sender.Stop();
+        _state.SetHoverDistance(_pendingHoverDistance);
     }
 
     private void AutomationSwitch_Toggled(object sender, RoutedEventArgs e)
