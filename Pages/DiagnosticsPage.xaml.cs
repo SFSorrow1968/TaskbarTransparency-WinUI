@@ -32,6 +32,15 @@ public sealed partial class DiagnosticsPage : Page
         HeaderIconBorder.Background = new SolidColorBrush(taskbarsFound
             ? Color.FromArgb(0x33, 0x23, 0xC5, 0x8E)
             : Color.FromArgb(0x33, 0xFF, 0x6B, 0x78));
+        var recovery = DiagnosticsRecoveryState.FromTaskbarUpdateCount(runtime.TaskbarsUpdated);
+        RecoveryTitleText.Text = recovery.Title;
+        RecoveryPrimaryDetailText.Text = recovery.PrimaryDetail;
+        RecoverySecondaryDetailText.Text = recovery.SecondaryDetail;
+        RecoveryTertiaryDetailText.Text = recovery.TertiaryDetail;
+        RecoveryPrimaryButton.Content = recovery.PrimaryAction;
+        RecoverySecondaryButton.Content = recovery.SecondaryAction;
+        RecoverySecondaryButton.Visibility = recovery.ShowSecondaryAction ? Visibility.Visible : Visibility.Collapsed;
+        RecoveryHelperText.Text = recovery.HelperText;
         DetailsText.Text = $"State: {runtime.State}\nProfile: {runtime.AppliedProfile}\nTaskbars updated: {runtime.TaskbarsUpdated}\nLast applied: {runtime.LastAppliedAt:O}";
         SensorTimelineList.ItemsSource = runtime.RecentEvents
             .Select(item => new SensorTimelineRow(

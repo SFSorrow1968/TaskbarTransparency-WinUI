@@ -71,6 +71,7 @@ ITEMS = [
     [54, "Features", "Settings hotkey warning accuracy", "Keep the legacy Settings hotkey status truthful if the surface is reached.", "P2", "Done", "Replaced the always-visible shortcut conflict warning with the same real Windows registration state used by Diagnostics."],
     [55, "Infrastructure", "Mockup handoff documentation freshness", "Remove stale active-prompt claims after generated mockups are organized.", "P2", "Done", "Computer Use swept the live app surfaces, then README and walkthrough were updated so V1 P2 prompt handoff is no longer described as active."],
     [56, "Features", "Automation preview affordance clarity", "Make Automation read like an intentional policy preview instead of a disabled editor.", "P2", "Done", "Computer Use reproduced disabled Add custom rule, reset, discard, and save controls; Automation now uses read-only policy output with an active Open Tuning edit path."],
+    [57, "Features", "Diagnostics recovery card state", "Keep the Diagnostics recovery card aligned with healthy versus failed taskbar detection.", "P1", "Done", "Computer Use found a healthy Diagnostics page still showing probable failure causes; recovery copy is now state-aware and tested."],
 ]
 
 TAB_COLORS = {

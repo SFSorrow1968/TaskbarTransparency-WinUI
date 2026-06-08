@@ -32,15 +32,15 @@
                         <ColumnDefinition Width="320" />
                     </Grid.ColumnDefinitions>
                     <StackPanel Spacing="12">
-                        <TextBlock FontSize="22" FontWeight="SemiBold" Foreground="White" Text="Probable causes" />
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Windows Explorer is restarting or has not created the taskbar yet." />
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="An unsupported shell replacement is in use." />
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="The target taskbar is hidden, disabled, or unavailable." />
+                        <TextBlock x:Name="RecoveryTitleText" FontSize="22" FontWeight="SemiBold" Foreground="White" Text="Probable causes" />
+                        <TextBlock x:Name="RecoveryPrimaryDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Windows Explorer is restarting or has not created the taskbar yet." />
+                        <TextBlock x:Name="RecoverySecondaryDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="An unsupported shell replacement is in use." />
+                        <TextBlock x:Name="RecoveryTertiaryDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="The target taskbar is hidden, disabled, or unavailable." />
                     </StackPanel>
                     <StackPanel Grid.Column="1" Spacing="12">
-                        <Button Click="ApplyDesktop_Click" Style="{StaticResource GlassButtonStyle}" Background="{StaticResource OxygenBlueBrush}" Content="Retry detection" />
-                        <Button Click="ApplyDesktop_Click" Style="{StaticResource GlassButtonStyle}" Content="Apply safe desktop" />
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Applies the desktop rule and tries again without changing your saved settings." TextWrapping="Wrap" />
+                        <Button x:Name="RecoveryPrimaryButton" Click="ApplyDesktop_Click" Style="{StaticResource GlassButtonStyle}" Background="{StaticResource OxygenBlueBrush}" Content="Retry detection" />
+                        <Button x:Name="RecoverySecondaryButton" Click="ApplyDesktop_Click" Style="{StaticResource GlassButtonStyle}" Content="Apply safe desktop" />
+                        <TextBlock x:Name="RecoveryHelperText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Applies the desktop rule and tries again without changing your saved settings." TextWrapping="Wrap" />
                     </StackPanel>
                 </Grid>
             </Border>
