@@ -22,6 +22,11 @@ public sealed class MonitorProfile
 
     public static bool SequenceMatches(IEnumerable<MonitorProfile> left, IEnumerable<MonitorProfile> right)
     {
+        if (left is IList<MonitorProfile> leftList && right is IList<MonitorProfile> rightList)
+        {
+            return SequenceMatches(leftList, rightList);
+        }
+
         using var leftItems = left.GetEnumerator();
         using var rightItems = right.GetEnumerator();
         while (true)
@@ -43,6 +48,24 @@ public sealed class MonitorProfile
                 return false;
             }
         }
+    }
+
+    private static bool SequenceMatches(IList<MonitorProfile> left, IList<MonitorProfile> right)
+    {
+        if (left.Count != right.Count)
+        {
+            return false;
+        }
+
+        for (var index = 0; index < left.Count; index++)
+        {
+            if (!Matches(left[index], right[index]))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static bool Matches(MonitorProfile left, MonitorProfile right)

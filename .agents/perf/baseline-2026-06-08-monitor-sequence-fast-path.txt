@@ -1,0 +1,15 @@
+Baseline evidence for monitor sequence comparison fast path.
+
+Source path:
+- Models/MonitorProfile.cs
+- Services/AppState.cs
+
+Observed pattern before change:
+- AppState.RefreshMonitors calls MonitorProfile.SequenceMatches for live monitor and saved settings comparisons.
+- SequenceMatches accepted IEnumerable<MonitorProfile> and always created two enumerators.
+- The common inputs are list-like collections: ObservableCollection<MonitorProfile> and List<MonitorProfile>.
+
+Optimization target:
+- Keep exact monitor equality semantics.
+- Compare IList-backed collections by Count and index.
+- Preserve the existing enumerator path for deferred or non-indexable inputs.

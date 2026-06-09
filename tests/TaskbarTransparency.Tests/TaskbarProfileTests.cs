@@ -122,4 +122,25 @@ public sealed class TaskbarProfileTests
         Assert.True(MonitorProfile.SequenceMatches(left, same));
         Assert.False(MonitorProfile.SequenceMatches(left, different));
     }
+
+    [Fact]
+    public void SequenceMatches_SupportsDeferredEnumerables()
+    {
+        static IEnumerable<MonitorProfile> Enumerate(params MonitorProfile[] monitors)
+        {
+            foreach (var monitor in monitors)
+            {
+                yield return monitor;
+            }
+        }
+
+        var left = Enumerate(new MonitorProfile { DeviceName = "A", FriendlyName = "Primary", IsPrimary = true });
+        var same = Enumerate(new MonitorProfile { DeviceName = "A", FriendlyName = "Primary", IsPrimary = true });
+        var extra = Enumerate(
+            new MonitorProfile { DeviceName = "A", FriendlyName = "Primary", IsPrimary = true },
+            new MonitorProfile { DeviceName = "B", FriendlyName = "Display 2", IsPrimary = false });
+
+        Assert.True(MonitorProfile.SequenceMatches(left, same));
+        Assert.False(MonitorProfile.SequenceMatches(same, extra));
+    }
 }

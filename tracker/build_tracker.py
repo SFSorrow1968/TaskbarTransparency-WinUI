@@ -101,6 +101,7 @@ ITEMS = [
     [84, "Infrastructure", "Monitor override lookup loop allocation reduction", "Avoid double-scanning and LINQ grouping when building per-monitor override lookup data.", "P1", "Done", "TaskbarAppearanceService now builds unsynced monitor override lookup entries in one loop and returns no dictionary for fully synced monitor sets."],
     [85, "Infrastructure", "Taskbar catalog iterator allocation reduction", "Avoid iterator and array materialization when collecting current taskbar windows.", "P1", "Done", "TaskbarWindowCatalog now builds the current taskbar list directly with a small pre-sized list instead of yielding and materializing an array."],
     [86, "Infrastructure", "Fade duration projection allocation reduction", "Avoid LINQ dictionary projections and duration scans when preparing taskbar fade animations.", "P1", "Done", "TaskbarAppearanceService now builds animation start and duration dictionaries with pre-sized loops and checks for animated durations with a direct scan."],
+    [87, "Infrastructure", "Monitor sequence comparison fast path", "Avoid enumerator churn when comparing list-backed monitor profiles during refresh.", "P1", "Done", "MonitorProfile.SequenceMatches now compares IList-backed monitor collections by count and index while preserving the deferred enumerable fallback."],
 ]
 
 TAB_COLORS = {
