@@ -24,7 +24,12 @@ public sealed class TaskbarAppearanceService
 
     public int Apply(TaskbarProfile profile, byte opacity, IReadOnlyCollection<MonitorProfile>? monitors = null)
     {
-        var targets = DistinctByHandle(TaskbarWindowCatalog.GetCurrent());
+        return Apply(profile, opacity, monitors, TaskbarWindowCatalog.GetCurrent());
+    }
+
+    public int Apply(TaskbarProfile profile, byte opacity, IReadOnlyCollection<MonitorProfile>? monitors, IReadOnlyList<TaskbarWindowInfo> taskbarTargets)
+    {
+        var targets = DistinctByHandle(taskbarTargets);
         var monitorLookup = BuildMonitorOverrideLookup(monitors);
         var alphaTargets = new Dictionary<IntPtr, byte>(targets.Count);
         var compositionApplied = 0;

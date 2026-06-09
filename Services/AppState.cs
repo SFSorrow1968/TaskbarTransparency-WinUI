@@ -40,7 +40,8 @@ public sealed class AppState
     {
         Settings = _store.Load();
         Settings.StartWithWindows = _startup.IsEnabled();
-        RefreshMonitors();
+        var startupTaskbars = TaskbarWindowCatalog.GetCurrent();
+        RefreshMonitors(startupTaskbars);
         _tray.Start(
             () => RequestView(AppView.Dashboard),
             () => RequestView(AppView.Tuning),
@@ -48,7 +49,7 @@ public sealed class AppState
             ToggleTransparency,
             RequestExit);
         _tray.SetVisible(Settings.ShowTrayIcon);
-        ApplyNow(persistSettings: false);
+        ApplyNow(AutomationTrigger.Desktop, persistSettings: false, taskbarTargets: startupTaskbars);
         _sensors.Start(trigger => ApplyNow(trigger, persistSettings: false));
     }
 
@@ -78,7 +79,12 @@ public sealed class AppState
 
     public void RefreshMonitors()
     {
-        var detected = _monitors.GetCurrent();
+        RefreshMonitors(TaskbarWindowCatalog.GetCurrent());
+    }
+
+    private void RefreshMonitors(IReadOnlyList<TaskbarWindowInfo> detectedTaskbars)
+    {
+        var detected = _monitors.GetCurrent(detectedTaskbars);
         var merged = MonitorProfile.MergeDetectedList(detected, Settings.Monitors);
 
         if (!MonitorProfile.SequenceMatches(Monitors, merged))
@@ -336,10 +342,17 @@ public sealed class AppState
 
     private void ApplyNow(AutomationTrigger trigger, bool persistSettings)
     {
+        ApplyNow(trigger, persistSettings, taskbarTargets: null);
+    }
+
+    private void ApplyNow(AutomationTrigger trigger, bool persistSettings, IReadOnlyList<TaskbarWindowInfo>? taskbarTargets)
+    {
         var opacity = OpacityPolicy.Resolve(Settings.ActiveProfile, trigger, Settings.AutomationEnabled);
         var previousState = Runtime.State;
         var previousOpacity = Runtime.ResolvedOpacity;
-        Runtime.TaskbarsUpdated = _taskbar.Apply(Settings.ActiveProfile, opacity, Settings.Monitors);
+        Runtime.TaskbarsUpdated = taskbarTargets is null
+            ? _taskbar.Apply(Settings.ActiveProfile, opacity, Settings.Monitors)
+            : _taskbar.Apply(Settings.ActiveProfile, opacity, Settings.Monitors, taskbarTargets);
         Runtime.LastAppliedAt = DateTimeOffset.Now;
         Runtime.State = trigger.ToString();
         Runtime.AppliedProfile = Settings.ActiveProfile.Name;

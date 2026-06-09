@@ -6,7 +6,11 @@ public sealed class MonitorCatalog
 {
     public IReadOnlyList<MonitorProfile> GetCurrent()
     {
-        var taskbars = TaskbarWindowCatalog.GetCurrent();
+        return GetCurrent(TaskbarWindowCatalog.GetCurrent());
+    }
+
+    public IReadOnlyList<MonitorProfile> GetCurrent(IReadOnlyList<TaskbarWindowInfo> taskbars)
+    {
         if (taskbars.Count == 0)
         {
             return [];

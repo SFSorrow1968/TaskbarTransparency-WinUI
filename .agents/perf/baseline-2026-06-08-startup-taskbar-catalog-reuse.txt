@@ -1,0 +1,16 @@
+Baseline evidence for startup taskbar catalog reuse pass.
+
+Source paths:
+- Services/AppState.cs
+- Services/MonitorCatalog.cs
+- Services/TaskbarAppearanceService.cs
+
+Observed pattern before change:
+- AppState.Initialize called RefreshMonitors, which enumerated current taskbar windows through MonitorCatalog.
+- Initialize then immediately called ApplyNow, which enumerated current taskbar windows again through TaskbarAppearanceService.
+- Both operations happen during launch before the runtime sensor starts.
+
+Optimization target:
+- Capture the taskbar window snapshot once during initialization.
+- Use the same snapshot to build monitor profiles and perform the initial taskbar apply.
+- Keep later manual, sensor, and reapply operations using fresh live taskbar discovery.
