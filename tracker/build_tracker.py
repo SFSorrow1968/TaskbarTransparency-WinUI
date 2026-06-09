@@ -113,6 +113,7 @@ ITEMS = [
     [96, "Infrastructure", "Runtime sensor shell class buffer reuse", "Avoid allocating a new class-name StringBuilder during each foreground shell-window check.", "P1", "Done", "RuntimeStateSensorService now reuses one class-name buffer per sensor instance and keeps shell class matching covered by tests."],
     [97, "Infrastructure", "Settings save cache", "Avoid reading settings.json during ordinary unchanged in-process saves.", "P1", "Done", "SettingsStore now caches the last serialized settings and file timestamp so unchanged saves can skip disk reads while still detecting external file edits."],
     [98, "Infrastructure", "Startup taskbar catalog reuse", "Avoid enumerating taskbar windows twice during launch initialization.", "P1", "Done", "AppState now captures the startup taskbar snapshot once, uses it for monitor profile refresh, and reuses it for the initial taskbar apply while later applies still refresh live targets."],
+    [99, "Infrastructure", "Fade animation track precompute", "Reduce dictionary lookups during each taskbar fade animation frame.", "P1", "Done", "TaskbarAppearanceService now precomputes alpha animation tracks once per fade so the frame loop iterates direct handle/start/target/duration values."],
 ]
 
 TAB_COLORS = {

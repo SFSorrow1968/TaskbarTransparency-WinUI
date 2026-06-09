@@ -97,6 +97,32 @@ public sealed class TaskbarAppearanceServiceTests
     }
 
     [Fact]
+    public void BuildAlphaAnimationDurationsForTest_PrecomputesFrameLoopDurations()
+    {
+        var profile = TaskbarProfile.FocusGlass with
+        {
+            FadeInMilliseconds = 320,
+            FadeOutMilliseconds = 80
+        };
+        var primary = new IntPtr(1);
+        var secondary = new IntPtr(2);
+        var current = new Dictionary<IntPtr, byte>
+        {
+            [primary] = 80,
+            [secondary] = 160
+        };
+        var targets = new Dictionary<IntPtr, byte>
+        {
+            [primary] = 120,
+            [secondary] = 120
+        };
+
+        var durations = TaskbarAppearanceService.BuildAlphaAnimationDurationsForTest(profile, current, targets);
+
+        Assert.Equal([320, 80], durations);
+    }
+
+    [Fact]
     public void ResolveMonitorOpacityForTest_UsesGlobalOpacity_WhenMonitorIsSynced()
     {
         var opacity = TaskbarAppearanceService.ResolveMonitorOpacityForTest(41, new MonitorProfile

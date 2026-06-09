@@ -109,6 +109,7 @@ public sealed class TaskbarAppearanceService
     public static double EaseProgressForTest(double progress, string easing) => EaseProgress(progress, easing);
     public static int SelectFadeMillisecondsForTest(TaskbarProfile profile, byte startAlpha, byte targetAlpha) => SelectFadeMilliseconds(profile, startAlpha, targetAlpha);
     public static IReadOnlyDictionary<IntPtr, int> SelectFadeDurationsForTest(TaskbarProfile profile, IReadOnlyDictionary<IntPtr, byte> starts, IReadOnlyDictionary<IntPtr, byte> targetAlphas) => SelectFadeDurations(profile, starts, targetAlphas);
+    public static IReadOnlyList<int> BuildAlphaAnimationDurationsForTest(TaskbarProfile profile, IReadOnlyDictionary<IntPtr, byte> currentAlphas, IReadOnlyDictionary<IntPtr, byte> targetAlphas) => BuildAlphaAnimationTargets(profile, currentAlphas, targetAlphas).ConvertAll(target => target.Duration);
     public static byte ResolveMonitorOpacityForTest(byte opacity, MonitorProfile? monitor) => ResolveMonitorOpacity(opacity, monitor);
     public static bool ShouldApplyLayeredAlphaForTest(byte? currentAlpha, byte targetAlpha) => ShouldApplyLayeredAlpha(currentAlpha, targetAlpha);
     public static bool AppearanceRequestMatchesForTest(TaskbarProfile leftProfile, byte leftOpacity, TaskbarProfile rightProfile, byte rightOpacity) => CreateAppearanceRequest(leftProfile, leftOpacity) == CreateAppearanceRequest(rightProfile, rightOpacity);
@@ -200,19 +201,13 @@ public sealed class TaskbarAppearanceService
             cancellation = _animationCancellation;
         }
 
-        var starts = new Dictionary<IntPtr, byte>(targetAlphas.Count);
-        foreach (var pair in targetAlphas)
-        {
-            starts[pair.Key] = _currentAlphas.GetValueOrDefault(pair.Key, pair.Value);
-        }
+        var animationTargets = BuildAlphaAnimationTargets(profile, _currentAlphas, targetAlphas);
 
-        var fadeDurations = SelectFadeDurations(profile, starts, targetAlphas);
-
-        if (!HasAnimatedDuration(fadeDurations))
+        if (!HasAnimatedDuration(animationTargets))
         {
-            foreach (var pair in targetAlphas)
+            foreach (var target in animationTargets)
             {
-                ApplyLayeredAlpha(pair.Key, pair.Value);
+                ApplyLayeredAlpha(target.Handle, target.TargetAlpha);
             }
 
             return new AlphaApplySummary(targetAlphas.Count, skipped, AnimationStarted: false);
@@ -230,17 +225,14 @@ public sealed class TaskbarAppearanceService
                     var elapsed = Environment.TickCount64 - started;
                     var allComplete = true;
 
-                    foreach (var pair in targetAlphas)
+                    foreach (var target in animationTargets)
                     {
-                        var handle = pair.Key;
-                        var start = starts[handle];
-                        var duration = fadeDurations[handle];
-                        var progress = duration <= 0
+                        var progress = target.Duration <= 0
                             ? 1d
-                            : Math.Clamp(elapsed / (double)duration, 0d, 1d);
+                            : Math.Clamp(elapsed / (double)target.Duration, 0d, 1d);
                         var eased = EaseProgress(progress, profile.Easing);
-                        var alpha = (byte)Math.Clamp((int)Math.Round(start + ((pair.Value - start) * eased)), 0, 255);
-                        ApplyLayeredAlpha(handle, alpha);
+                        var alpha = (byte)Math.Clamp((int)Math.Round(target.StartAlpha + ((target.TargetAlpha - target.StartAlpha) * eased)), 0, 255);
+                        ApplyLayeredAlpha(target.Handle, alpha);
                         allComplete &= progress >= 1d;
                     }
 
@@ -358,11 +350,24 @@ public sealed class TaskbarAppearanceService
         return durations;
     }
 
-    private static bool HasAnimatedDuration(IReadOnlyDictionary<IntPtr, int> fadeDurations)
+    private static List<AlphaAnimationTarget> BuildAlphaAnimationTargets(TaskbarProfile profile, IReadOnlyDictionary<IntPtr, byte> currentAlphas, IReadOnlyDictionary<IntPtr, byte> targetAlphas)
     {
-        foreach (var duration in fadeDurations.Values)
+        var targets = new List<AlphaAnimationTarget>(targetAlphas.Count);
+        foreach (var pair in targetAlphas)
         {
-            if (duration > 0)
+            var start = currentAlphas.GetValueOrDefault(pair.Key, pair.Value);
+            var duration = start == pair.Value ? 0 : SelectFadeMilliseconds(profile, start, pair.Value);
+            targets.Add(new AlphaAnimationTarget(pair.Key, start, pair.Value, duration));
+        }
+
+        return targets;
+    }
+
+    private static bool HasAnimatedDuration(IReadOnlyList<AlphaAnimationTarget> animationTargets)
+    {
+        foreach (var target in animationTargets)
+        {
+            if (target.Duration > 0)
             {
                 return true;
             }
@@ -472,6 +477,7 @@ public sealed class TaskbarAppearanceService
     }
 
     private readonly record struct AppearanceRequest(int AccentState, int GradientColor);
+    private readonly record struct AlphaAnimationTarget(IntPtr Handle, byte StartAlpha, byte TargetAlpha, int Duration);
     private readonly record struct AlphaApplySummary(int LayeredAlphaChanges, int LayeredAlphaNoOps, bool AnimationStarted)
     {
         public static AlphaApplySummary Empty { get; } = new(0, 0, AnimationStarted: false);

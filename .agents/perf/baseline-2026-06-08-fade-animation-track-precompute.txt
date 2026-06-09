@@ -1,0 +1,14 @@
+Baseline evidence for fade animation track precompute pass.
+
+Source path:
+- Services/TaskbarAppearanceService.cs
+
+Observed pattern before change:
+- Animated taskbar alpha applies built separate dictionaries for start alphas and fade durations.
+- Each frame loop then looked up start and duration by handle for every animated taskbar.
+- Rapid opacity changes cancel and restart this animation path, so per-frame work affects perceived smoothness.
+
+Optimization target:
+- Precompute a compact alpha animation track list once per fade.
+- Store handle, start alpha, target alpha, and duration together.
+- Keep existing easing, cancellation, and no-animation behavior intact.
