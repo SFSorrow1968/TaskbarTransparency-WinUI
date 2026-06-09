@@ -1,0 +1,14 @@
+Baseline evidence for settings save cache pass.
+
+Source path:
+- Services/SettingsStore.cs
+
+Observed pattern before change:
+- SettingsStore.Save serialized settings and then read settings.json to compare content on every save.
+- Prior passes reduced redundant Save calls, but ordinary unchanged in-process saves could still perform disk reads.
+- Settings persistence is used by app state mutations, startup state synchronization, and settled slider commits.
+
+Optimization target:
+- Cache the last serialized settings payload after load or save.
+- Use the settings file timestamp as a guard so external edits still invalidate the cache.
+- Keep the existing atomic temp-file write behavior for real changes.

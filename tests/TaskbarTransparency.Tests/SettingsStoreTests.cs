@@ -119,6 +119,29 @@ public sealed class SettingsStoreTests : IDisposable
         Assert.Empty(Directory.GetFiles(_directory, "*.tmp"));
     }
 
+    [Fact]
+    public void Save_RewritesSettings_WhenFileChangesAfterCachedSave()
+    {
+        var path = Path.Combine(_directory, "settings.json");
+        var store = new SettingsStore(path);
+        var settings = new AppSettings
+        {
+            FirstRunCompleted = true,
+            ActiveProfile = TaskbarProfile.FocusGlass
+        };
+
+        store.Save(settings);
+        Thread.Sleep(1200);
+        File.WriteAllText(path, "{}");
+
+        store.Save(settings);
+        var loaded = store.Load();
+
+        Assert.True(loaded.FirstRunCompleted);
+        Assert.Equal(TaskbarProfile.FocusGlass.Name, loaded.ActiveProfile.Name);
+        Assert.Empty(Directory.GetFiles(_directory, "*.tmp"));
+    }
+
     public void Dispose()
     {
         if (Directory.Exists(_directory))

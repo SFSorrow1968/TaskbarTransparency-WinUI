@@ -111,6 +111,7 @@ ITEMS = [
     [94, "Infrastructure", "Runtime sensor native check gating", "Skip unneeded native foreground, fullscreen, and taskbar proximity checks based on automation settings.", "P1", "Done", "RuntimeStateSensorService now returns Desktop immediately when automation is disabled and only runs fullscreen or hover/taskbar checks when those policies are enabled."],
     [95, "Infrastructure", "Runtime sensor hover priority short-circuit", "Skip foreground, maximize, and fullscreen native checks when hover proximity already resolves the active runtime trigger.", "P1", "Done", "RuntimeStateSensorService now checks hover proximity first after automation gating and returns Hover immediately when active."],
     [96, "Infrastructure", "Runtime sensor shell class buffer reuse", "Avoid allocating a new class-name StringBuilder during each foreground shell-window check.", "P1", "Done", "RuntimeStateSensorService now reuses one class-name buffer per sensor instance and keeps shell class matching covered by tests."],
+    [97, "Infrastructure", "Settings save cache", "Avoid reading settings.json during ordinary unchanged in-process saves.", "P1", "Done", "SettingsStore now caches the last serialized settings and file timestamp so unchanged saves can skip disk reads while still detecting external file edits."],
 ]
 
 TAB_COLORS = {

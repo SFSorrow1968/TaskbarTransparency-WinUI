@@ -6,6 +6,9 @@ namespace TaskbarTransparency.Services;
 
 public sealed class SettingsStore
 {
+    private string? _lastSerializedSettings;
+    private DateTime _lastWriteTimeUtc;
+
     public SettingsStore()
         : this(Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -33,6 +36,7 @@ public sealed class SettingsStore
             var json = File.ReadAllText(SettingsPath);
             var settings = JsonSerializer.Deserialize(json, SettingsJsonContext.Default.AppSettings) ?? new AppSettings();
             settings.ActiveProfile = settings.ActiveProfile.NormalizeTransitions();
+            RememberExistingSettings(json);
             return settings;
         }
         catch
@@ -46,14 +50,29 @@ public sealed class SettingsStore
         var directory = Path.GetDirectoryName(SettingsPath)!;
         Directory.CreateDirectory(directory);
         var json = JsonSerializer.Serialize(settings, SettingsJsonContext.Default.AppSettings);
+        if (CachedSettingsMatch(json))
+        {
+            return;
+        }
+
         if (ExistingSettingsMatch(json))
         {
+            RememberExistingSettings(json);
             return;
         }
 
         var tempPath = Path.Combine(directory, $"{Path.GetFileName(SettingsPath)}.{Guid.NewGuid():N}.tmp");
         File.WriteAllText(tempPath, json);
         File.Move(tempPath, SettingsPath, overwrite: true);
+        RememberExistingSettings(json);
+    }
+
+    private bool CachedSettingsMatch(string json)
+    {
+        return _lastSerializedSettings is not null
+            && string.Equals(_lastSerializedSettings, json, StringComparison.Ordinal)
+            && File.Exists(SettingsPath)
+            && File.GetLastWriteTimeUtc(SettingsPath) == _lastWriteTimeUtc;
     }
 
     private bool ExistingSettingsMatch(string json)
@@ -70,6 +89,12 @@ public sealed class SettingsStore
         {
             return false;
         }
+    }
+
+    private void RememberExistingSettings(string json)
+    {
+        _lastSerializedSettings = json;
+        _lastWriteTimeUtc = File.Exists(SettingsPath) ? File.GetLastWriteTimeUtc(SettingsPath) : default;
     }
 }
 
