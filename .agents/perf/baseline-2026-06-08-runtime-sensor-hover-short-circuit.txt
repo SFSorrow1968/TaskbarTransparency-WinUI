@@ -1,0 +1,14 @@
+Baseline evidence for runtime sensor hover short-circuit pass.
+
+Source path:
+- Services/RuntimeStateSensorService.cs
+
+Observed pattern before change:
+- ResolveTrigger gives hover the highest priority after automation gating.
+- DetectCurrentTrigger still queried foreground, maximized, and fullscreen state before checking hover proximity.
+- During hover-active ticks, those native foreground/window checks were unnecessary.
+
+Optimization target:
+- Preserve hover priority.
+- Keep existing automation and hover policy gating.
+- Return Hover immediately when taskbar proximity is active, before foreground/maximized/fullscreen checks.
