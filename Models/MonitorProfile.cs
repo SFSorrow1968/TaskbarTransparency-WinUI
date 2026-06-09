@@ -20,6 +20,18 @@ public sealed class MonitorProfile
         };
     }
 
+    public static List<MonitorProfile> MergeDetectedList(IReadOnlyList<MonitorProfile> detected, IReadOnlyList<MonitorProfile> saved)
+    {
+        var merged = new List<MonitorProfile>(detected.Count);
+        for (var index = 0; index < detected.Count; index++)
+        {
+            var detectedMonitor = detected[index];
+            merged.Add(MergeDetected(detectedMonitor, FindByDeviceName(saved, detectedMonitor.DeviceName)));
+        }
+
+        return merged;
+    }
+
     public static bool SequenceMatches(IEnumerable<MonitorProfile> left, IEnumerable<MonitorProfile> right)
     {
         if (left is IList<MonitorProfile> leftList && right is IList<MonitorProfile> rightList)
@@ -66,6 +78,20 @@ public sealed class MonitorProfile
         }
 
         return true;
+    }
+
+    private static MonitorProfile? FindByDeviceName(IReadOnlyList<MonitorProfile> monitors, string deviceName)
+    {
+        for (var index = 0; index < monitors.Count; index++)
+        {
+            var monitor = monitors[index];
+            if (string.Equals(monitor.DeviceName, deviceName, StringComparison.Ordinal))
+            {
+                return monitor;
+            }
+        }
+
+        return null;
     }
 
     private static bool Matches(MonitorProfile left, MonitorProfile right)

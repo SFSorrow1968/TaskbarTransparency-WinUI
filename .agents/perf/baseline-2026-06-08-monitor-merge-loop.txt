@@ -1,0 +1,15 @@
+Baseline evidence for monitor refresh merge loop pass.
+
+Source path:
+- Services/AppState.cs
+- Models/MonitorProfile.cs
+
+Observed pattern before change:
+- AppState.RefreshMonitors projected detected monitors with LINQ Select(...).ToList().
+- Each detected monitor searched saved settings with FirstOrDefault and a string comparison delegate.
+- The path runs during initialization and manual monitor refresh.
+
+Optimization target:
+- Keep exact ordinal device-name matching.
+- Preserve saved per-monitor SyncWithPrimary and OverrideOpacity values.
+- Build the merged monitor list with a pre-sized list and direct loops.

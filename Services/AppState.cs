@@ -79,11 +79,7 @@ public sealed class AppState
     public void RefreshMonitors()
     {
         var detected = _monitors.GetCurrent();
-        var merged = detected
-            .Select(monitor => MonitorProfile.MergeDetected(
-                monitor,
-                Settings.Monitors.FirstOrDefault(item => string.Equals(item.DeviceName, monitor.DeviceName, StringComparison.Ordinal))))
-            .ToList();
+        var merged = MonitorProfile.MergeDetectedList(detected, Settings.Monitors);
 
         if (!MonitorProfile.SequenceMatches(Monitors, merged))
         {

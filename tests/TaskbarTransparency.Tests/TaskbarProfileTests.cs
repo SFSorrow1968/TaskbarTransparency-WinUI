@@ -104,6 +104,31 @@ public sealed class TaskbarProfileTests
     }
 
     [Fact]
+    public void MergeDetectedList_PreservesMatchingSavedOverrides()
+    {
+        var detected = new[]
+        {
+            new MonitorProfile { DeviceName = @"\\.\DISPLAY1", FriendlyName = "Primary display", IsPrimary = true, SyncWithPrimary = true, OverrideOpacity = 32 },
+            new MonitorProfile { DeviceName = @"\\.\DISPLAY2", FriendlyName = "Display 2", IsPrimary = false, SyncWithPrimary = true, OverrideOpacity = 64 }
+        };
+        var saved = new[]
+        {
+            new MonitorProfile { DeviceName = @"\\.\DISPLAY2", FriendlyName = "Old secondary", IsPrimary = false, SyncWithPrimary = false, OverrideOpacity = 83 },
+            new MonitorProfile { DeviceName = @"\\.\STALE", FriendlyName = "Disconnected", IsPrimary = false, SyncWithPrimary = false, OverrideOpacity = 12 }
+        };
+
+        var merged = MonitorProfile.MergeDetectedList(detected, saved);
+
+        Assert.Equal(2, merged.Count);
+        Assert.Equal(@"\\.\DISPLAY1", merged[0].DeviceName);
+        Assert.True(merged[0].SyncWithPrimary);
+        Assert.Equal(32, merged[0].OverrideOpacity);
+        Assert.Equal(@"\\.\DISPLAY2", merged[1].DeviceName);
+        Assert.False(merged[1].SyncWithPrimary);
+        Assert.Equal(83, merged[1].OverrideOpacity);
+    }
+
+    [Fact]
     public void SequenceMatches_DetectsMonitorListChanges()
     {
         var left = new[]
