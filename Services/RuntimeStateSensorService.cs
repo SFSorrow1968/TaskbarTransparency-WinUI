@@ -8,6 +8,7 @@ public sealed class RuntimeStateSensorService : IDisposable
 {
     private readonly Timer _timer;
     private readonly Func<AppSettings> _getSettings;
+    private readonly StringBuilder _classNameBuffer = new(128);
     private Action<AutomationTrigger>? _stateChanged;
     private AutomationTrigger? _lastTrigger;
     private int _isTicking;
@@ -121,17 +122,23 @@ public sealed class RuntimeStateSensorService : IDisposable
             fullscreen);
     }
 
-    private static bool IsShellWindow(IntPtr window)
+    private bool IsShellWindow(IntPtr window)
     {
-        var className = new StringBuilder(128);
-        var length = GetClassName(window, className, className.Capacity);
+        _classNameBuffer.Clear();
+        var length = GetClassName(window, _classNameBuffer, _classNameBuffer.Capacity);
         if (length <= 0)
         {
             return false;
         }
 
-        var name = className.ToString();
-        return name is "Shell_TrayWnd" or "Shell_SecondaryTrayWnd" or "Progman" or "WorkerW";
+        return IsShellClassName(_classNameBuffer.ToString());
+    }
+
+    public static bool IsShellClassNameForTest(string className) => IsShellClassName(className);
+
+    private static bool IsShellClassName(string className)
+    {
+        return className is "Shell_TrayWnd" or "Shell_SecondaryTrayWnd" or "Progman" or "WorkerW";
     }
 
     private static bool IsFullscreen(IntPtr window)

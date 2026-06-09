@@ -179,4 +179,15 @@ public sealed class RuntimeStateSensorServiceTests
         Assert.False(onePixelOutside);
         Assert.True(onTaskbarEdge);
     }
+
+    [Theory]
+    [InlineData("Shell_TrayWnd", true)]
+    [InlineData("Shell_SecondaryTrayWnd", true)]
+    [InlineData("Progman", true)]
+    [InlineData("WorkerW", true)]
+    [InlineData("Notepad", false)]
+    public void IsShellClassNameForTest_IdentifiesShellWindowClasses(string className, bool expected)
+    {
+        Assert.Equal(expected, RuntimeStateSensorService.IsShellClassNameForTest(className));
+    }
 }

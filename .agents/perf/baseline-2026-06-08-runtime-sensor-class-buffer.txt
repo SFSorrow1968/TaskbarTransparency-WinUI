@@ -1,0 +1,14 @@
+Baseline evidence for runtime sensor shell class buffer pass.
+
+Source path:
+- Services/RuntimeStateSensorService.cs
+
+Observed pattern before change:
+- IsShellWindow allocated a new StringBuilder(128) for every foreground class-name check.
+- The sensor tick runs once per second while the app is active.
+- Foreground shell-window filtering is part of normal runtime state detection.
+
+Optimization target:
+- Reuse one class-name buffer per RuntimeStateSensorService instance.
+- Preserve exact shell class names: Shell_TrayWnd, Shell_SecondaryTrayWnd, Progman, WorkerW.
+- Keep the existing GetClassName P/Invoke shape to avoid unsafe or broad interop changes.
