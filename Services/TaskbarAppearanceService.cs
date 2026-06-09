@@ -262,24 +262,27 @@ public sealed class TaskbarAppearanceService
     private void PruneStaleHandles(IReadOnlyList<TaskbarWindowInfo> liveTargets)
     {
         var liveHandles = BuildLiveHandleSet(liveTargets);
-        foreach (var handle in _currentAlphas.Keys)
+        foreach (var pair in _currentAlphas)
         {
+            var handle = pair.Key;
             if (!liveHandles.Contains(handle))
             {
                 _currentAlphas.TryRemove(handle, out _);
             }
         }
 
-        foreach (var handle in _currentAppearances.Keys)
+        foreach (var pair in _currentAppearances)
         {
+            var handle = pair.Key;
             if (!liveHandles.Contains(handle))
             {
                 _currentAppearances.TryRemove(handle, out _);
             }
         }
 
-        foreach (var handle in _layeredHandles.Keys)
+        foreach (var pair in _layeredHandles)
         {
+            var handle = pair.Key;
             if (!liveHandles.Contains(handle))
             {
                 _layeredHandles.TryRemove(handle, out _);

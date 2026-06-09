@@ -115,6 +115,7 @@ ITEMS = [
     [98, "Infrastructure", "Startup taskbar catalog reuse", "Avoid enumerating taskbar windows twice during launch initialization.", "P1", "Done", "AppState now captures the startup taskbar snapshot once, uses it for monitor profile refresh, and reuses it for the initial taskbar apply while later applies still refresh live targets."],
     [99, "Infrastructure", "Fade animation track precompute", "Reduce dictionary lookups during each taskbar fade animation frame.", "P1", "Done", "TaskbarAppearanceService now precomputes alpha animation tracks once per fade so the frame loop iterates direct handle/start/target/duration values."],
     [100, "Infrastructure", "Layered style check cache", "Avoid repeated native style reads for taskbar handles already known to be layered.", "P1", "Done", "TaskbarAppearanceService now caches handles after layered style verification or setup and prunes that cache with stale taskbar handles."],
+    [101, "Infrastructure", "Concurrent cache prune enumeration", "Avoid separate key-collection enumeration while pruning stale taskbar apply caches.", "P1", "Done", "TaskbarAppearanceService now enumerates concurrent cache entries directly when pruning alpha, appearance, and layered-style caches after each apply."],
 ]
 
 TAB_COLORS = {

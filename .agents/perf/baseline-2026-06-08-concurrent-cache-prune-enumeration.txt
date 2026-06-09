@@ -1,0 +1,14 @@
+Baseline evidence for concurrent cache prune enumeration pass.
+
+Source path:
+- Services/TaskbarAppearanceService.cs
+
+Observed pattern before change:
+- PruneStaleHandles iterated the Keys collection for alpha, appearance, and layered-style ConcurrentDictionary caches.
+- The method runs after taskbar apply and removes stale handles from all apply caches.
+- Prior passes added the layered-style cache, making this cleanup cover three concurrent caches.
+
+Optimization target:
+- Enumerate concurrent dictionary entries directly and use pair.Key for stale removal.
+- Keep the same live handle set and TryRemove behavior.
+- Avoid a separate key-collection enumeration path during apply cleanup.
