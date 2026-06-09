@@ -1,0 +1,19 @@
+Baseline evidence for final production allocation audit.
+
+Search command:
+- rg -n "\.ToList\(|\.ToArray\(|\.OrderBy\(|\.Where\(|\.Select\(|\.Distinct\(|\.Any\(|ToHashSet\(|new List<|new Dictionary<|new HashSet<|JsonSerializer|File\.Read|File\.Write|GetValueOrDefault\(|foreach \(var .* in .*\.Keys\)|Task\.Run|Task\.Delay|Process\.Start|DispatcherQueue|CreateTimer|Timer\(" -g "*.cs"
+
+Observed production categories:
+- SettingsStore retains necessary settings load/save serialization and file I/O; unchanged in-process saves are already cached.
+- TaskbarAppearanceService retains pre-sized dictionaries/lists/sets for apply targets, dedupe, animation tracks, and live handle cleanup.
+- RuntimeStateSensorService retains one timer and native foreground/taskbar checks gated by automation settings and hover priority.
+- Page classes retain pre-sized view-model row lists and DispatcherQueue refresh coalescing for UI binding.
+- Process.Start and reset settings writes are explicit user actions, not runtime loops.
+
+Observed test-only categories:
+- Remaining OrderBy/ToArray and several dictionary/list allocations occur in tests.
+- FindStaleHandles, NeedsMonitorOverrideLookup, SelectFadeDurations, and related helpers are referenced only by test facades.
+
+Optimization conclusion:
+- No additional production hot-path allocation or native-work issue was justified by the final scan.
+- Remaining production allocations are either necessary data materialization, already pre-sized, event/user-action driven, or UI binding work.

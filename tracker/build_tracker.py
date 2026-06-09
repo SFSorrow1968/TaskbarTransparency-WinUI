@@ -116,6 +116,7 @@ ITEMS = [
     [99, "Infrastructure", "Fade animation track precompute", "Reduce dictionary lookups during each taskbar fade animation frame.", "P1", "Done", "TaskbarAppearanceService now precomputes alpha animation tracks once per fade so the frame loop iterates direct handle/start/target/duration values."],
     [100, "Infrastructure", "Layered style check cache", "Avoid repeated native style reads for taskbar handles already known to be layered.", "P1", "Done", "TaskbarAppearanceService now caches handles after layered style verification or setup and prunes that cache with stale taskbar handles."],
     [101, "Infrastructure", "Concurrent cache prune enumeration", "Avoid separate key-collection enumeration while pruning stale taskbar apply caches.", "P1", "Done", "TaskbarAppearanceService now enumerates concurrent cache entries directly when pruning alpha, appearance, and layered-style caches after each apply."],
+    [102, "Infrastructure", "Final production allocation audit", "Classify remaining production allocation and native-work search hits after the optimization suite.", "P1", "Done", "Final audit report records remaining hits as necessary settings I/O, pre-sized runtime collections, UI-binding rows, or test-only helpers with no further code change justified by current evidence."],
 ]
 
 TAB_COLORS = {
