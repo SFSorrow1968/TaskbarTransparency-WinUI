@@ -215,6 +215,15 @@ public sealed class TaskbarAppearanceServiceTests
     }
 
     [Fact]
+    public void ShouldReadLayeredStyleForTest_SkipsKnownLayeredHandles()
+    {
+        Assert.False(TaskbarAppearanceService.ShouldReadLayeredStyleForTest((byte?)128, 128, layeredStyleKnown: false));
+        Assert.True(TaskbarAppearanceService.ShouldReadLayeredStyleForTest((byte?)127, 128, layeredStyleKnown: false));
+        Assert.False(TaskbarAppearanceService.ShouldReadLayeredStyleForTest((byte?)127, 128, layeredStyleKnown: true));
+        Assert.True(TaskbarAppearanceService.ShouldReadLayeredStyleForTest(null, 128, layeredStyleKnown: false));
+    }
+
+    [Fact]
     public void AppearanceRequestMatchesForTest_ChangesOnlyForNativeCompositionInputs()
     {
         var first = TaskbarProfile.FocusGlass with { FadeInMilliseconds = 50, FadeOutMilliseconds = 100, Easing = "Linear" };

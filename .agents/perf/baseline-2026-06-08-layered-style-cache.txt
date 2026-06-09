@@ -1,0 +1,14 @@
+Baseline evidence for layered style cache pass.
+
+Source path:
+- Services/TaskbarAppearanceService.cs
+
+Observed pattern before change:
+- Each real layered alpha change called EnsureLayeredWindow.
+- EnsureLayeredWindow always read the extended window style with GetWindowLongPtr before applying alpha.
+- Fade animations can apply many alpha frames to the same taskbar handles.
+
+Optimization target:
+- Remember taskbar handles after layered style is verified or set.
+- Skip repeated style reads for known layered handles.
+- Prune the layered-style cache alongside stale alpha and appearance caches.

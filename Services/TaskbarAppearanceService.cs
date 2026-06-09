@@ -17,6 +17,7 @@ public sealed class TaskbarAppearanceService
     private const int MinimumFrameMilliseconds = 16;
     private readonly ConcurrentDictionary<IntPtr, byte> _currentAlphas = new();
     private readonly ConcurrentDictionary<IntPtr, AppearanceRequest> _currentAppearances = new();
+    private readonly ConcurrentDictionary<IntPtr, byte> _layeredHandles = new();
     private readonly object _animationSync = new();
     private CancellationTokenSource? _animationCancellation;
 
@@ -112,6 +113,7 @@ public sealed class TaskbarAppearanceService
     public static IReadOnlyList<int> BuildAlphaAnimationDurationsForTest(TaskbarProfile profile, IReadOnlyDictionary<IntPtr, byte> currentAlphas, IReadOnlyDictionary<IntPtr, byte> targetAlphas) => BuildAlphaAnimationTargets(profile, currentAlphas, targetAlphas).ConvertAll(target => target.Duration);
     public static byte ResolveMonitorOpacityForTest(byte opacity, MonitorProfile? monitor) => ResolveMonitorOpacity(opacity, monitor);
     public static bool ShouldApplyLayeredAlphaForTest(byte? currentAlpha, byte targetAlpha) => ShouldApplyLayeredAlpha(currentAlpha, targetAlpha);
+    public static bool ShouldReadLayeredStyleForTest(byte? currentAlpha, byte targetAlpha, bool layeredStyleKnown) => ShouldReadLayeredStyle(currentAlpha, targetAlpha, layeredStyleKnown);
     public static bool AppearanceRequestMatchesForTest(TaskbarProfile leftProfile, byte leftOpacity, TaskbarProfile rightProfile, byte rightOpacity) => CreateAppearanceRequest(leftProfile, leftOpacity) == CreateAppearanceRequest(rightProfile, rightOpacity);
     public static TaskbarApplyDiagnostics CreateDiagnosticsForTest(int targetCount, int compositionApplied, int compositionSkipped, int layeredAlphaChanges, int layeredAlphaNoOps, bool monitorLookupBuilt, bool animationStarted) => TaskbarApplyDiagnostics.Create(targetCount, compositionApplied, compositionSkipped, layeredAlphaChanges, layeredAlphaNoOps, monitorLookupBuilt, animationStarted, DateTimeOffset.UnixEpoch);
     public static IReadOnlyCollection<IntPtr> FindStaleHandlesForTest(IEnumerable<IntPtr> cachedHandles, IEnumerable<IntPtr> liveHandles) => FindStaleHandles(cachedHandles, liveHandles);
@@ -169,6 +171,7 @@ public sealed class TaskbarAppearanceService
         {
             _currentAlphas.Clear();
             _currentAppearances.Clear();
+            _layeredHandles.Clear();
             return AlphaApplySummary.Empty;
         }
 
@@ -272,6 +275,14 @@ public sealed class TaskbarAppearanceService
             if (!liveHandles.Contains(handle))
             {
                 _currentAppearances.TryRemove(handle, out _);
+            }
+        }
+
+        foreach (var handle in _layeredHandles.Keys)
+        {
+            if (!liveHandles.Contains(handle))
+            {
+                _layeredHandles.TryRemove(handle, out _);
             }
         }
     }
@@ -378,12 +389,18 @@ public sealed class TaskbarAppearanceService
 
     private void ApplyLayeredAlpha(IntPtr handle, byte alpha)
     {
-        if (!ShouldApplyLayeredAlpha(GetCurrentAlpha(handle), alpha))
+        var currentAlpha = GetCurrentAlpha(handle);
+        var layeredStyleKnown = _layeredHandles.ContainsKey(handle);
+        if (!ShouldApplyLayeredAlpha(currentAlpha, alpha))
         {
             return;
         }
 
-        EnsureLayeredWindow(handle);
+        if (ShouldReadLayeredStyle(currentAlpha, alpha, layeredStyleKnown))
+        {
+            EnsureLayeredWindow(handle);
+        }
+
         SetLayeredWindowAttributes(handle, 0, alpha, LwaAlpha);
         _currentAlphas[handle] = alpha;
     }
@@ -391,6 +408,11 @@ public sealed class TaskbarAppearanceService
     private static bool ShouldApplyLayeredAlpha(byte? currentAlpha, byte targetAlpha)
     {
         return currentAlpha != targetAlpha;
+    }
+
+    private static bool ShouldReadLayeredStyle(byte? currentAlpha, byte targetAlpha, bool layeredStyleKnown)
+    {
+        return ShouldApplyLayeredAlpha(currentAlpha, targetAlpha) && !layeredStyleKnown;
     }
 
     private byte? GetCurrentAlpha(IntPtr handle)
@@ -430,9 +452,14 @@ public sealed class TaskbarAppearanceService
             : Math.Max(0, profile.FadeOutMilliseconds);
     }
 
-    private static void EnsureLayeredWindow(IntPtr handle)
+    private void EnsureLayeredWindow(IntPtr handle)
     {
         if (handle == IntPtr.Zero)
+        {
+            return;
+        }
+
+        if (_layeredHandles.ContainsKey(handle))
         {
             return;
         }
@@ -443,6 +470,8 @@ public sealed class TaskbarAppearanceService
         {
             SetWindowLongPtr(handle, GwlExStyle, new IntPtr(styleValue | WsExLayered));
         }
+
+        _layeredHandles.TryAdd(handle, 0);
     }
 
     private static IntPtr GetWindowLongPtr(IntPtr handle, int index)
