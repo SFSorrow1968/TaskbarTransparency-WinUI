@@ -144,7 +144,7 @@ public sealed class TaskbarAppearanceService
             return targets;
         }
 
-        var seen = new HashSet<IntPtr>();
+        var seen = new HashSet<IntPtr>(targets.Count);
         var distinct = new List<TaskbarWindowInfo>(targets.Count);
         foreach (var target in targets)
         {
@@ -281,7 +281,7 @@ public sealed class TaskbarAppearanceService
 
     private static HashSet<IntPtr> BuildLiveHandleSet(IReadOnlyList<TaskbarWindowInfo> liveTargets)
     {
-        var liveHandles = new HashSet<IntPtr>();
+        var liveHandles = new HashSet<IntPtr>(liveTargets.Count);
         foreach (var target in liveTargets)
         {
             liveHandles.Add(target.Handle);

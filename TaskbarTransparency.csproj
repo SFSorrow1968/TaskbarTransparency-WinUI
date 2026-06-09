@@ -17,8 +17,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
-    <Version>0.1.67</Version>
-    <InformationalVersion>v0.1.67</InformationalVersion>
+    <Version>0.1.68</Version>
+    <InformationalVersion>v0.1.68</InformationalVersion>
   </PropertyGroup>
 
   <ItemGroup>

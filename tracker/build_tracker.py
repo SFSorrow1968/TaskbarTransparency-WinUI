@@ -107,6 +107,7 @@ ITEMS = [
     [90, "Infrastructure", "Monitor override lookup fast path", "Avoid delegate-based FirstOrDefault searches when applying per-monitor overrides.", "P1", "Done", "AppState.SetMonitorOverride now reuses a list-aware MonitorProfile device lookup helper for saved and live monitor updates while preserving case-insensitive matching."],
     [91, "Infrastructure", "Monitor page refresh scan fast paths", "Avoid delegate-based monitor count and selected-display scans during Monitors page refresh.", "P1", "Done", "Monitors page now uses list-aware MonitorProfile helpers for synced display counts and secondary-or-primary selection."],
     [92, "Infrastructure", "Runtime event list projection allocation reduction", "Avoid LINQ projection allocations when rebuilding version-gated runtime event lists.", "P1", "Done", "Dashboard, Diagnostics, and Monitors now rebuild runtime event list rows with pre-sized loops while preserving existing row text."],
+    [93, "Infrastructure", "Taskbar apply handle set pre-sizing", "Avoid avoidable HashSet growth while deduplicating and pruning taskbar handles during apply.", "P1", "Done", "TaskbarAppearanceService now pre-sizes handle sets from known target counts in DistinctByHandle and live-cache pruning."],
 ]
 
 TAB_COLORS = {

@@ -1,0 +1,14 @@
+Baseline evidence for taskbar handle set capacity pass.
+
+Source path:
+- Services/TaskbarAppearanceService.cs
+
+Observed pattern before change:
+- DistinctByHandle created a HashSet<IntPtr> without a capacity even though target count was known.
+- BuildLiveHandleSet created a HashSet<IntPtr> without a capacity even though live target count was known.
+- Both paths run during taskbar apply work.
+
+Optimization target:
+- Preserve first-handle dedupe behavior.
+- Preserve stale alpha/appearance cache pruning behavior.
+- Pre-size handle sets from known taskbar target counts to avoid avoidable HashSet growth work.
