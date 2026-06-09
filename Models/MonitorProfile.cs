@@ -50,6 +50,45 @@ public sealed class MonitorProfile
         return null;
     }
 
+    public static int CountSynced(IEnumerable<MonitorProfile> monitors)
+    {
+        if (monitors is IList<MonitorProfile> list)
+        {
+            return CountSynced(list);
+        }
+
+        var count = 0;
+        foreach (var monitor in monitors)
+        {
+            if (monitor.SyncWithPrimary)
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    public static MonitorProfile? SelectSecondaryOrPrimary(IEnumerable<MonitorProfile> monitors)
+    {
+        if (monitors is IList<MonitorProfile> list)
+        {
+            return SelectSecondaryOrPrimary(list);
+        }
+
+        MonitorProfile? first = null;
+        foreach (var monitor in monitors)
+        {
+            first ??= monitor;
+            if (!monitor.IsPrimary)
+            {
+                return monitor;
+            }
+        }
+
+        return first;
+    }
+
     public static bool SequenceMatches(IEnumerable<MonitorProfile> left, IEnumerable<MonitorProfile> right)
     {
         if (left is IList<MonitorProfile> leftList && right is IList<MonitorProfile> rightList)
@@ -110,6 +149,36 @@ public sealed class MonitorProfile
         }
 
         return null;
+    }
+
+    private static int CountSynced(IList<MonitorProfile> monitors)
+    {
+        var count = 0;
+        for (var index = 0; index < monitors.Count; index++)
+        {
+            if (monitors[index].SyncWithPrimary)
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    private static MonitorProfile? SelectSecondaryOrPrimary(IList<MonitorProfile> monitors)
+    {
+        MonitorProfile? first = null;
+        for (var index = 0; index < monitors.Count; index++)
+        {
+            var monitor = monitors[index];
+            first ??= monitor;
+            if (!monitor.IsPrimary)
+            {
+                return monitor;
+            }
+        }
+
+        return first;
     }
 
     private static bool Matches(MonitorProfile left, MonitorProfile right)

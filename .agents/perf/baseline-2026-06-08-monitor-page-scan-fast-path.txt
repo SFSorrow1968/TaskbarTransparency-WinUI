@@ -1,0 +1,15 @@
+Baseline evidence for monitor page scan fast path.
+
+Source path:
+- Pages/MonitorsPage.xaml.cs
+- Models/MonitorProfile.cs
+
+Observed pattern before change:
+- MonitorsPage.Refresh counted synced monitors with Count(predicate).
+- SelectedMonitor searched for a secondary display and then primary fallback with two FirstOrDefault calls.
+- These scans run whenever the Monitors page refreshes after app-state changes.
+
+Optimization target:
+- Preserve the same synced count and selected-display behavior.
+- Use list-aware helpers with direct loops for the ObservableCollection-backed monitor list.
+- Keep enumerable fallback behavior for helper reuse.

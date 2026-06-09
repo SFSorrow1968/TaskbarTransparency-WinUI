@@ -41,7 +41,7 @@ public sealed partial class MonitorsPage : Page
         _loading = true;
         var monitor = SelectedMonitor();
         TotalDisplaysText.Text = _state.Monitors.Count.ToString();
-        SyncedDisplaysText.Text = _state.Monitors.Count(item => item.SyncWithPrimary).ToString();
+        SyncedDisplaysText.Text = MonitorProfile.CountSynced(_state.Monitors).ToString();
         TaskbarsUpdatedText.Text = _state.Runtime.TaskbarsUpdated.ToString();
         if (_monitorListVersion != _state.MonitorsVersion)
         {
@@ -124,8 +124,7 @@ public sealed partial class MonitorsPage : Page
 
     private MonitorProfile? SelectedMonitor()
     {
-        return _state.Monitors.FirstOrDefault(item => !item.IsPrimary)
-            ?? _state.Monitors.FirstOrDefault();
+        return MonitorProfile.SelectSecondaryOrPrimary(_state.Monitors);
     }
 
     private void UpdateOverrideControlState()

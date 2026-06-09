@@ -139,6 +139,30 @@ public sealed class TaskbarProfileTests
     }
 
     [Fact]
+    public void CountSynced_ReturnsSyncedMonitorCount()
+    {
+        var monitors = new[]
+        {
+            new MonitorProfile { DeviceName = "A", SyncWithPrimary = true },
+            new MonitorProfile { DeviceName = "B", SyncWithPrimary = false },
+            new MonitorProfile { DeviceName = "C", SyncWithPrimary = true }
+        };
+
+        Assert.Equal(2, MonitorProfile.CountSynced(monitors));
+    }
+
+    [Fact]
+    public void SelectSecondaryOrPrimary_PrefersFirstSecondaryDisplay()
+    {
+        var primary = new MonitorProfile { DeviceName = "Primary", IsPrimary = true };
+        var secondary = new MonitorProfile { DeviceName = "Secondary", IsPrimary = false };
+
+        Assert.Same(secondary, MonitorProfile.SelectSecondaryOrPrimary([primary, secondary]));
+        Assert.Same(primary, MonitorProfile.SelectSecondaryOrPrimary([primary]));
+        Assert.Null(MonitorProfile.SelectSecondaryOrPrimary([]));
+    }
+
+    [Fact]
     public void SequenceMatches_DetectsMonitorListChanges()
     {
         var left = new[]
