@@ -1,0 +1,16 @@
+Baseline evidence for runtime event list projection pass.
+
+Source paths:
+- Pages/HomePage.xaml.cs
+- Pages/DiagnosticsPage.xaml.cs
+- Pages/MonitorsPage.xaml.cs
+
+Observed pattern before change:
+- Version-gated runtime event list rebuilds used Select(...).ToList().
+- Dashboard, Diagnostics, and Monitors all projected the same small RuntimeSnapshot.RecentEvents list into page-specific row records.
+- RecentEvents is capped at 8 entries, so pre-sizing is straightforward and predictable.
+
+Optimization target:
+- Preserve the existing row text and list binding behavior.
+- Replace LINQ projections with direct pre-sized loops.
+- Keep existing version checks so unchanged event lists still skip rebuilding.

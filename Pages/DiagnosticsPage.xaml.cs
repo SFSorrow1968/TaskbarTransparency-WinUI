@@ -63,12 +63,16 @@ public sealed partial class DiagnosticsPage : Page
         if (_timelineVersion != runtime.RecentEventsVersion)
         {
             _timelineVersion = runtime.RecentEventsVersion;
-            SensorTimelineList.ItemsSource = runtime.RecentEvents
-                .Select(item => new SensorTimelineRow(
+            var rows = new List<SensorTimelineRow>(runtime.RecentEvents.Count);
+            foreach (var item in runtime.RecentEvents)
+            {
+                rows.Add(new SensorTimelineRow(
                     item.Time.ToString("h:mm:ss tt"),
                     RuntimeTriggerText.Label(item.State),
-                    $"{item.Profile} applied {item.Opacity}% opacity and updated {item.TaskbarsUpdated} taskbar{(item.TaskbarsUpdated == 1 ? string.Empty : "s")}."))
-                .ToList();
+                    $"{item.Profile} applied {item.Opacity}% opacity and updated {item.TaskbarsUpdated} taskbar{(item.TaskbarsUpdated == 1 ? string.Empty : "s")}."));
+            }
+
+            SensorTimelineList.ItemsSource = rows;
         }
 
         var hotkeyStatus = _state.HotkeyStatus;

@@ -69,13 +69,17 @@ public sealed partial class HomePage : Page
         if (_recentEventsVersion != _state.Runtime.RecentEventsVersion)
         {
             _recentEventsVersion = _state.Runtime.RecentEventsVersion;
-            RecentEventsList.ItemsSource = _state.Runtime.RecentEvents
-                .Select(item => new RuntimeEventRow(
+            var rows = new List<RuntimeEventRow>(_state.Runtime.RecentEvents.Count);
+            foreach (var item in _state.Runtime.RecentEvents)
+            {
+                rows.Add(new RuntimeEventRow(
                     item.Time.ToString("h:mm:ss tt"),
                     RuntimeTriggerText.Label(item.State),
                     $"{item.Profile} - {item.Message} - {item.TaskbarsUpdated} taskbar{(item.TaskbarsUpdated == 1 ? string.Empty : "s")}",
-                    $"{item.Opacity}%"))
-                .ToList();
+                    $"{item.Opacity}%"));
+            }
+
+            RecentEventsList.ItemsSource = rows;
         }
 
         OpacitySlider.Value = _state.Settings.ActiveProfile.Opacity;

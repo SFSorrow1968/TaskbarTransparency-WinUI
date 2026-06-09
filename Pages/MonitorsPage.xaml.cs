@@ -46,23 +46,31 @@ public sealed partial class MonitorsPage : Page
         if (_monitorListVersion != _state.MonitorsVersion)
         {
             _monitorListVersion = _state.MonitorsVersion;
-            MonitorOverviewList.ItemsSource = _state.Monitors
-                .Select(item => new MonitorOverviewRow(
+            var overviewRows = new List<MonitorOverviewRow>(_state.Monitors.Count);
+            foreach (var item in _state.Monitors)
+            {
+                overviewRows.Add(new MonitorOverviewRow(
                     item.FriendlyName,
                     item.DeviceName,
                     item.SyncWithPrimary ? "Synced" : "Override",
-                    $"{item.OverrideOpacity}%"))
-                .ToList();
+                    $"{item.OverrideOpacity}%"));
+            }
+
+            MonitorOverviewList.ItemsSource = overviewRows;
         }
 
         if (_recentActionsVersion != _state.Runtime.RecentEventsVersion)
         {
             _recentActionsVersion = _state.Runtime.RecentEventsVersion;
-            RecentMonitorActionsList.ItemsSource = _state.Runtime.RecentEvents
-                .Select(item => new MonitorActionRow(
+            var actionRows = new List<MonitorActionRow>(_state.Runtime.RecentEvents.Count);
+            foreach (var item in _state.Runtime.RecentEvents)
+            {
+                actionRows.Add(new MonitorActionRow(
                     $"{RuntimeTriggerText.Label(item.State)} - {item.Opacity}%",
-                    $"{item.TaskbarsUpdated} taskbar{(item.TaskbarsUpdated == 1 ? string.Empty : "s")} updated at {item.Time:h:mm:ss tt}"))
-                .ToList();
+                    $"{item.TaskbarsUpdated} taskbar{(item.TaskbarsUpdated == 1 ? string.Empty : "s")} updated at {item.Time:h:mm:ss tt}"));
+            }
+
+            RecentMonitorActionsList.ItemsSource = actionRows;
         }
 
         if (monitor is null)
