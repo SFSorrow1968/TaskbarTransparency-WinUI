@@ -95,12 +95,17 @@ public sealed class RuntimeStateSensorService : IDisposable
 
     private AutomationTrigger DetectCurrentTrigger()
     {
+        var settings = _getSettings();
+        if (!settings.AutomationEnabled)
+        {
+            return AutomationTrigger.Desktop;
+        }
+
         var foreground = GetForegroundWindow();
         var hasForeground = foreground != IntPtr.Zero && !IsShellWindow(foreground);
         var maximized = hasForeground && IsZoomed(foreground);
-        var fullscreen = hasForeground && IsFullscreen(foreground);
-        var settings = _getSettings();
-        var nearTaskbar = IsMouseNearAnyTaskbar(settings.HoverDistance);
+        var fullscreen = settings.FullscreenOverlap && hasForeground && IsFullscreen(foreground);
+        var nearTaskbar = settings.HoverReveal && IsMouseNearAnyTaskbar(settings.HoverDistance);
         return ResolveTrigger(
             settings.AutomationEnabled,
             settings.HoverReveal,

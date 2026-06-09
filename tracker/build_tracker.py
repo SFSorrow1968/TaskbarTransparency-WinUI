@@ -108,6 +108,7 @@ ITEMS = [
     [91, "Infrastructure", "Monitor page refresh scan fast paths", "Avoid delegate-based monitor count and selected-display scans during Monitors page refresh.", "P1", "Done", "Monitors page now uses list-aware MonitorProfile helpers for synced display counts and secondary-or-primary selection."],
     [92, "Infrastructure", "Runtime event list projection allocation reduction", "Avoid LINQ projection allocations when rebuilding version-gated runtime event lists.", "P1", "Done", "Dashboard, Diagnostics, and Monitors now rebuild runtime event list rows with pre-sized loops while preserving existing row text."],
     [93, "Infrastructure", "Taskbar apply handle set pre-sizing", "Avoid avoidable HashSet growth while deduplicating and pruning taskbar handles during apply.", "P1", "Done", "TaskbarAppearanceService now pre-sizes handle sets from known target counts in DistinctByHandle and live-cache pruning."],
+    [94, "Infrastructure", "Runtime sensor native check gating", "Skip unneeded native foreground, fullscreen, and taskbar proximity checks based on automation settings.", "P1", "Done", "RuntimeStateSensorService now returns Desktop immediately when automation is disabled and only runs fullscreen or hover/taskbar checks when those policies are enabled."],
 ]
 
 TAB_COLORS = {

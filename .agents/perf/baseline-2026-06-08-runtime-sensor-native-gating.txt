@@ -1,0 +1,15 @@
+Baseline evidence for runtime sensor native check gating.
+
+Source path:
+- Services/RuntimeStateSensorService.cs
+
+Observed pattern before change:
+- DetectCurrentTrigger queried foreground window state before reading settings.
+- It calculated fullscreen state even when fullscreen overlap was disabled.
+- It checked cursor proximity against taskbar windows even when hover reveal was disabled.
+- It still did native work when automation was disabled, even though ResolveTrigger always returned Desktop.
+
+Optimization target:
+- Preserve trigger priority and output behavior.
+- Return Desktop before native checks when automation is disabled.
+- Gate fullscreen and hover/taskbar native checks by their corresponding settings.
