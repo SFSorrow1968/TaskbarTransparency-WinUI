@@ -1,0 +1,14 @@
+Baseline evidence for monitor catalog ordering allocation pass.
+
+Source path:
+- Services/MonitorCatalog.cs
+
+Observed pattern before change:
+- MonitorCatalog.GetCurrent built a list of detected monitor profiles.
+- It then sorted with OrderByDescending(...).ThenBy(...) and materialized with ToArray().
+- The taskbar catalog already returns a small primary-first taskbar list for normal discovery.
+
+Optimization target:
+- Preserve the same monitor profile defaults and friendly-name numbering.
+- Keep primary monitor profiles first without LINQ sorting.
+- Return the pre-sized profile list directly through the existing IReadOnlyList<MonitorProfile> contract.

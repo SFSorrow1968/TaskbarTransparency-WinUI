@@ -209,6 +209,23 @@ public sealed class TaskbarAppearanceServiceTests
     }
 
     [Fact]
+    public void MonitorCatalogBuildProfilesForTest_PreservesPrimaryFirstWithoutSorting()
+    {
+        var secondary = new TaskbarWindowInfo(new IntPtr(2), TaskbarWindowCatalog.SecondaryTaskbarClassName, "Secondary", false);
+        var primary = new TaskbarWindowInfo(new IntPtr(1), TaskbarWindowCatalog.PrimaryTaskbarClassName, "Primary", true);
+
+        var profiles = MonitorCatalog.BuildProfilesForTest([secondary, primary]);
+
+        Assert.Equal(2, profiles.Count);
+        Assert.True(profiles[0].IsPrimary);
+        Assert.Equal("Primary display", profiles[0].FriendlyName);
+        Assert.Equal("Primary", profiles[0].DeviceName);
+        Assert.False(profiles[1].IsPrimary);
+        Assert.Equal("Display 1", profiles[1].FriendlyName);
+        Assert.Equal("Secondary", profiles[1].DeviceName);
+    }
+
+    [Fact]
     public void FindStaleHandlesForTest_ReturnsCachedHandlesMissingFromLiveSet()
     {
         var stale = TaskbarAppearanceService.FindStaleHandlesForTest(
