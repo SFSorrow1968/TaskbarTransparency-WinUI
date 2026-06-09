@@ -129,6 +129,16 @@ public sealed class TaskbarProfileTests
     }
 
     [Fact]
+    public void FindByDeviceName_UsesRequestedComparison()
+    {
+        var monitor = new MonitorProfile { DeviceName = @"\\.\DISPLAY2", FriendlyName = "Display 2" };
+        var monitors = new[] { monitor };
+
+        Assert.Null(MonitorProfile.FindByDeviceName(monitors, @"\\.\display2", StringComparison.Ordinal));
+        Assert.Same(monitor, MonitorProfile.FindByDeviceName(monitors, @"\\.\display2", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void SequenceMatches_DetectsMonitorListChanges()
     {
         var left = new[]

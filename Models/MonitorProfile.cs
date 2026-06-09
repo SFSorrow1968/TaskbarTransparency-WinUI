@@ -26,10 +26,28 @@ public sealed class MonitorProfile
         for (var index = 0; index < detected.Count; index++)
         {
             var detectedMonitor = detected[index];
-            merged.Add(MergeDetected(detectedMonitor, FindByDeviceName(saved, detectedMonitor.DeviceName)));
+            merged.Add(MergeDetected(detectedMonitor, FindByDeviceName(saved, detectedMonitor.DeviceName, StringComparison.Ordinal)));
         }
 
         return merged;
+    }
+
+    public static MonitorProfile? FindByDeviceName(IEnumerable<MonitorProfile> monitors, string deviceName, StringComparison comparison)
+    {
+        if (monitors is IList<MonitorProfile> list)
+        {
+            return FindByDeviceName(list, deviceName, comparison);
+        }
+
+        foreach (var monitor in monitors)
+        {
+            if (string.Equals(monitor.DeviceName, deviceName, comparison))
+            {
+                return monitor;
+            }
+        }
+
+        return null;
     }
 
     public static bool SequenceMatches(IEnumerable<MonitorProfile> left, IEnumerable<MonitorProfile> right)
@@ -80,12 +98,12 @@ public sealed class MonitorProfile
         return true;
     }
 
-    private static MonitorProfile? FindByDeviceName(IReadOnlyList<MonitorProfile> monitors, string deviceName)
+    private static MonitorProfile? FindByDeviceName(IList<MonitorProfile> monitors, string deviceName, StringComparison comparison)
     {
         for (var index = 0; index < monitors.Count; index++)
         {
             var monitor = monitors[index];
-            if (string.Equals(monitor.DeviceName, deviceName, StringComparison.Ordinal))
+            if (string.Equals(monitor.DeviceName, deviceName, comparison))
             {
                 return monitor;
             }

@@ -104,6 +104,7 @@ ITEMS = [
     [87, "Infrastructure", "Monitor sequence comparison fast path", "Avoid enumerator churn when comparing list-backed monitor profiles during refresh.", "P1", "Done", "MonitorProfile.SequenceMatches now compares IList-backed monitor collections by count and index while preserving the deferred enumerable fallback."],
     [88, "Infrastructure", "Monitor refresh merge loop optimization", "Avoid LINQ projection and delegate searches when merging detected monitor data with saved overrides.", "P1", "Done", "AppState.RefreshMonitors now uses a pre-sized MonitorProfile merge helper with direct device-name lookup loops while preserving saved per-monitor overrides."],
     [89, "Infrastructure", "Monitor catalog ordering allocation reduction", "Avoid LINQ ordering and array materialization when building detected monitor profiles.", "P1", "Done", "MonitorCatalog now builds a pre-sized profile list directly, keeps primary displays first during insertion, and preserves discovery-based display names."],
+    [90, "Infrastructure", "Monitor override lookup fast path", "Avoid delegate-based FirstOrDefault searches when applying per-monitor overrides.", "P1", "Done", "AppState.SetMonitorOverride now reuses a list-aware MonitorProfile device lookup helper for saved and live monitor updates while preserving case-insensitive matching."],
 ]
 
 TAB_COLORS = {

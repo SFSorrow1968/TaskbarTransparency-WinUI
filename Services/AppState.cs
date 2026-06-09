@@ -144,7 +144,7 @@ public sealed class AppState
 
     public void SetMonitorOverride(string deviceName, double opacity, bool syncWithPrimary)
     {
-        var monitor = Settings.Monitors.FirstOrDefault(item => string.Equals(item.DeviceName, deviceName, StringComparison.OrdinalIgnoreCase));
+        var monitor = MonitorProfile.FindByDeviceName(Settings.Monitors, deviceName, StringComparison.OrdinalIgnoreCase);
         if (monitor is null)
         {
             return;
@@ -159,7 +159,7 @@ public sealed class AppState
         monitor.OverrideOpacity = nextOpacity;
         monitor.SyncWithPrimary = syncWithPrimary;
 
-        var liveMonitor = Monitors.FirstOrDefault(item => string.Equals(item.DeviceName, deviceName, StringComparison.OrdinalIgnoreCase));
+        var liveMonitor = MonitorProfile.FindByDeviceName(Monitors, deviceName, StringComparison.OrdinalIgnoreCase);
         if (liveMonitor is not null)
         {
             liveMonitor.OverrideOpacity = monitor.OverrideOpacity;

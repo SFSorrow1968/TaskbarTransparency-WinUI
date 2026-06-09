@@ -1,0 +1,15 @@
+Baseline evidence for monitor override lookup fast path.
+
+Source path:
+- Services/AppState.cs
+- Models/MonitorProfile.cs
+
+Observed pattern before change:
+- AppState.SetMonitorOverride searched Settings.Monitors with FirstOrDefault and a case-insensitive string comparison delegate.
+- It then searched the live Monitors collection with a second FirstOrDefault delegate.
+- This path runs whenever the user applies a per-monitor override.
+
+Optimization target:
+- Preserve case-insensitive override matching.
+- Reuse one monitor lookup helper.
+- Compare list-backed monitor collections by index without delegate-based LINQ searches.
