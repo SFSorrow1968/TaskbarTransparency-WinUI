@@ -340,14 +340,11 @@ public sealed class AppState
             : OpacityPolicy.Resolve(Settings, _currentTrigger);
         var previousState = Runtime.State;
         var previousOpacity = Runtime.ResolvedOpacity;
-        var overlayEngaged = _fullscreenOverlay.Update(
+        _fullscreenOverlay.Update(
             FullscreenOverlayService.ShouldOverlay(TransparencyPaused, Settings.AutomationEnabled, Settings.FullscreenRule.Enabled, _currentTrigger),
-            targets);
-        if (overlayEngaged)
-        {
-            _taskbar.BeginFadeInFromHidden(targets);
-        }
-
+            targets,
+            resolution.Opacity,
+            Settings.FadeInMilliseconds);
         Runtime.TaskbarsUpdated = _taskbar.Apply(resolution.Opacity, Settings.FadeInMilliseconds, Settings.FadeOutMilliseconds, !TransparencyPaused, Settings.Monitors, targets);
         Runtime.LastAppliedAt = DateTimeOffset.Now;
         Runtime.State = _currentTrigger.ToString();
