@@ -33,6 +33,35 @@ public static class OpacityPolicy
         };
     }
 
+    /// <summary>
+    /// Resolves the opacity for one specific taskbar. Hover wins over everything (including a
+    /// monitor's own override) so the hovered taskbar always reacts; with hover sync enabled,
+    /// hovering any taskbar counts for all of them. Otherwise an unsynced monitor uses its
+    /// override and synced monitors follow the state resolution.
+    /// </summary>
+    public static byte ResolveForTaskbar(
+        AppSettings settings,
+        AutomationTrigger baseTrigger,
+        bool taskbarHovered,
+        bool anyTaskbarHovered,
+        MonitorProfile? monitor)
+    {
+        var hoverApplies = settings.AutomationEnabled
+            && settings.HoverRule.Enabled
+            && (taskbarHovered || (settings.HoverSyncAcrossMonitors && anyTaskbarHovered));
+        if (hoverApplies)
+        {
+            return ClampOpacity(settings.HoverRule.Opacity);
+        }
+
+        if (monitor is { SyncWithPrimary: false })
+        {
+            return ClampOpacity(monitor.OverrideOpacity);
+        }
+
+        return Resolve(settings, baseTrigger).Opacity;
+    }
+
     private static OpacityResolution FromRule(OpacityRule rule, string source)
     {
         return new OpacityResolution(ClampOpacity(rule.Opacity), source);

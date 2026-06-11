@@ -102,4 +102,87 @@ public sealed class OpacityPolicyTests
         Assert.Equal(OpacityPolicy.HoverSource, OpacityPolicy.Resolve(settings, AutomationTrigger.Hover).Source);
         Assert.Equal(OpacityPolicy.BaseSource, OpacityPolicy.Resolve(settings, AutomationTrigger.Desktop).Source);
     }
+
+    [Fact]
+    public void ResolveForTaskbar_HoveredTaskbarUsesHoverOpacity_EvenWithMonitorOverride()
+    {
+        var settings = new AppSettings
+        {
+            BaseOpacity = 30,
+            HoverRule = new OpacityRule { Enabled = true, Opacity = 95 }
+        };
+        var monitor = new MonitorProfile { SyncWithPrimary = false, OverrideOpacity = 12 };
+
+        var opacity = OpacityPolicy.ResolveForTaskbar(settings, AutomationTrigger.Desktop, taskbarHovered: true, anyTaskbarHovered: true, monitor);
+
+        Assert.Equal(95, opacity);
+    }
+
+    [Fact]
+    public void ResolveForTaskbar_NonHoveredTaskbarIgnoresOtherTaskbarsHover_WhenSyncIsOff()
+    {
+        var settings = new AppSettings
+        {
+            BaseOpacity = 30,
+            HoverSyncAcrossMonitors = false,
+            HoverRule = new OpacityRule { Enabled = true, Opacity = 95 }
+        };
+        var overrideMonitor = new MonitorProfile { SyncWithPrimary = false, OverrideOpacity = 12 };
+
+        var synced = OpacityPolicy.ResolveForTaskbar(settings, AutomationTrigger.Desktop, taskbarHovered: false, anyTaskbarHovered: true, monitor: null);
+        var unsynced = OpacityPolicy.ResolveForTaskbar(settings, AutomationTrigger.Desktop, taskbarHovered: false, anyTaskbarHovered: true, overrideMonitor);
+
+        Assert.Equal(30, synced);
+        Assert.Equal(12, unsynced);
+    }
+
+    [Fact]
+    public void ResolveForTaskbar_AnyHoverAppliesToAllTaskbars_WhenSyncIsOn()
+    {
+        var settings = new AppSettings
+        {
+            BaseOpacity = 30,
+            HoverSyncAcrossMonitors = true,
+            HoverRule = new OpacityRule { Enabled = true, Opacity = 95 }
+        };
+        var overrideMonitor = new MonitorProfile { SyncWithPrimary = false, OverrideOpacity = 12 };
+
+        var synced = OpacityPolicy.ResolveForTaskbar(settings, AutomationTrigger.Desktop, taskbarHovered: false, anyTaskbarHovered: true, monitor: null);
+        var unsynced = OpacityPolicy.ResolveForTaskbar(settings, AutomationTrigger.Desktop, taskbarHovered: false, anyTaskbarHovered: true, overrideMonitor);
+
+        Assert.Equal(95, synced);
+        Assert.Equal(95, unsynced);
+    }
+
+    [Fact]
+    public void ResolveForTaskbar_UsesMonitorOverrideOrStateResolution_WhenNotHovering()
+    {
+        var settings = new AppSettings
+        {
+            BaseOpacity = 30,
+            MaximizedRule = new OpacityRule { Enabled = true, Opacity = 60 },
+            HoverRule = new OpacityRule { Enabled = true, Opacity = 95 }
+        };
+        var overrideMonitor = new MonitorProfile { SyncWithPrimary = false, OverrideOpacity = 12 };
+
+        var synced = OpacityPolicy.ResolveForTaskbar(settings, AutomationTrigger.WindowMaximized, taskbarHovered: false, anyTaskbarHovered: false, monitor: null);
+        var unsynced = OpacityPolicy.ResolveForTaskbar(settings, AutomationTrigger.WindowMaximized, taskbarHovered: false, anyTaskbarHovered: false, overrideMonitor);
+
+        Assert.Equal(60, synced);
+        Assert.Equal(12, unsynced);
+    }
+
+    [Fact]
+    public void ResolveForTaskbar_IgnoresHover_WhenHoverRuleIsDisabled()
+    {
+        var settings = new AppSettings
+        {
+            BaseOpacity = 30,
+            HoverRule = new OpacityRule { Enabled = false, Opacity = 95 }
+        };
+
+        var opacity = OpacityPolicy.ResolveForTaskbar(settings, AutomationTrigger.Desktop, taskbarHovered: true, anyTaskbarHovered: true, monitor: null);
+
+        Assert.Equal(30, opacity);
+    }
 }

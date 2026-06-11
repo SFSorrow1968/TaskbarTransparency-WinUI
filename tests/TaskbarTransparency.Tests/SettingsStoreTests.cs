@@ -19,6 +19,7 @@ public sealed class SettingsStoreTests : IDisposable
             FadeOutMilliseconds = 140,
             AutomationEnabled = false,
             HoverRule = new OpacityRule { Enabled = false, Opacity = 90 },
+            HoverSyncAcrossMonitors = true,
             FullscreenRule = new OpacityRule { Enabled = true, Opacity = 99 },
             MaximizedRule = new OpacityRule { Enabled = false, Opacity = 55 },
             WindowRule = new OpacityRule { Enabled = true, Opacity = 47 },
@@ -49,6 +50,7 @@ public sealed class SettingsStoreTests : IDisposable
         Assert.False(loaded.AutomationEnabled);
         Assert.False(loaded.HoverRule.Enabled);
         Assert.Equal(90, loaded.HoverRule.Opacity);
+        Assert.True(loaded.HoverSyncAcrossMonitors);
         Assert.True(loaded.FullscreenRule.Enabled);
         Assert.Equal(99, loaded.FullscreenRule.Opacity);
         Assert.False(loaded.MaximizedRule.Enabled);

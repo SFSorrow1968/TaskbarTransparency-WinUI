@@ -4,13 +4,36 @@ using TaskbarTransparency.Models;
 
 namespace TaskbarTransparency.Services;
 
+public sealed record SensorSnapshot(AutomationTrigger BaseTrigger, IReadOnlyList<IntPtr> HoveredTaskbars)
+{
+    public static SensorSnapshot Idle { get; } = new(AutomationTrigger.Desktop, []);
+
+    public bool Matches(SensorSnapshot? other)
+    {
+        if (other is null || BaseTrigger != other.BaseTrigger || HoveredTaskbars.Count != other.HoveredTaskbars.Count)
+        {
+            return false;
+        }
+
+        for (var index = 0; index < HoveredTaskbars.Count; index++)
+        {
+            if (HoveredTaskbars[index] != other.HoveredTaskbars[index])
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+
 public sealed class RuntimeStateSensorService : IDisposable
 {
     private readonly Timer _timer;
     private readonly Func<AppSettings> _getSettings;
     private readonly StringBuilder _classNameBuffer = new(128);
-    private Action<AutomationTrigger>? _stateChanged;
-    private AutomationTrigger? _lastTrigger;
+    private Action<SensorSnapshot>? _stateChanged;
+    private SensorSnapshot? _lastSnapshot;
     private int _isTicking;
 
     public RuntimeStateSensorService(Func<AppSettings> getSettings)
@@ -19,7 +42,7 @@ public sealed class RuntimeStateSensorService : IDisposable
         _timer = new Timer(_ => Tick(), null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
     }
 
-    public void Start(Action<AutomationTrigger> stateChanged)
+    public void Start(Action<SensorSnapshot> stateChanged)
     {
         _stateChanged = stateChanged;
         _timer.Change(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
@@ -36,25 +59,25 @@ public sealed class RuntimeStateSensorService : IDisposable
             return;
         }
 
-        AutomationTrigger trigger;
+        SensorSnapshot snapshot;
         try
         {
-            trigger = DetectCurrentTrigger();
+            snapshot = DetectSnapshot();
         }
         catch
         {
-            trigger = AutomationTrigger.Desktop;
+            snapshot = SensorSnapshot.Idle;
         }
 
         try
         {
-            if (trigger == _lastTrigger)
+            if (snapshot.Matches(_lastSnapshot))
             {
                 return;
             }
 
-            _lastTrigger = trigger;
-            _stateChanged?.Invoke(trigger);
+            _lastSnapshot = snapshot;
+            _stateChanged?.Invoke(snapshot);
         }
         finally
         {
@@ -64,9 +87,7 @@ public sealed class RuntimeStateSensorService : IDisposable
 
     public static AutomationTrigger ResolveTrigger(
         bool automationEnabled,
-        bool hoverRevealEnabled,
         bool fullscreenOverlapEnabled,
-        bool isMouseNearTaskbar,
         bool hasForegroundWindow,
         bool isForegroundMaximized,
         bool isForegroundFullscreen)
@@ -74,11 +95,6 @@ public sealed class RuntimeStateSensorService : IDisposable
         if (!automationEnabled)
         {
             return AutomationTrigger.Desktop;
-        }
-
-        if (hoverRevealEnabled && isMouseNearTaskbar)
-        {
-            return AutomationTrigger.Hover;
         }
 
         if (fullscreenOverlapEnabled && isForegroundFullscreen)
@@ -94,32 +110,29 @@ public sealed class RuntimeStateSensorService : IDisposable
         return hasForegroundWindow ? AutomationTrigger.WindowVisible : AutomationTrigger.Desktop;
     }
 
-    private AutomationTrigger DetectCurrentTrigger()
+    private SensorSnapshot DetectSnapshot()
     {
         var settings = _getSettings();
         if (!settings.AutomationEnabled)
         {
-            return AutomationTrigger.Desktop;
+            return SensorSnapshot.Idle;
         }
 
-        var nearTaskbar = settings.HoverRule.Enabled && IsMouseNearAnyTaskbar(settings.HoverDistance);
-        if (nearTaskbar)
-        {
-            return AutomationTrigger.Hover;
-        }
+        var hovered = settings.HoverRule.Enabled
+            ? FindHoveredTaskbars(settings.HoverDistance)
+            : [];
 
         var foreground = GetForegroundWindow();
         var hasForeground = foreground != IntPtr.Zero && !IsShellWindow(foreground);
         var maximized = hasForeground && IsZoomed(foreground);
         var fullscreen = settings.FullscreenRule.Enabled && hasForeground && IsFullscreen(foreground);
-        return ResolveTrigger(
+        var baseTrigger = ResolveTrigger(
             settings.AutomationEnabled,
-            settings.HoverRule.Enabled,
             settings.FullscreenRule.Enabled,
-            nearTaskbar,
             hasForeground,
             maximized,
             fullscreen);
+        return new SensorSnapshot(baseTrigger, hovered);
     }
 
     private bool IsShellWindow(IntPtr window)
@@ -166,22 +179,24 @@ public sealed class RuntimeStateSensorService : IDisposable
         return IsNear(new Point { X = x, Y = y }, new Rect { Left = left, Top = top, Right = right, Bottom = bottom }, distance);
     }
 
-    private static bool IsMouseNearAnyTaskbar(int hoverDistance)
+    private static IReadOnlyList<IntPtr> FindHoveredTaskbars(int hoverDistance)
     {
         if (!GetCursorPos(out var point))
         {
-            return false;
+            return [];
         }
 
+        List<IntPtr>? hovered = null;
         foreach (var taskbar in TaskbarWindowCatalog.GetCurrent())
         {
             if (GetWindowRect(taskbar.Handle, out var rect) && IsNear(point, rect, hoverDistance))
             {
-                return true;
+                hovered ??= [];
+                hovered.Add(taskbar.Handle);
             }
         }
 
-        return false;
+        return hovered ?? (IReadOnlyList<IntPtr>)[];
     }
 
     private static bool IsNear(Point point, Rect rect, int distance)

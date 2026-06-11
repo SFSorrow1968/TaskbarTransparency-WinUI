@@ -216,6 +216,17 @@
                                 <Slider x:Name="HoverDistanceSlider" Grid.Column="1" Maximum="48" Minimum="0" StepFrequency="1" ValueChanged="HoverDistanceSlider_ValueChanged" />
                                 <TextBlock x:Name="HoverDistanceText" Grid.Column="2" FontSize="17" FontWeight="SemiBold" Foreground="White" Text="8 px" VerticalAlignment="Center" />
                             </Grid>
+                            <Grid ColumnSpacing="14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Spacing="2" VerticalAlignment="Center">
+                                    <TextBlock Foreground="White" Text="Sync hover across displays" />
+                                    <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Off: only the taskbar you hover reacts. On: hovering any taskbar fades in all of them." TextWrapping="Wrap" />
+                                </StackPanel>
+                                <ToggleSwitch x:Name="HoverSyncSwitch" Grid.Column="1" OffContent="Off" OnContent="On" Toggled="HoverSyncSwitch_Toggled" />
+                            </Grid>
 
                             <Border Height="1" Background="{StaticResource OxygenCardStrokeBrush}" />
 

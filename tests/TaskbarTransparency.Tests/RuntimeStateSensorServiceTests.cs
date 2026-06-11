@@ -10,9 +10,7 @@ public sealed class RuntimeStateSensorServiceTests
     {
         var trigger = RuntimeStateSensorService.ResolveTrigger(
             automationEnabled: false,
-            hoverRevealEnabled: true,
             fullscreenOverlapEnabled: true,
-            isMouseNearTaskbar: true,
             hasForegroundWindow: true,
             isForegroundMaximized: true,
             isForegroundFullscreen: true);
@@ -21,28 +19,11 @@ public sealed class RuntimeStateSensorServiceTests
     }
 
     [Fact]
-    public void ResolveTrigger_PrioritizesHover_WhenEnabled()
-    {
-        var trigger = RuntimeStateSensorService.ResolveTrigger(
-            automationEnabled: true,
-            hoverRevealEnabled: true,
-            fullscreenOverlapEnabled: true,
-            isMouseNearTaskbar: true,
-            hasForegroundWindow: true,
-            isForegroundMaximized: false,
-            isForegroundFullscreen: true);
-
-        Assert.Equal(AutomationTrigger.Hover, trigger);
-    }
-
-    [Fact]
     public void ResolveTrigger_DetectsFullscreen_WhenOverlapIsEnabled()
     {
         var trigger = RuntimeStateSensorService.ResolveTrigger(
             automationEnabled: true,
-            hoverRevealEnabled: false,
             fullscreenOverlapEnabled: true,
-            isMouseNearTaskbar: false,
             hasForegroundWindow: true,
             isForegroundMaximized: true,
             isForegroundFullscreen: true);
@@ -55,9 +36,7 @@ public sealed class RuntimeStateSensorServiceTests
     {
         var trigger = RuntimeStateSensorService.ResolveTrigger(
             automationEnabled: true,
-            hoverRevealEnabled: false,
             fullscreenOverlapEnabled: false,
-            isMouseNearTaskbar: false,
             hasForegroundWindow: true,
             isForegroundMaximized: true,
             isForegroundFullscreen: false);
@@ -70,14 +49,28 @@ public sealed class RuntimeStateSensorServiceTests
     {
         var trigger = RuntimeStateSensorService.ResolveTrigger(
             automationEnabled: true,
-            hoverRevealEnabled: false,
             fullscreenOverlapEnabled: false,
-            isMouseNearTaskbar: false,
             hasForegroundWindow: true,
             isForegroundMaximized: false,
             isForegroundFullscreen: false);
 
         Assert.Equal(AutomationTrigger.WindowVisible, trigger);
+    }
+
+    [Fact]
+    public void SensorSnapshot_Matches_ComparesTriggerAndHoveredTaskbars()
+    {
+        var first = new SensorSnapshot(AutomationTrigger.Desktop, [new IntPtr(1)]);
+        var sameValues = new SensorSnapshot(AutomationTrigger.Desktop, [new IntPtr(1)]);
+        var differentHover = new SensorSnapshot(AutomationTrigger.Desktop, [new IntPtr(2)]);
+        var differentTrigger = new SensorSnapshot(AutomationTrigger.WindowVisible, [new IntPtr(1)]);
+        var emptyHover = new SensorSnapshot(AutomationTrigger.Desktop, []);
+
+        Assert.True(first.Matches(sameValues));
+        Assert.False(first.Matches(differentHover));
+        Assert.False(first.Matches(differentTrigger));
+        Assert.False(first.Matches(emptyHover));
+        Assert.False(first.Matches(null));
     }
 
     [Fact]

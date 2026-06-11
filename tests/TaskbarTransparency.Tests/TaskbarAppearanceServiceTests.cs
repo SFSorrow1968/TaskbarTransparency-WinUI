@@ -58,56 +58,6 @@ public sealed class TaskbarAppearanceServiceTests
     }
 
     [Fact]
-    public void ResolveMonitorOpacityForTest_UsesGlobalOpacity_WhenMonitorIsSynced()
-    {
-        var opacity = TaskbarAppearanceService.ResolveMonitorOpacityForTest(41, new MonitorProfile
-        {
-            SyncWithPrimary = true,
-            OverrideOpacity = 83
-        });
-
-        Assert.Equal(41, opacity);
-    }
-
-    [Fact]
-    public void ResolveMonitorOpacityForTest_UsesOverrideOpacity_WhenMonitorIsNotSynced()
-    {
-        var opacity = TaskbarAppearanceService.ResolveMonitorOpacityForTest(41, new MonitorProfile
-        {
-            SyncWithPrimary = false,
-            OverrideOpacity = 83
-        });
-
-        Assert.Equal(83, opacity);
-    }
-
-    [Fact]
-    public void BuildMonitorOverrideLookupForTest_PreservesFirstUnsyncedMonitorPerDevice()
-    {
-        var first = new MonitorProfile { DeviceName = "Display2", SyncWithPrimary = false, OverrideOpacity = 44 };
-        var duplicate = new MonitorProfile { DeviceName = "display2", SyncWithPrimary = false, OverrideOpacity = 88 };
-        var lookup = TaskbarAppearanceService.BuildMonitorOverrideLookupForTest([
-            new MonitorProfile { DeviceName = "Primary", SyncWithPrimary = true, OverrideOpacity = 12 },
-            first,
-            duplicate
-        ]);
-
-        Assert.NotNull(lookup);
-        Assert.Single(lookup);
-        Assert.Same(first, lookup["DISPLAY2"]);
-    }
-
-    [Fact]
-    public void BuildMonitorOverrideLookupForTest_ReturnsNull_WhenAllMonitorsAreSynced()
-    {
-        Assert.Null(TaskbarAppearanceService.BuildMonitorOverrideLookupForTest(null));
-        Assert.Null(TaskbarAppearanceService.BuildMonitorOverrideLookupForTest([
-            new MonitorProfile { DeviceName = "Primary", SyncWithPrimary = true },
-            new MonitorProfile { DeviceName = "Secondary", SyncWithPrimary = true }
-        ]));
-    }
-
-    [Fact]
     public void DistinctByHandleForTest_PreservesFirstTargetPerHandle()
     {
         var first = new TaskbarWindowInfo(new IntPtr(1), "Shell_TrayWnd", "Primary", true);

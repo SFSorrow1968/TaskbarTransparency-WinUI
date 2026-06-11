@@ -95,6 +95,8 @@ public sealed partial class HomePage : Page
         HoverDistanceSlider.Value = settings.HoverDistance;
         HoverDistanceText.Text = $"{settings.HoverDistance} px";
         HoverDistanceSlider.IsEnabled = settings.HoverRule.Enabled;
+        HoverSyncSwitch.IsOn = settings.HoverSyncAcrossMonitors;
+        HoverSyncSwitch.IsEnabled = settings.HoverRule.Enabled;
 
         FullscreenSwitch.IsOn = settings.FullscreenRule.Enabled;
         FullscreenOpacitySlider.Value = settings.FullscreenRule.Opacity;
@@ -211,6 +213,14 @@ public sealed partial class HomePage : Page
             case AutomationTrigger.WindowVisible:
                 WindowOpacityText.Text = text;
                 break;
+        }
+    }
+
+    private void HoverSyncSwitch_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (!_loading)
+        {
+            _state.SetHoverSyncAcrossMonitors(HoverSyncSwitch.IsOn);
         }
     }
 

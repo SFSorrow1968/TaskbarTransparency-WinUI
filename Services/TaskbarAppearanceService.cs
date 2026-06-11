@@ -19,15 +19,13 @@ public sealed class TaskbarAppearanceService
     private readonly object _animationSync = new();
     private CancellationTokenSource? _animationCancellation;
 
-    public int Apply(byte opacity, int fadeInMilliseconds, int fadeOutMilliseconds, bool transparencyActive, IReadOnlyCollection<MonitorProfile>? monitors, IReadOnlyList<TaskbarWindowInfo> taskbarTargets)
+    public int Apply(IReadOnlyList<TaskbarWindowInfo> taskbarTargets, Func<TaskbarWindowInfo, byte> opacityFor, int fadeInMilliseconds, int fadeOutMilliseconds, bool transparencyActive)
     {
         var targets = DistinctByHandle(taskbarTargets);
-        var monitorLookup = transparencyActive ? BuildMonitorOverrideLookup(monitors) : null;
         var alphaTargets = new Dictionary<IntPtr, byte>(targets.Count);
         foreach (var target in targets)
         {
-            var monitor = monitorLookup?.GetValueOrDefault(target.DeviceName);
-            var targetOpacity = transparencyActive ? ResolveMonitorOpacity(opacity, monitor) : (byte)100;
+            var targetOpacity = transparencyActive ? opacityFor(target) : (byte)100;
             ApplyIfChanged(target.Handle, targetOpacity, transparencyActive);
             alphaTargets[target.Handle] = targetOpacity;
         }
@@ -80,12 +78,10 @@ public sealed class TaskbarAppearanceService
     public static byte ConvertOpacityToAlphaForTest(byte opacity) => ConvertOpacityToAlpha(opacity);
     public static double EaseProgressForTest(double progress) => EaseProgress(progress);
     public static IReadOnlyList<int> BuildAlphaAnimationDurationsForTest(int fadeInMilliseconds, int fadeOutMilliseconds, IReadOnlyDictionary<IntPtr, byte> currentAlphas, IReadOnlyDictionary<IntPtr, byte> targetAlphas) => BuildAlphaAnimationTargets(fadeInMilliseconds, fadeOutMilliseconds, currentAlphas, targetAlphas).ConvertAll(target => target.Duration);
-    public static byte ResolveMonitorOpacityForTest(byte opacity, MonitorProfile? monitor) => ResolveMonitorOpacity(opacity, monitor);
     public static bool ShouldApplyLayeredAlphaForTest(byte? currentAlpha, byte targetAlpha) => ShouldApplyLayeredAlpha(currentAlpha, targetAlpha);
     public static bool ShouldReadLayeredStyleForTest(byte? currentAlpha, byte targetAlpha, bool layeredStyleKnown) => ShouldReadLayeredStyle(currentAlpha, targetAlpha, layeredStyleKnown);
     public static bool AppearanceRequestMatchesForTest(byte leftOpacity, bool leftActive, byte rightOpacity, bool rightActive) => CreateAppearanceRequest(leftOpacity, leftActive) == CreateAppearanceRequest(rightOpacity, rightActive);
     public static IReadOnlyCollection<IntPtr> FindStaleHandlesForTest(IEnumerable<IntPtr> cachedHandles, IEnumerable<IntPtr> liveHandles) => FindStaleHandles(cachedHandles, liveHandles);
-    public static IReadOnlyDictionary<string, MonitorProfile>? BuildMonitorOverrideLookupForTest(IReadOnlyCollection<MonitorProfile>? monitors) => BuildMonitorOverrideLookup(monitors);
     public static IReadOnlyList<TaskbarWindowInfo> DistinctByHandleForTest(IReadOnlyList<TaskbarWindowInfo> targets) => DistinctByHandle(targets);
 
     private static int ComposeColor(string hex, byte opacity)
@@ -263,28 +259,6 @@ public sealed class TaskbarAppearanceService
             .ToArray();
     }
 
-    private static Dictionary<string, MonitorProfile>? BuildMonitorOverrideLookup(IReadOnlyCollection<MonitorProfile>? monitors)
-    {
-        if (monitors is null || monitors.Count == 0)
-        {
-            return null;
-        }
-
-        Dictionary<string, MonitorProfile>? lookup = null;
-        foreach (var monitor in monitors)
-        {
-            if (monitor.SyncWithPrimary)
-            {
-                continue;
-            }
-
-            lookup ??= new Dictionary<string, MonitorProfile>(StringComparer.OrdinalIgnoreCase);
-            lookup.TryAdd(monitor.DeviceName, monitor);
-        }
-
-        return lookup;
-    }
-
     private void ClearAnimationCancellation(CancellationTokenSource cancellation)
     {
         lock (_animationSync)
@@ -366,13 +340,6 @@ public sealed class TaskbarAppearanceService
     private static byte ConvertOpacityToAlpha(byte opacity)
     {
         return (byte)Math.Clamp(opacity * 255 / 100, 0, 255);
-    }
-
-    private static byte ResolveMonitorOpacity(byte opacity, MonitorProfile? monitor)
-    {
-        return monitor is { SyncWithPrimary: false }
-            ? monitor.OverrideOpacity
-            : opacity;
     }
 
     private static double EaseProgress(double progress)

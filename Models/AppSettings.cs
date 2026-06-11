@@ -7,6 +7,7 @@ public sealed class AppSettings
     public int FadeOutMilliseconds { get; set; } = 200;
     public bool AutomationEnabled { get; set; } = true;
     public OpacityRule HoverRule { get; set; } = new() { Enabled = true, Opacity = 100 };
+    public bool HoverSyncAcrossMonitors { get; set; }
     public OpacityRule FullscreenRule { get; set; } = new() { Enabled = true, Opacity = 100 };
     public OpacityRule MaximizedRule { get; set; } = new() { Enabled = true, Opacity = 60 };
     public OpacityRule WindowRule { get; set; } = new() { Enabled = false, Opacity = 45 };

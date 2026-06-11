@@ -15,6 +15,7 @@ public sealed class AppState
     private readonly FullscreenOverlayService _fullscreenOverlay = new();
     private readonly RuntimeStateSensorService _sensors;
     private AutomationTrigger _currentTrigger = AutomationTrigger.Desktop;
+    private IReadOnlyList<IntPtr> _hoveredTaskbars = [];
     private bool _previewPending;
 
     public AppSettings Settings { get; private set; } = new();
@@ -51,7 +52,7 @@ public sealed class AppState
             RequestExit);
         _tray.SetVisible(Settings.ShowTrayIcon);
         ApplyNow(persistSettings: false, taskbarTargets: startupTaskbars);
-        _sensors.Start(OnTriggerChanged);
+        _sensors.Start(OnSensorChanged);
     }
 
     public void AttachWindow(IntPtr hwnd)
@@ -313,6 +314,17 @@ public sealed class AppState
         SaveAndNotify();
     }
 
+    public void SetHoverSyncAcrossMonitors(bool enabled)
+    {
+        if (Settings.HoverSyncAcrossMonitors == enabled)
+        {
+            return;
+        }
+
+        Settings.HoverSyncAcrossMonitors = enabled;
+        ApplyNow(persistSettings: true);
+    }
+
     public void ToggleTransparency()
     {
         TransparencyPaused = !TransparencyPaused;
@@ -321,9 +333,10 @@ public sealed class AppState
 
     public void ReapplyNow() => ApplyNow(persistSettings: false);
 
-    private void OnTriggerChanged(AutomationTrigger trigger)
+    private void OnSensorChanged(SensorSnapshot snapshot)
     {
-        _currentTrigger = trigger;
+        _currentTrigger = snapshot.BaseTrigger;
+        _hoveredTaskbars = snapshot.HoveredTaskbars;
         ApplyNow(persistSettings: false);
     }
 
@@ -335,9 +348,16 @@ public sealed class AppState
     private void ApplyNow(bool persistSettings, IReadOnlyList<TaskbarWindowInfo>? taskbarTargets)
     {
         var targets = taskbarTargets ?? TaskbarWindowCatalog.GetCurrent();
+        var hoveredTaskbars = _hoveredTaskbars;
+        var hoverActive = !TransparencyPaused
+            && Settings.AutomationEnabled
+            && Settings.HoverRule.Enabled
+            && hoveredTaskbars.Count > 0;
         var resolution = TransparencyPaused
             ? new OpacityResolution(100, "Transparency paused")
-            : OpacityPolicy.Resolve(Settings, _currentTrigger);
+            : hoverActive
+                ? new OpacityResolution(Math.Clamp(Settings.HoverRule.Opacity, (byte)0, (byte)100), OpacityPolicy.HoverSource)
+                : OpacityPolicy.Resolve(Settings, _currentTrigger);
         var previousState = Runtime.State;
         var previousOpacity = Runtime.ResolvedOpacity;
         _fullscreenOverlay.Update(
@@ -345,9 +365,14 @@ public sealed class AppState
             targets,
             resolution.Opacity,
             Settings.FadeInMilliseconds);
-        Runtime.TaskbarsUpdated = _taskbar.Apply(resolution.Opacity, Settings.FadeInMilliseconds, Settings.FadeOutMilliseconds, !TransparencyPaused, Settings.Monitors, targets);
+        Runtime.TaskbarsUpdated = _taskbar.Apply(
+            targets,
+            target => ResolveTargetOpacity(target, hoveredTaskbars),
+            Settings.FadeInMilliseconds,
+            Settings.FadeOutMilliseconds,
+            !TransparencyPaused);
         Runtime.LastAppliedAt = DateTimeOffset.Now;
-        Runtime.State = _currentTrigger.ToString();
+        Runtime.State = hoverActive ? nameof(AutomationTrigger.Hover) : _currentTrigger.ToString();
         Runtime.ResolvedOpacity = resolution.Opacity;
         Runtime.OpacitySource = resolution.Source;
         Runtime.LastMessage = Runtime.TaskbarsUpdated == 0
@@ -374,6 +399,17 @@ public sealed class AppState
         }
 
         Changed?.Invoke(this, EventArgs.Empty);
+    }
+
+    private byte ResolveTargetOpacity(TaskbarWindowInfo target, IReadOnlyList<IntPtr> hoveredTaskbars)
+    {
+        var monitor = MonitorProfile.FindByDeviceName(Settings.Monitors, target.DeviceName, StringComparison.OrdinalIgnoreCase);
+        return OpacityPolicy.ResolveForTaskbar(
+            Settings,
+            _currentTrigger,
+            taskbarHovered: hoveredTaskbars.Contains(target.Handle),
+            anyTaskbarHovered: hoveredTaskbars.Count > 0,
+            monitor);
     }
 
     private void CommitPendingPreview(bool persistSettings)
