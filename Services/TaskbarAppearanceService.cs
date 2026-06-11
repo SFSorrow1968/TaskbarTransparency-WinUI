@@ -37,6 +37,19 @@ public sealed class TaskbarAppearanceService
         return targets.Count;
     }
 
+    /// <summary>
+    /// Drops each taskbar to fully transparent so the next Apply animates a fresh fade-in
+    /// toward its target opacity. Used when the fullscreen overlay engages: the taskbar
+    /// fades in over the fullscreen app and then holds there.
+    /// </summary>
+    public void BeginFadeInFromHidden(IReadOnlyList<TaskbarWindowInfo> taskbarTargets)
+    {
+        foreach (var target in taskbarTargets)
+        {
+            ApplyLayeredAlpha(target.Handle, 0);
+        }
+    }
+
     private void ApplyIfChanged(IntPtr handle, byte opacity, bool transparencyActive)
     {
         var request = CreateAppearanceRequest(opacity, transparencyActive);

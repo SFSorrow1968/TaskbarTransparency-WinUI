@@ -6,9 +6,9 @@ namespace TaskbarTransparency.Services;
 /// <summary>
 /// Keeps the taskbar visible above fullscreen windows. Fullscreen apps normally cover the
 /// taskbar; the only supported way to keep it on top is Windows auto-hide. While the
-/// fullscreen rule is active this service forces auto-hide on, then keeps re-showing the
-/// taskbar at its original position so the hide never completes — leaving it overlaid on
-/// the fullscreen app at whatever opacity the rule faded it to.
+/// fullscreen rule is active this service forces auto-hide on, then holds the taskbar in a
+/// fade-in that never ends: it is re-shown at its original position on every tick, so the
+/// auto-hide never takes effect and the bar stays overlaid at the rule opacity.
 /// </summary>
 public sealed class FullscreenOverlayService : IDisposable
 {
@@ -39,25 +39,25 @@ public sealed class FullscreenOverlayService : IDisposable
             && trigger == AutomationTrigger.Fullscreen;
     }
 
-    public void Update(bool shouldOverlay, IReadOnlyList<TaskbarWindowInfo> taskbars)
+    /// <summary>Returns true when the overlay was newly engaged by this call.</summary>
+    public bool Update(bool shouldOverlay, IReadOnlyList<TaskbarWindowInfo> taskbars)
     {
         if (shouldOverlay)
         {
-            Enter(taskbars);
+            return Enter(taskbars);
         }
-        else
-        {
-            Exit();
-        }
+
+        Exit();
+        return false;
     }
 
-    private void Enter(IReadOnlyList<TaskbarWindowInfo> taskbars)
+    private bool Enter(IReadOnlyList<TaskbarWindowInfo> taskbars)
     {
         lock (_sync)
         {
             if (IsActive)
             {
-                return;
+                return false;
             }
 
             _placements = CapturePlacements(taskbars);
@@ -69,6 +69,7 @@ public sealed class FullscreenOverlayService : IDisposable
 
             IsActive = true;
             _maintenanceTimer.Change(TimeSpan.Zero, TimeSpan.FromMilliseconds(500));
+            return true;
         }
     }
 

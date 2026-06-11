@@ -226,7 +226,7 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Spacing="2">
                                     <TextBlock FontSize="17" FontWeight="SemiBold" Foreground="White" Text="2 · Fullscreen" />
-                                    <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Keeps the taskbar visible above fullscreen apps at this opacity, using the taskbar auto-hide trick. The fade never completes, so Windows never hides it." TextWrapping="Wrap" />
+                                    <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Overlays the taskbar above fullscreen apps: auto-hide is turned on, then the taskbar fades in to this opacity and holds there indefinitely, so Windows never finishes hiding it." TextWrapping="Wrap" />
                                 </StackPanel>
                                 <ToggleSwitch x:Name="FullscreenSwitch" Grid.Column="1" OffContent="Off" OnContent="On" Toggled="RuleSwitch_Toggled" Tag="Fullscreen" />
                             </Grid>
