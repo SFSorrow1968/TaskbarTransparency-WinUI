@@ -6,7 +6,7 @@ public sealed class MonitorProfile
     public string FriendlyName { get; set; } = "Primary display";
     public bool IsPrimary { get; set; } = true;
     public bool SyncWithPrimary { get; set; } = true;
-    public byte OverrideOpacity { get; set; } = 32;
+    public byte OverrideOpacity { get; set; } = 30;
 
     public static MonitorProfile MergeDetected(MonitorProfile detected, MonitorProfile? saved)
     {

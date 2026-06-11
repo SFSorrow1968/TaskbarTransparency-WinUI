@@ -8,7 +8,7 @@
     mc:Ignorable="d">
 
     <ScrollViewer Background="{StaticResource OxygenShellBrush}">
-        <Grid Padding="44,34,44,44" RowSpacing="18" MaxWidth="1440" HorizontalAlignment="Center">
+        <Grid Padding="44,34,44,44" RowSpacing="18" MaxWidth="1100" HorizontalAlignment="Center">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -16,99 +16,99 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <StackPanel Spacing="6">
-                <TextBlock Style="{StaticResource SectionHeaderTextBlockStyle}" Foreground="{StaticResource OxygenBlueBrush}" Text="SETTINGS" />
-                <TextBlock Style="{StaticResource OxygenPageTitleTextBlockStyle}" Text="Hotkeys" />
-                <TextBlock FontSize="18" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Customize keyboard shortcuts for quick access to Oxygen Taskbar features." />
+                <TextBlock Style="{StaticResource OxygenPageTitleTextBlockStyle}" Text="Settings" />
+                <TextBlock FontSize="18" Foreground="{StaticResource OxygenMutedTextBrush}" Text="App behavior, startup, and shortcuts." />
             </StackPanel>
 
-            <InfoBar x:Name="HotkeySaveInfo" Grid.Row="1" IsOpen="True" Severity="Informational" Title="Hotkey editing" Message="Edit shortcuts below, then click Save to apply them and update Windows registration." />
+            <Border Grid.Row="1" Style="{StaticResource OxygenCardBorderStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock FontSize="21" FontWeight="SemiBold" Foreground="White" Text="Appearance" />
+                    <Grid ColumnSpacing="18">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="170" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="110" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Foreground="White" FontSize="16" Text="Fade duration" />
+                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" FontSize="13" Text="Opacity changes" />
+                        </StackPanel>
+                        <Slider x:Name="FadeSlider" Grid.Column="1" Maximum="1000" Minimum="0" StepFrequency="10" ValueChanged="FadeSlider_ValueChanged" />
+                        <TextBlock x:Name="FadeText" Grid.Column="2" FontSize="20" FontWeight="SemiBold" Foreground="White" Text="200 ms" VerticalAlignment="Center" />
+                    </Grid>
+                </StackPanel>
+            </Border>
 
             <Border Grid.Row="2" Style="{StaticResource OxygenCardBorderStyle}">
-                <StackPanel Spacing="18">
-                    <TextBlock FontSize="21" FontWeight="SemiBold" Foreground="White" Text="Hotkey Assignments" />
+                <StackPanel Spacing="16">
+                    <TextBlock FontSize="21" FontWeight="SemiBold" Foreground="White" Text="General" />
                     <Grid ColumnSpacing="14">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="360" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <StackPanel Spacing="4">
-                            <TextBlock Foreground="White" FontSize="18" Text="Dashboard" />
-                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Open or focus the Oxygen Taskbar dashboard." />
+                        <StackPanel>
+                            <TextBlock Foreground="White" FontSize="16" Text="Show tray icon" />
+                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Closing the window keeps Oxygen Taskbar running in the tray." />
+                        </StackPanel>
+                        <ToggleSwitch x:Name="TraySwitch" Grid.Column="1" OffContent="Off" OnContent="On" Toggled="TraySwitch_Toggled" />
+                    </Grid>
+                    <Grid ColumnSpacing="14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Foreground="White" FontSize="16" Text="Start with Windows" />
+                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Automatically start Oxygen Taskbar when you sign in." />
+                        </StackPanel>
+                        <ToggleSwitch x:Name="StartupSwitch" Grid.Column="1" OffContent="Off" OnContent="On" Toggled="StartupSwitch_Toggled" />
+                    </Grid>
+                    <InfoBar x:Name="StartupPermissionInfo" IsOpen="False" IsClosable="False" Severity="Warning" Title="Startup registration">
+                        <InfoBar.ActionButton>
+                            <Button Click="RetryStartup_Click" Content="Retry" />
+                        </InfoBar.ActionButton>
+                    </InfoBar>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="3" Style="{StaticResource OxygenCardBorderStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock FontSize="21" FontWeight="SemiBold" Foreground="White" Text="Keyboard shortcuts" />
+                    <Grid ColumnSpacing="14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="320" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Foreground="White" FontSize="16" Text="Open Oxygen Taskbar" />
+                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Show or focus this window." />
                         </StackPanel>
                         <TextBox x:Name="OpenHotkeyText" Grid.Column="1" PlaceholderText="Ctrl+Alt+G" />
                     </Grid>
                     <Grid ColumnSpacing="14">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="360" />
+                            <ColumnDefinition Width="320" />
                         </Grid.ColumnDefinitions>
-                        <StackPanel Spacing="4">
-                            <TextBlock Foreground="White" FontSize="18" Text="Transparency Toggle" />
-                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Toggle taskbar translucency on or off." />
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Foreground="White" FontSize="16" Text="Pause or resume transparency" />
+                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Temporarily restore the normal taskbar look." />
                         </StackPanel>
                         <TextBox x:Name="ToggleHotkeyText" Grid.Column="1" PlaceholderText="Ctrl+Alt+T" />
                     </Grid>
-                    <InfoBar x:Name="HotkeyRegistrationInfo" IsOpen="True" Title="Shortcut registration" />
+                    <InfoBar x:Name="HotkeyRegistrationInfo" IsOpen="True" IsClosable="False" Title="Shortcut registration" />
+                    <Grid ColumnSpacing="14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="180" />
+                            <ColumnDefinition Width="180" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Use modifier + key, for example Ctrl+Alt+T." VerticalAlignment="Center" />
+                        <Button Grid.Column="1" Click="ResetHotkeys_Click" Style="{StaticResource GlassButtonStyle}" Content="Reset to defaults" />
+                        <Button Grid.Column="2" Click="SaveHotkeys_Click" Style="{StaticResource GlassButtonStyle}" Background="{StaticResource OxygenBlueBrush}" Content="Save shortcuts" />
+                    </Grid>
                 </StackPanel>
-            </Border>
-
-            <Border Grid.Row="3" Style="{StaticResource OxygenCardBorderStyle}">
-                <Grid RowSpacing="16">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <TextBlock FontSize="21" FontWeight="SemiBold" Foreground="White" Text="General" />
-                    <Grid Grid.Row="1" ColumnSpacing="14">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Foreground="White" FontSize="18" Text="Show tray icon" />
-                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Keep the Oxygen Taskbar icon visible in the system tray." />
-                        </StackPanel>
-                        <ToggleSwitch x:Name="TraySwitch" Grid.Column="1" Header="On" Toggled="TraySwitch_Toggled" />
-                    </Grid>
-                    <Grid Grid.Row="2" ColumnSpacing="14">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Foreground="White" FontSize="18" Text="Start with Windows" />
-                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Automatically start Oxygen Taskbar when you sign in." />
-                        </StackPanel>
-                        <ToggleSwitch x:Name="StartupSwitch" Grid.Column="1" Header="On" Toggled="StartupSwitch_Toggled" />
-                    </Grid>
-                    <Border Grid.Row="3" Padding="16" Background="#58233448" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
-                        <StackPanel Spacing="12">
-                            <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="White" Text="Startup permission recovery" />
-                            <InfoBar x:Name="StartupPermissionInfo" IsOpen="True" Title="Startup registration" />
-                            <Grid ColumnSpacing="14">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="180" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock x:Name="StartupStatusText" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" />
-                                <Button Grid.Column="1" Click="RetryStartup_Click" Style="{StaticResource GlassButtonStyle}" Content="Retry startup" />
-                            </Grid>
-                        </StackPanel>
-                    </Border>
-                    <Grid Grid.Row="4" Margin="0,18,0,0" ColumnSpacing="14">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="180" />
-                            <ColumnDefinition Width="180" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Global shortcut registration is checked in Diagnostics." VerticalAlignment="Center" />
-                        <Button Grid.Column="1" Style="{StaticResource GlassButtonStyle}" Content="Cancel" />
-                        <Button Grid.Column="2" Click="Save_Click" Style="{StaticResource GlassButtonStyle}" Background="{StaticResource OxygenBlueBrush}" Content="Save" />
-                    </Grid>
-                </Grid>
             </Border>
         </Grid>
     </ScrollViewer>

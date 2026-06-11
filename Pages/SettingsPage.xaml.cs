@@ -1,21 +1,24 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-
-using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using TaskbarTransparency.Services;
 
 namespace TaskbarTransparency.Pages;
 
 public sealed partial class SettingsPage : Page
 {
-    private readonly Services.AppState _state = ((App)Microsoft.UI.Xaml.Application.Current).State;
+    private readonly AppState _state = ((App)Application.Current).State;
     private readonly RefreshCoalescer _refreshCoalescer = new();
+    private readonly DispatcherQueueTimer _fadeCommitTimer;
+    private double _pendingFade;
     private bool _loading = true;
 
     public SettingsPage()
     {
         InitializeComponent();
+        _fadeCommitTimer = DispatcherQueue.CreateTimer();
+        _fadeCommitTimer.Interval = TimeSpan.FromMilliseconds(350);
+        _fadeCommitTimer.Tick += CommitPendingFade;
         Loaded += Page_Loaded;
         Unloaded += Page_Unloaded;
     }
@@ -29,6 +32,11 @@ public sealed partial class SettingsPage : Page
     private void Page_Unloaded(object sender, RoutedEventArgs e)
     {
         _state.Changed -= State_Changed;
+        if (_fadeCommitTimer.IsRunning)
+        {
+            _fadeCommitTimer.Stop();
+            _state.SetFadeMilliseconds(_pendingFade);
+        }
     }
 
     private void State_Changed(object? sender, EventArgs e)
@@ -40,20 +48,36 @@ public sealed partial class SettingsPage : Page
     {
         var settings = _state.Settings;
         _loading = true;
+        FadeSlider.Value = settings.FadeMilliseconds;
+        FadeText.Text = $"{settings.FadeMilliseconds} ms";
         TraySwitch.IsOn = settings.ShowTrayIcon;
         StartupSwitch.IsOn = settings.StartWithWindows;
         OpenHotkeyText.Text = settings.OpenHotkey;
         ToggleHotkeyText.Text = settings.ToggleHotkey;
-        StartupPermissionInfo.Severity = _state.StartupRegistrationFailed ? InfoBarSeverity.Warning : InfoBarSeverity.Success;
+        StartupPermissionInfo.IsOpen = _state.StartupRegistrationFailed;
         StartupPermissionInfo.Message = _state.StartupStatusMessage;
-        StartupStatusText.Text = _state.StartupRegistrationFailed
-            ? "Startup could not be changed. Keep using tray launch for now, or retry after checking Windows account permissions."
-            : _state.StartupStatusMessage;
         UpdateHotkeyRegistrationInfo();
         _loading = false;
     }
 
-    private void TraySwitch_Toggled(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private void FadeSlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+    {
+        if (!_loading)
+        {
+            _pendingFade = e.NewValue;
+            FadeText.Text = $"{e.NewValue:0} ms";
+            _fadeCommitTimer.Stop();
+            _fadeCommitTimer.Start();
+        }
+    }
+
+    private void CommitPendingFade(DispatcherQueueTimer sender, object args)
+    {
+        sender.Stop();
+        _state.SetFadeMilliseconds(_pendingFade);
+    }
+
+    private void TraySwitch_Toggled(object sender, RoutedEventArgs e)
     {
         if (!_loading)
         {
@@ -61,7 +85,7 @@ public sealed partial class SettingsPage : Page
         }
     }
 
-    private void StartupSwitch_Toggled(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private void StartupSwitch_Toggled(object sender, RoutedEventArgs e)
     {
         if (!_loading)
         {
@@ -69,21 +93,20 @@ public sealed partial class SettingsPage : Page
         }
     }
 
-    private void Save_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private void RetryStartup_Click(object sender, RoutedEventArgs e)
     {
         _state.SetStartWithWindows(StartupSwitch.IsOn);
-        _state.SetTrayVisible(TraySwitch.IsOn);
+    }
+
+    private void SaveHotkeys_Click(object sender, RoutedEventArgs e)
+    {
         _state.SetHotkeys(OpenHotkeyText.Text, ToggleHotkeyText.Text);
-        HotkeySaveInfo.Severity = _state.HotkeyStatus.IsReady ? InfoBarSeverity.Success : InfoBarSeverity.Warning;
-        HotkeySaveInfo.Message = _state.HotkeyStatus.IsReady
-            ? "Hotkeys were saved and registered with Windows."
-            : "Hotkeys were saved, but one or more shortcuts need attention in Diagnostics.";
         UpdateHotkeyRegistrationInfo();
     }
 
-    private void RetryStartup_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private void ResetHotkeys_Click(object sender, RoutedEventArgs e)
     {
-        _state.SetStartWithWindows(StartupSwitch.IsOn);
+        _state.ResetHotkeys();
     }
 
     private void UpdateHotkeyRegistrationInfo()
@@ -92,6 +115,6 @@ public sealed partial class SettingsPage : Page
         HotkeyRegistrationInfo.Severity = status.IsReady ? InfoBarSeverity.Success : InfoBarSeverity.Warning;
         HotkeyRegistrationInfo.Message = status.IsReady
             ? "Both shortcuts are registered with Windows."
-            : $"Open: {status.Open.Summary} Toggle: {status.Toggle.Summary}";
+            : $"Open: {status.Open.Summary} · Toggle: {status.Toggle.Summary}";
     }
 }

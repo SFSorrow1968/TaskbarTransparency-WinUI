@@ -5,90 +5,50 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ScrollViewer Background="{StaticResource OxygenShellBrush}">
-        <Grid Padding="44,34,44,44" RowSpacing="18" MaxWidth="1440" HorizontalAlignment="Center">
+        <Grid Padding="44,34,44,44" RowSpacing="18" MaxWidth="1100" HorizontalAlignment="Center">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <StackPanel Spacing="8">
-                <TextBlock Style="{StaticResource SectionHeaderTextBlockStyle}" Foreground="{StaticResource OxygenBlueBrush}" Text="DIAGNOSTICS" />
-                <StackPanel Orientation="Horizontal" Spacing="18">
-                    <Border x:Name="HeaderIconBorder" Width="58" Height="58" Background="#3323C58E" CornerRadius="29">
-                        <FontIcon x:Name="HeaderIcon" Foreground="{StaticResource OxygenMintBrush}" FontSize="30" Glyph="&#xE930;" />
-                    </Border>
-                    <StackPanel Spacing="4">
-                        <TextBlock x:Name="MessageText" Style="{StaticResource OxygenPageTitleTextBlockStyle}" Text="No taskbar window detected" />
-                        <TextBlock x:Name="SubtitleText" Foreground="{StaticResource OxygenMutedTextBrush}" FontSize="18" Text="Oxygen Taskbar could not find a valid taskbar window to attach to." />
-                    </StackPanel>
-                </StackPanel>
+            <StackPanel Spacing="6">
+                <TextBlock Style="{StaticResource OxygenPageTitleTextBlockStyle}" Text="Diagnostics" />
+                <TextBlock FontSize="18" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Detection status, recent activity, and recovery actions." />
             </StackPanel>
 
             <Border Grid.Row="1" Style="{StaticResource OxygenCardBorderStyle}">
-                <Grid ColumnSpacing="28">
+                <Grid ColumnSpacing="24">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="320" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Spacing="12">
-                        <TextBlock x:Name="RecoveryTitleText" FontSize="22" FontWeight="SemiBold" Foreground="White" Text="Probable causes" />
-                        <TextBlock x:Name="RecoveryPrimaryDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Windows Explorer is restarting or has not created the taskbar yet." />
-                        <TextBlock x:Name="RecoverySecondaryDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="An unsupported shell replacement is in use." />
-                        <TextBlock x:Name="RecoveryTertiaryDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="The target taskbar is hidden, disabled, or unavailable." />
-                    </StackPanel>
-                    <StackPanel Grid.Column="1" Spacing="12">
-                        <Button x:Name="RecoveryPrimaryButton" Click="ApplyDesktop_Click" Style="{StaticResource GlassButtonStyle}" Background="{StaticResource OxygenBlueBrush}" Content="Retry detection" />
-                        <Button x:Name="RecoverySecondaryButton" Click="ApplyDesktop_Click" Style="{StaticResource GlassButtonStyle}" Content="Apply safe desktop" />
-                        <TextBlock x:Name="RecoveryHelperText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Applies the desktop rule and tries again without changing your saved settings." TextWrapping="Wrap" />
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <Border Grid.Row="2" Style="{StaticResource OxygenCardBorderStyle}">
-                <Grid ColumnSpacing="20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="200" />
                     </Grid.ColumnDefinitions>
-                    <StackPanel Spacing="6">
-                        <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Latest launcher log" />
-                        <TextBlock Foreground="{StaticResource OxygenBlueBrush}" Text="launcher-logs\build-and-launch-latest.txt" />
+                    <Border x:Name="StatusIconBorder" Width="58" Height="58" Background="#3323C58E" CornerRadius="29" VerticalAlignment="Center">
+                        <FontIcon x:Name="StatusIcon" Foreground="{StaticResource OxygenMintBrush}" FontSize="28" Glyph="&#xE930;" />
+                    </Border>
+                    <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
+                        <TextBlock x:Name="StatusTitleText" FontSize="22" FontWeight="SemiBold" Foreground="White" Text="Taskbar detected" />
+                        <TextBlock x:Name="StatusDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" />
+                        <TextBlock x:Name="StatusHintText" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" />
                     </StackPanel>
-                    <Button Grid.Column="1" Click="OpenLogFolder_Click" Style="{StaticResource GlassButtonStyle}" Width="160" Content="Open folder" />
+                    <Button Grid.Column="2" Click="Reapply_Click" Style="{StaticResource GlassButtonStyle}" Background="{StaticResource OxygenBlueBrush}" Content="Retry and reapply" VerticalAlignment="Center" />
                 </Grid>
             </Border>
 
-            <Border Grid.Row="3" Style="{StaticResource OxygenCardBorderStyle}">
-                <Grid ColumnSpacing="16">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1.15*" />
-                        <ColumnDefinition Width="1.15*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-
-                    <StackPanel Spacing="14">
-                        <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Technical details" />
-                        <TextBlock x:Name="DetailsText" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" />
-                        <Grid ColumnSpacing="10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <Button Click="ApplyDesktop_Click" Style="{StaticResource GlassButtonStyle}" Content="Reapply desktop" />
-                            <Button Grid.Column="1" Click="ApplyHover_Click" Style="{StaticResource GlassButtonStyle}" Content="Simulate hover" />
-                            <Button Grid.Column="2" Click="ApplyFullscreen_Click" Style="{StaticResource GlassButtonStyle}" Content="Simulate fullscreen" />
-                        </Grid>
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="1" Spacing="14">
-                        <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Sensor timeline" />
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Recent probes and apply results from this session." />
-                        <ListView x:Name="SensorTimelineList" MaxHeight="260" SelectionMode="None" Background="Transparent">
+            <Grid Grid.Row="2" ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.4*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource OxygenCardBorderStyle}">
+                    <StackPanel Spacing="12">
+                        <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Recent activity" />
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="The last few opacity changes from this session." />
+                        <ListView x:Name="ActivityList" MaxHeight="320" SelectionMode="None" Background="Transparent">
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem">
-                                    <Setter Property="MinHeight" Value="56" />
+                                    <Setter Property="MinHeight" Value="52" />
                                     <Setter Property="Padding" Value="0" />
                                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                 </Style>
@@ -96,37 +56,43 @@
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <Border Margin="0,0,0,8" Padding="12,10" Background="#58233448" CornerRadius="8">
-                                        <StackPanel Spacing="2">
-                                            <Grid ColumnSpacing="10">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
+                                        <Grid ColumnSpacing="12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="96" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="64" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="{Binding TimeText}" VerticalAlignment="Center" />
+                                            <StackPanel Grid.Column="1" Spacing="2">
                                                 <TextBlock Foreground="White" FontWeight="SemiBold" Text="{Binding State}" />
-                                                <TextBlock Grid.Column="1" Foreground="{StaticResource OxygenBlueBrush}" FontWeight="SemiBold" Text="{Binding TimeText}" />
-                                            </Grid>
-                                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="{Binding Detail}" TextWrapping="Wrap" />
-                                        </StackPanel>
+                                                <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="{Binding Detail}" TextWrapping="Wrap" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" Foreground="{StaticResource OxygenBlueBrush}" FontWeight="SemiBold" Text="{Binding OpacityText}" TextAlignment="Right" VerticalAlignment="Center" />
+                                        </Grid>
                                     </Border>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>
                     </StackPanel>
+                </Border>
 
-                    <StackPanel Grid.Column="2" Spacing="14">
-                        <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Hotkey recovery" />
-                        <InfoBar x:Name="HotkeyRecoveryInfo" IsOpen="True" Title="Hotkey status" />
-                        <Border Padding="14" Background="#58233448" CornerRadius="8">
-                            <StackPanel Spacing="6">
-                                <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Registered shortcuts" />
-                                <TextBlock x:Name="HotkeyStatusText" FontSize="22" FontWeight="SemiBold" Foreground="White" Text="Ready" />
-                                <TextBlock x:Name="HotkeyDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" />
-                            </StackPanel>
-                        </Border>
-                        <Button Click="ResetHotkeys_Click" Style="{StaticResource GlassButtonStyle}" Content="Reset hotkeys" />
-                    </StackPanel>
-                </Grid>
-            </Border>
+                <StackPanel Grid.Column="1" Spacing="16">
+                    <Border Style="{StaticResource OxygenCardBorderStyle}">
+                        <StackPanel Spacing="12">
+                            <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Shortcuts" />
+                            <InfoBar x:Name="HotkeyInfo" IsOpen="True" IsClosable="False" Title="Registration" />
+                            <Button Click="ResetHotkeys_Click" Style="{StaticResource GlassButtonStyle}" Content="Reset shortcuts to defaults" />
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource OxygenCardBorderStyle}">
+                        <StackPanel Spacing="12">
+                            <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Logs" />
+                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Launcher build and run logs." TextWrapping="Wrap" />
+                            <Button Click="OpenLogFolder_Click" Style="{StaticResource GlassButtonStyle}" Content="Open log folder" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
         </Grid>
     </ScrollViewer>
 </Page>

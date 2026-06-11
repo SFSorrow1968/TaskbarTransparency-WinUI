@@ -26,24 +26,13 @@ public sealed partial class MainWindow : Window
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
-        AppWindow.Resize(new SizeInt32(1440, 920));
+        AppWindow.Resize(new SizeInt32(1280, 880));
         AppWindow.SetIcon("Assets/AppIcon.ico");
         AppWindow.Closing += AppWindow_Closing;
         _state.AttachWindow(_hwnd);
         _state.ShowWindowRequested += State_ShowWindowRequested;
         NavFrame.Navigated += (_, _) => AppTitleBar.IsBackButtonVisible = NavFrame.CanGoBack;
-        NavigateToInitialPage();
-    }
-
-    private void NavigateToInitialPage()
-    {
-        if (((App)Application.Current).State.Settings.FirstRunCompleted)
-        {
-            NavigatePage(typeof(HomePage));
-            return;
-        }
-
-        NavigatePage(typeof(OnboardingPage));
+        NavigatePage(typeof(HomePage));
     }
 
     private void NavigatePage(Type pageType)
@@ -67,20 +56,12 @@ public sealed partial class MainWindow : Window
         ShowWindow(_hwnd, ShowWindowHide);
     }
 
-    private void State_ShowWindowRequested(object? sender, AppViewRequestedEventArgs args)
+    private void State_ShowWindowRequested(object? sender, EventArgs args)
     {
         ShowWindow(_hwnd, ShowWindowShow);
         Activate();
-
-        if (args.View == AppView.Tuning)
-        {
-            SelectNavigationItem("presets");
-            NavigatePage(typeof(PresetsPage));
-            return;
-        }
-
         SelectNavigationItem("home");
-        NavigateToInitialPage();
+        NavigatePage(typeof(HomePage));
     }
 
     private void SelectNavigationItem(string tag)
@@ -107,32 +88,21 @@ public sealed partial class MainWindow : Window
 
     private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
-        if (args.IsSettingsSelected)
-        {
-            NavigatePage(typeof(SettingsPage));
-        }
-        else if (args.SelectedItem is NavigationViewItem item)
+        if (args.SelectedItem is NavigationViewItem item)
         {
             switch (item.Tag)
             {
                 case "home":
-                    if (((App)Application.Current).State.Settings.FirstRunCompleted)
-                    {
-                        NavigatePage(typeof(HomePage));
-                    }
-                    else
-                    {
-                        NavigatePage(typeof(OnboardingPage));
-                    }
+                    NavigatePage(typeof(HomePage));
                     break;
-                case "presets":
-                    NavigatePage(typeof(PresetsPage));
+                case "rules":
+                    NavigatePage(typeof(AutomationPage));
                     break;
                 case "monitors":
                     NavigatePage(typeof(MonitorsPage));
                     break;
-                case "automation":
-                    NavigatePage(typeof(AutomationPage));
+                case "settings":
+                    NavigatePage(typeof(SettingsPage));
                     break;
                 case "diagnostics":
                     NavigatePage(typeof(DiagnosticsPage));

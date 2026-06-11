@@ -2,198 +2,67 @@
 <Page
     x:Class="TaskbarTransparency.Pages.MonitorsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:TaskbarTransparency.Pages">
 
     <ScrollViewer Background="{StaticResource OxygenShellBrush}">
-        <Grid Padding="44,34,44,44" RowSpacing="18" MaxWidth="1440" HorizontalAlignment="Center">
+        <Grid Padding="44,34,44,44" RowSpacing="18" MaxWidth="1100" HorizontalAlignment="Center">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <StackPanel Spacing="6">
-                <TextBlock Style="{StaticResource SectionHeaderTextBlockStyle}" Foreground="{StaticResource OxygenBlueBrush}" Text="MONITORS" />
-                <TextBlock x:Name="PageTitleText" Style="{StaticResource OxygenPageTitleTextBlockStyle}" Text="Display 2" />
-                <TextBlock FontSize="18" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Configure taskbar appearance and behavior for this display only." />
-            </StackPanel>
 
-            <Border Grid.Row="1" Style="{StaticResource OxygenCardBorderStyle}">
-                <Grid ColumnSpacing="18">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1.1*" />
-                        <ColumnDefinition Width="1.4*" />
-                        <ColumnDefinition Width="1.1*" />
-                    </Grid.ColumnDefinitions>
+            <Grid ColumnSpacing="18">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="200" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Spacing="6">
+                    <TextBlock Style="{StaticResource OxygenPageTitleTextBlockStyle}" Text="Monitors" />
+                    <TextBlock x:Name="SummaryText" FontSize="18" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Each display follows the base opacity unless you give it its own value." TextWrapping="Wrap" />
+                </StackPanel>
+                <Button Grid.Column="1" Click="Detect_Click" Style="{StaticResource GlassButtonStyle}" Content="Detect displays" VerticalAlignment="Top" />
+            </Grid>
 
-                    <StackPanel Spacing="14">
-                        <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Multi-display overview" />
-                        <Grid ColumnSpacing="12">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <Border Padding="14" Background="#58233448" CornerRadius="8">
-                                <StackPanel Spacing="4">
-                                    <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Displays" />
-                                    <TextBlock x:Name="TotalDisplaysText" FontSize="28" FontWeight="SemiBold" Foreground="White" Text="1" />
-                                </StackPanel>
-                            </Border>
-                            <Border Grid.Column="1" Padding="14" Background="#58233448" CornerRadius="8">
-                                <StackPanel Spacing="4">
-                                    <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Synced" />
-                                    <TextBlock x:Name="SyncedDisplaysText" FontSize="28" FontWeight="SemiBold" Foreground="White" Text="1" />
-                                </StackPanel>
-                            </Border>
-                            <Border Grid.Column="2" Padding="14" Background="#58233448" CornerRadius="8">
-                                <StackPanel Spacing="4">
-                                    <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Updated" />
-                                    <TextBlock x:Name="TaskbarsUpdatedText" FontSize="28" FontWeight="SemiBold" Foreground="White" Text="0" />
-                                </StackPanel>
-                            </Border>
-                        </Grid>
-                    </StackPanel>
+            <InfoBar x:Name="NoDisplayInfo" Grid.Row="1" IsOpen="False" IsClosable="False" Severity="Warning" Title="No taskbar detected" Message="No taskbar window is currently available. If Windows Explorer is restarting, use Detect displays to retry." />
 
-                    <StackPanel Grid.Column="1" Spacing="12">
-                        <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Detected displays" />
-                        <ListView x:Name="MonitorOverviewList" MaxHeight="210" SelectionMode="None" Background="Transparent">
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="MinHeight" Value="54" />
-                                    <Setter Property="Padding" Value="0" />
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Margin="0,0,0,8" Padding="12,10" Background="#58233448" CornerRadius="8">
-                                        <Grid ColumnSpacing="10">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="100" />
-                                                <ColumnDefinition Width="90" />
-                                            </Grid.ColumnDefinitions>
-                                            <StackPanel Spacing="2">
-                                                <TextBlock Foreground="White" FontWeight="SemiBold" Text="{Binding Name}" />
-                                                <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="{Binding Device}" TextWrapping="Wrap" />
-                                            </StackPanel>
-                                            <TextBlock Grid.Column="1" Foreground="{StaticResource OxygenMintBrush}" Text="{Binding SyncState}" VerticalAlignment="Center" />
-                                            <TextBlock Grid.Column="2" Foreground="{StaticResource OxygenBlueBrush}" FontWeight="SemiBold" Text="{Binding OpacityText}" TextAlignment="Right" VerticalAlignment="Center" />
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="2" Spacing="12">
-                        <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Recent monitor actions" />
-                        <ListView x:Name="RecentMonitorActionsList" MaxHeight="210" SelectionMode="None" Background="Transparent">
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="MinHeight" Value="54" />
-                                    <Setter Property="Padding" Value="0" />
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Margin="0,0,0,8" Padding="12,10" Background="#58233448" CornerRadius="8">
-                                        <StackPanel Spacing="2">
-                                            <TextBlock Foreground="White" FontWeight="SemiBold" Text="{Binding Title}" />
-                                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="{Binding Detail}" TextWrapping="Wrap" />
+            <ItemsControl x:Name="MonitorList" Grid.Row="2">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="local:MonitorRow">
+                        <Border Margin="0,0,0,14" Style="{StaticResource OxygenCardBorderStyle}">
+                            <StackPanel Spacing="12">
+                                <Grid ColumnSpacing="18">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Spacing="4">
+                                        <StackPanel Orientation="Horizontal" Spacing="10">
+                                            <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="{x:Bind Name}" />
+                                            <Border Padding="10,4" Background="#332878FF" CornerRadius="10" Visibility="{x:Bind PrimaryBadgeVisibility}">
+                                                <TextBlock FontSize="13" Foreground="White" Text="Primary" />
+                                            </Border>
                                         </StackPanel>
-                                    </Border>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <Border Grid.Row="2" Style="{StaticResource OxygenCardBorderStyle}">
-                <Grid ColumnSpacing="24">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="360" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Spacing="8">
-                        <TextBlock x:Name="MonitorNameText" FontSize="26" FontWeight="SemiBold" Foreground="White" Text="Primary display" />
-                        <TextBlock x:Name="MonitorDeviceText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Shell_TrayWnd" TextWrapping="Wrap" />
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <Border Padding="12,8" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
-                                <TextBlock x:Name="DisplayBadgeText" Foreground="White" Text="Display 2" />
-                            </Border>
-                            <Border Padding="12,8" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
-                                <TextBlock Foreground="White" Text="2560 x 1440" />
-                            </Border>
-                            <Border Padding="12,8" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
-                                <TextBlock Foreground="White" Text="60 Hz" />
-                            </Border>
-                        </StackPanel>
-                    </StackPanel>
-                    <StackPanel Grid.Column="1" Spacing="12">
-                        <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Sync with primary settings" />
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="When on, this display follows your primary display settings." TextWrapping="Wrap" />
-                        <ToggleSwitch x:Name="SyncSwitch" Header="Sync" IsOn="False" Toggled="SyncSwitch_Toggled" />
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <Grid Grid.Row="3" ColumnSpacing="14">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <Border Style="{StaticResource OxygenCardBorderStyle}">
-                    <StackPanel Spacing="16">
-                        <TextBlock FontSize="21" FontWeight="SemiBold" Foreground="White" Text="Appearance override" />
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Adjust taskbar appearance for this display." />
-                        <TextBlock Foreground="White" Text="Taskbar opacity" />
-                        <Slider x:Name="OverrideOpacitySlider" Maximum="100" Minimum="0" Value="64" ValueChanged="OverrideOpacitySlider_ValueChanged" />
-                        <TextBlock x:Name="OverrideOpacityText" Foreground="White" FontSize="22" FontWeight="SemiBold" Text="64%" />
-                        <ComboBox Header="Material" SelectedIndex="0" HorizontalAlignment="Stretch">
-                            <ComboBoxItem Content="Mica (Acrylic)" />
-                            <ComboBoxItem Content="Clear" />
-                            <ComboBoxItem Content="Solid" />
-                        </ComboBox>
-                    </StackPanel>
-                </Border>
-
-                <Border Grid.Column="1" Style="{StaticResource OxygenCardBorderStyle}">
-                    <StackPanel Spacing="16">
-                        <TextBlock FontSize="21" FontWeight="SemiBold" Foreground="White" Text="Status" />
-                        <Border Padding="16" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
-                            <Grid ColumnSpacing="14">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <FontIcon Foreground="{StaticResource OxygenMintBrush}" Glyph="&#xE73E;" />
-                                <TextBlock Grid.Column="1" Foreground="White" Text="Taskbar detected" />
-                                <TextBlock x:Name="DetectedText" Grid.Column="2" Foreground="{StaticResource OxygenMintBrush}" Text="Detected" />
-                            </Grid>
+                                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="{x:Bind Device}" />
+                                    </StackPanel>
+                                    <ToggleSwitch Grid.Column="1" Header="Follow base opacity" IsOn="{x:Bind SyncWithPrimary, Mode=TwoWay}" OffContent="Off" OnContent="On" Toggled="SyncSwitch_Toggled" />
+                                </Grid>
+                                <Grid ColumnSpacing="18" Visibility="{x:Bind OverrideVisibility, Mode=OneWay}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="170" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="90" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Opacity for this display" VerticalAlignment="Center" />
+                                    <Slider Grid.Column="1" Maximum="100" Minimum="0" StepFrequency="1" Value="{x:Bind Opacity, Mode=TwoWay}" ValueChanged="OverrideSlider_ValueChanged" />
+                                    <TextBlock Grid.Column="2" FontSize="20" FontWeight="SemiBold" Foreground="White" Text="{x:Bind OpacityText, Mode=OneWay}" VerticalAlignment="Center" />
+                                </Grid>
+                            </StackPanel>
                         </Border>
-                        <TextBlock x:Name="BoundToText" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" />
-                        <TextBlock x:Name="TaskbarWindowText" Foreground="{StaticResource OxygenMutedTextBrush}" />
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Last seen: Just now" />
-                    </StackPanel>
-                </Border>
-            </Grid>
-
-            <Grid Grid.Row="4" ColumnSpacing="14">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="180" />
-                    <ColumnDefinition Width="180" />
-                </Grid.ColumnDefinitions>
-                <TextBlock x:Name="OverrideScopeText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="This override affects the selected display only." VerticalAlignment="Center" />
-                <Button Grid.Column="1" Click="Refresh_Click" Style="{StaticResource GlassButtonStyle}" Content="Revert" />
-                <Button Grid.Column="2" Click="ApplyOverride_Click" Style="{StaticResource GlassButtonStyle}" Background="{StaticResource OxygenBlueBrush}" Content="Apply" />
-            </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </Grid>
     </ScrollViewer>
 </Page>

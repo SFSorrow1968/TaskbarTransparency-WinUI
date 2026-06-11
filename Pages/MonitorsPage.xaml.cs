@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using TaskbarTransparency.Models;
@@ -9,13 +11,17 @@ public sealed partial class MonitorsPage : Page
 {
     private readonly AppState _state = ((App)Application.Current).State;
     private readonly RefreshCoalescer _refreshCoalescer = new();
+    private readonly DispatcherQueueTimer _overrideCommitTimer;
+    private MonitorRow? _pendingOverrideRow;
     private int _monitorListVersion = -1;
-    private int _recentActionsVersion = -1;
     private bool _loading;
 
     public MonitorsPage()
     {
         InitializeComponent();
+        _overrideCommitTimer = DispatcherQueue.CreateTimer();
+        _overrideCommitTimer.Interval = TimeSpan.FromMilliseconds(350);
+        _overrideCommitTimer.Tick += CommitPendingOverride;
         Loaded += Page_Loaded;
         Unloaded += Page_Unloaded;
     }
@@ -29,6 +35,11 @@ public sealed partial class MonitorsPage : Page
     private void Page_Unloaded(object sender, RoutedEventArgs e)
     {
         _state.Changed -= State_Changed;
+        if (_overrideCommitTimer.IsRunning)
+        {
+            _overrideCommitTimer.Stop();
+            CommitOverride();
+        }
     }
 
     private void State_Changed(object? sender, EventArgs e)
@@ -39,107 +50,100 @@ public sealed partial class MonitorsPage : Page
     private void Refresh()
     {
         _loading = true;
-        var monitor = SelectedMonitor();
-        TotalDisplaysText.Text = _state.Monitors.Count.ToString();
-        SyncedDisplaysText.Text = MonitorProfile.CountSynced(_state.Monitors).ToString();
-        TaskbarsUpdatedText.Text = _state.Runtime.TaskbarsUpdated.ToString();
-        if (_monitorListVersion != _state.MonitorsVersion)
+        var monitors = _state.Monitors;
+        var synced = MonitorProfile.CountSynced(monitors);
+        SummaryText.Text = monitors.Count == 0
+            ? "Each display follows the base opacity unless you give it its own value."
+            : $"{monitors.Count} display{(monitors.Count == 1 ? string.Empty : "s")} detected · {synced} following base opacity.";
+        NoDisplayInfo.IsOpen = monitors.Count == 0;
+
+        if (_monitorListVersion != _state.MonitorsVersion && !_overrideCommitTimer.IsRunning)
         {
             _monitorListVersion = _state.MonitorsVersion;
-            var overviewRows = new List<MonitorOverviewRow>(_state.Monitors.Count);
-            foreach (var item in _state.Monitors)
+            var rows = new List<MonitorRow>(monitors.Count);
+            foreach (var monitor in monitors)
             {
-                overviewRows.Add(new MonitorOverviewRow(
-                    item.FriendlyName,
-                    item.DeviceName,
-                    item.SyncWithPrimary ? "Synced" : "Override",
-                    $"{item.OverrideOpacity}%"));
+                rows.Add(new MonitorRow(monitor.DeviceName, monitor.FriendlyName, monitor.IsPrimary, monitor.SyncWithPrimary, monitor.OverrideOpacity));
             }
 
-            MonitorOverviewList.ItemsSource = overviewRows;
+            MonitorList.ItemsSource = rows;
         }
 
-        if (_recentActionsVersion != _state.Runtime.RecentEventsVersion)
-        {
-            _recentActionsVersion = _state.Runtime.RecentEventsVersion;
-            var actionRows = new List<MonitorActionRow>(_state.Runtime.RecentEvents.Count);
-            foreach (var item in _state.Runtime.RecentEvents)
-            {
-                actionRows.Add(new MonitorActionRow(
-                    $"{RuntimeTriggerText.Label(item.State)} - {item.Opacity}%",
-                    $"{item.TaskbarsUpdated} taskbar{(item.TaskbarsUpdated == 1 ? string.Empty : "s")} updated at {item.Time:h:mm:ss tt}"));
-            }
-
-            RecentMonitorActionsList.ItemsSource = actionRows;
-        }
-
-        if (monitor is null)
-        {
-            PageTitleText.Text = "No display detected";
-            MonitorNameText.Text = "No display detected";
-            MonitorDeviceText.Text = "No taskbar window is currently available.";
-            DetectedText.Text = "Missing";
-            OverrideScopeText.Text = "No display override can be applied until a taskbar is detected.";
-            _loading = false;
-            return;
-        }
-
-        PageTitleText.Text = monitor.FriendlyName;
-        MonitorNameText.Text = monitor.FriendlyName;
-        MonitorDeviceText.Text = monitor.DeviceName;
-        DisplayBadgeText.Text = monitor.FriendlyName;
-        BoundToText.Text = $"Bound to: {monitor.DeviceName}";
-        TaskbarWindowText.Text = $"Taskbar window: {(monitor.IsPrimary ? "Shell_TrayWnd" : "Shell_SecondaryTrayWnd")}";
-        SyncSwitch.IsOn = monitor.SyncWithPrimary;
-        OverrideOpacitySlider.Value = monitor.OverrideOpacity;
-        OverrideOpacityText.Text = $"{monitor.OverrideOpacity}%";
-        OverrideScopeText.Text = monitor.SyncWithPrimary
-            ? $"{monitor.FriendlyName} follows the primary display until sync is turned off and applied."
-            : $"This override affects {monitor.FriendlyName} only.";
-        UpdateOverrideControlState();
         _loading = false;
-    }
-
-    private void Refresh_Click(object sender, RoutedEventArgs e)
-    {
-        Refresh();
-    }
-
-    private void OverrideOpacitySlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
-    {
-        if (OverrideOpacityText is not null)
-        {
-            OverrideOpacityText.Text = $"{e.NewValue:0}%";
-        }
     }
 
     private void SyncSwitch_Toggled(object sender, RoutedEventArgs e)
     {
-        if (!_loading)
+        if (!_loading && sender is FrameworkElement { DataContext: MonitorRow row })
         {
-            UpdateOverrideControlState();
+            row.NotifySyncChanged();
+            _state.SetMonitorOverride(row.DeviceName, row.Opacity, row.SyncWithPrimary);
         }
     }
 
-    private void ApplyOverride_Click(object sender, RoutedEventArgs e)
+    private void OverrideSlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
     {
-        var monitor = SelectedMonitor();
-        if (monitor is not null)
+        if (_loading || sender is not FrameworkElement { DataContext: MonitorRow row })
         {
-            _state.SetMonitorOverride(monitor.DeviceName, OverrideOpacitySlider.Value, SyncSwitch.IsOn);
+            return;
+        }
+
+        if (_overrideCommitTimer.IsRunning && !ReferenceEquals(_pendingOverrideRow, row))
+        {
+            _overrideCommitTimer.Stop();
+            CommitOverride();
+        }
+
+        _pendingOverrideRow = row;
+        row.NotifyOpacityChanged();
+        _state.PreviewMonitorOverride(row.DeviceName, row.Opacity, row.SyncWithPrimary);
+        _overrideCommitTimer.Stop();
+        _overrideCommitTimer.Start();
+    }
+
+    private void CommitPendingOverride(DispatcherQueueTimer sender, object args)
+    {
+        sender.Stop();
+        CommitOverride();
+        Refresh();
+    }
+
+    private void CommitOverride()
+    {
+        if (_pendingOverrideRow is { } row)
+        {
+            _pendingOverrideRow = null;
+            _state.SetMonitorOverride(row.DeviceName, row.Opacity, row.SyncWithPrimary);
         }
     }
 
-    private MonitorProfile? SelectedMonitor()
+    private void Detect_Click(object sender, RoutedEventArgs e)
     {
-        return MonitorProfile.SelectSecondaryOrPrimary(_state.Monitors);
+        _state.RefreshMonitors();
     }
+}
 
-    private void UpdateOverrideControlState()
+public sealed class MonitorRow(string deviceName, string name, bool isPrimary, bool syncWithPrimary, byte opacity) : INotifyPropertyChanged
+{
+    public string DeviceName { get; } = deviceName;
+    public string Name { get; } = name;
+    public string Device { get; } = deviceName;
+    public bool IsPrimary { get; } = isPrimary;
+    public Visibility PrimaryBadgeVisibility { get; } = isPrimary ? Visibility.Visible : Visibility.Collapsed;
+    public bool SyncWithPrimary { get; set; } = syncWithPrimary;
+    public double Opacity { get; set; } = opacity;
+
+    public string OpacityText => $"{Opacity:0}%";
+    public Visibility OverrideVisibility => SyncWithPrimary ? Visibility.Collapsed : Visibility.Visible;
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public void NotifyOpacityChanged() => Notify(nameof(OpacityText));
+
+    public void NotifySyncChanged() => Notify(nameof(OverrideVisibility));
+
+    private void Notify(string propertyName)
     {
-        OverrideOpacitySlider.IsEnabled = !SyncSwitch.IsOn;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
-
-    private sealed record MonitorOverviewRow(string Name, string Device, string SyncState, string OpacityText);
-    private sealed record MonitorActionRow(string Title, string Detail);
 }

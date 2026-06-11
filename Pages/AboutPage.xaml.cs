@@ -18,8 +18,6 @@ public sealed partial class AboutPage : Page
     private void Refresh()
     {
         VersionText.Text = _metadata.Version;
-        CurrentVersionText.Text = _metadata.Version;
-        LatestVersionText.Text = _metadata.LatestVersion;
         SettingsPathText.Text = ((App)Microsoft.UI.Xaml.Application.Current).State.SettingsPath;
     }
 
@@ -40,12 +38,6 @@ public sealed partial class AboutPage : Page
         }
 
         OpenPath(settingsPath);
-    }
-
-    private void CheckForUpdates_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
-    {
-        UpdateInfo.Message = $"This local snapshot is {_metadata.Version}. New builds are published as GitHub snapshot branches and tags.";
-        UpdateInfo.IsOpen = true;
     }
 
     private static void OpenPath(string path)

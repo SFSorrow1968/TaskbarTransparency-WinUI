@@ -46,9 +46,9 @@
                         <FontIcon Glyph="&#xE80F;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Tuning" Tag="presets">
+                <NavigationViewItem Content="Rules" Tag="rules">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE790;" />
+                        <FontIcon Glyph="&#xE945;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem Content="Monitors" Tag="monitors">
@@ -56,9 +56,9 @@
                         <FontIcon Glyph="&#xE7F4;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Automation" Tag="automation">
+                <NavigationViewItem Content="Settings" Tag="settings">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE945;" />
+                        <FontIcon Glyph="&#xE713;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem Content="Diagnostics" Tag="diagnostics">

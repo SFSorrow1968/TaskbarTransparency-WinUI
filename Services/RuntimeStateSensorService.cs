@@ -102,7 +102,7 @@ public sealed class RuntimeStateSensorService : IDisposable
             return AutomationTrigger.Desktop;
         }
 
-        var nearTaskbar = settings.HoverReveal && IsMouseNearAnyTaskbar(settings.HoverDistance);
+        var nearTaskbar = settings.HoverRule.Enabled && IsMouseNearAnyTaskbar(settings.HoverDistance);
         if (nearTaskbar)
         {
             return AutomationTrigger.Hover;
@@ -111,11 +111,11 @@ public sealed class RuntimeStateSensorService : IDisposable
         var foreground = GetForegroundWindow();
         var hasForeground = foreground != IntPtr.Zero && !IsShellWindow(foreground);
         var maximized = hasForeground && IsZoomed(foreground);
-        var fullscreen = settings.FullscreenOverlap && hasForeground && IsFullscreen(foreground);
+        var fullscreen = settings.FullscreenRule.Enabled && hasForeground && IsFullscreen(foreground);
         return ResolveTrigger(
             settings.AutomationEnabled,
-            settings.HoverReveal,
-            settings.FullscreenOverlap,
+            settings.HoverRule.Enabled,
+            settings.FullscreenRule.Enabled,
             nearTaskbar,
             hasForeground,
             maximized,

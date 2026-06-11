@@ -8,20 +8,24 @@ public sealed class SettingsStoreTests : IDisposable
     private readonly string _directory = Path.Combine(Path.GetTempPath(), $"OxygenSettingsTests-{Guid.NewGuid():N}");
 
     [Fact]
-    public void SaveAndLoad_RoundTripsTuningAndAppSettings()
+    public void SaveAndLoad_RoundTripsSettings()
     {
         var path = Path.Combine(_directory, "settings.json");
         var store = new SettingsStore(path);
         var expected = new AppSettings
         {
-            FirstRunCompleted = true,
+            BaseOpacity = 41,
+            FadeMilliseconds = 260,
             AutomationEnabled = false,
+            HoverRule = new OpacityRule { Enabled = false, Opacity = 90 },
+            FullscreenRule = new OpacityRule { Enabled = true, Opacity = 99 },
+            MaximizedRule = new OpacityRule { Enabled = false, Opacity = 55 },
+            WindowRule = new OpacityRule { Enabled = true, Opacity = 47 },
+            HoverDistance = 31,
             StartWithWindows = true,
             ShowTrayIcon = false,
-            FullscreenOverlap = false,
-            HoverReveal = false,
-            HoverDistance = 31,
-            ActiveProfile = TaskbarProfile.OxygenClear.WithTuningValues("Persistence Check", 41, 260, 140, "Linear"),
+            OpenHotkey = "Ctrl+Alt+O",
+            ToggleHotkey = "Ctrl+Alt+P",
             Monitors =
             [
                 new MonitorProfile
@@ -38,18 +42,22 @@ public sealed class SettingsStoreTests : IDisposable
         store.Save(expected);
         var loaded = store.Load();
 
-        Assert.True(loaded.FirstRunCompleted);
+        Assert.Equal(41, loaded.BaseOpacity);
+        Assert.Equal(260, loaded.FadeMilliseconds);
         Assert.False(loaded.AutomationEnabled);
+        Assert.False(loaded.HoverRule.Enabled);
+        Assert.Equal(90, loaded.HoverRule.Opacity);
+        Assert.True(loaded.FullscreenRule.Enabled);
+        Assert.Equal(99, loaded.FullscreenRule.Opacity);
+        Assert.False(loaded.MaximizedRule.Enabled);
+        Assert.Equal(55, loaded.MaximizedRule.Opacity);
+        Assert.True(loaded.WindowRule.Enabled);
+        Assert.Equal(47, loaded.WindowRule.Opacity);
+        Assert.Equal(31, loaded.HoverDistance);
         Assert.True(loaded.StartWithWindows);
         Assert.False(loaded.ShowTrayIcon);
-        Assert.False(loaded.FullscreenOverlap);
-        Assert.False(loaded.HoverReveal);
-        Assert.Equal(31, loaded.HoverDistance);
-        Assert.Equal("Persistence Check", loaded.ActiveProfile.Name);
-        Assert.Equal(41, loaded.ActiveProfile.Opacity);
-        Assert.Equal(260, loaded.ActiveProfile.FadeInMilliseconds);
-        Assert.Equal(140, loaded.ActiveProfile.FadeOutMilliseconds);
-        Assert.Equal("Linear", loaded.ActiveProfile.Easing);
+        Assert.Equal("Ctrl+Alt+O", loaded.OpenHotkey);
+        Assert.Equal("Ctrl+Alt+P", loaded.ToggleHotkey);
         Assert.Single(loaded.Monitors);
         Assert.Equal(@"\\.\DISPLAY2", loaded.Monitors[0].DeviceName);
         Assert.False(loaded.Monitors[0].SyncWithPrimary);
@@ -58,30 +66,29 @@ public sealed class SettingsStoreTests : IDisposable
     }
 
     [Fact]
-    public void Load_NormalizesLegacyFadeMilliseconds()
+    public void Load_IgnoresLegacyProfileProperties()
     {
         var path = Path.Combine(_directory, "settings.json");
         Directory.CreateDirectory(_directory);
         File.WriteAllText(path, """
             {
               "firstRunCompleted": true,
+              "baseOpacity": 58,
               "activeProfile": {
                 "name": "Legacy",
                 "mode": 0,
                 "opacity": 58,
                 "accentHex": "#FFFFFF",
                 "fadeMilliseconds": 240,
-                "easing": "CubicOut",
-                "fadeInMilliseconds": 0,
-                "fadeOutMilliseconds": 0
+                "easing": "CubicOut"
               }
             }
             """);
 
         var loaded = new SettingsStore(path).Load();
 
-        Assert.Equal(240, loaded.ActiveProfile.FadeInMilliseconds);
-        Assert.Equal(240, loaded.ActiveProfile.FadeOutMilliseconds);
+        Assert.Equal(58, loaded.BaseOpacity);
+        Assert.True(loaded.AutomationEnabled);
     }
 
     [Fact]
@@ -93,10 +100,10 @@ public sealed class SettingsStoreTests : IDisposable
 
         var loaded = new SettingsStore(path).Load();
 
-        Assert.False(loaded.FirstRunCompleted);
+        Assert.Equal(30, loaded.BaseOpacity);
         Assert.True(loaded.AutomationEnabled);
         Assert.True(loaded.ShowTrayIcon);
-        Assert.Equal(TaskbarProfile.OxygenClear, loaded.ActiveProfile);
+        Assert.True(loaded.HoverRule.Enabled);
     }
 
     [Fact]
@@ -104,11 +111,7 @@ public sealed class SettingsStoreTests : IDisposable
     {
         var path = Path.Combine(_directory, "settings.json");
         var store = new SettingsStore(path);
-        var settings = new AppSettings
-        {
-            FirstRunCompleted = true,
-            ActiveProfile = TaskbarProfile.FocusGlass
-        };
+        var settings = new AppSettings { BaseOpacity = 55 };
 
         store.Save(settings);
         var firstWrite = File.GetLastWriteTimeUtc(path);
@@ -124,11 +127,7 @@ public sealed class SettingsStoreTests : IDisposable
     {
         var path = Path.Combine(_directory, "settings.json");
         var store = new SettingsStore(path);
-        var settings = new AppSettings
-        {
-            FirstRunCompleted = true,
-            ActiveProfile = TaskbarProfile.FocusGlass
-        };
+        var settings = new AppSettings { BaseOpacity = 55 };
 
         store.Save(settings);
         Thread.Sleep(1200);
@@ -137,8 +136,7 @@ public sealed class SettingsStoreTests : IDisposable
         store.Save(settings);
         var loaded = store.Load();
 
-        Assert.True(loaded.FirstRunCompleted);
-        Assert.Equal(TaskbarProfile.FocusGlass.Name, loaded.ActiveProfile.Name);
+        Assert.Equal(55, loaded.BaseOpacity);
         Assert.Empty(Directory.GetFiles(_directory, "*.tmp"));
     }
 

@@ -32,8 +32,8 @@ public sealed class MonitorCatalog
                 DeviceName = taskbar.DeviceName,
                 FriendlyName = taskbar.IsPrimary ? "Primary display" : $"Display {index + 1}",
                 IsPrimary = taskbar.IsPrimary,
-                SyncWithPrimary = taskbar.IsPrimary,
-                OverrideOpacity = taskbar.IsPrimary ? (byte)32 : (byte)64
+                SyncWithPrimary = true,
+                OverrideOpacity = 30
             };
 
             if (profile.IsPrimary && profiles.Count > 0)

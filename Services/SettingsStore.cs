@@ -35,7 +35,7 @@ public sealed class SettingsStore
         {
             var json = File.ReadAllText(SettingsPath);
             var settings = JsonSerializer.Deserialize(json, SettingsJsonContext.Default.AppSettings) ?? new AppSettings();
-            settings.ActiveProfile = settings.ActiveProfile.NormalizeTransitions();
+            settings.Normalize();
             RememberExistingSettings(json);
             return settings;
         }

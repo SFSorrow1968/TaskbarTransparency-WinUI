@@ -5,12 +5,11 @@ namespace TaskbarTransparency.Tests;
 public sealed class TrayIconHostTests
 {
     [Fact]
-    public void CommandText_UsesCurrentTuningLanguage()
+    public void CommandText_UsesPlainLanguage()
     {
-        Assert.Equal("Open Dashboard", TrayIconHost.OpenCommandText);
-        Assert.Equal("Reapply Current State", TrayIconHost.ApplyCommandText);
-        Assert.Equal("Toggle Transparency", TrayIconHost.ToggleCommandText);
-        Assert.Equal("Open Tuning", TrayIconHost.TuningCommandText);
+        Assert.Equal("Open Oxygen Taskbar", TrayIconHost.OpenCommandText);
+        Assert.Equal("Reapply Now", TrayIconHost.ApplyCommandText);
+        Assert.Equal("Pause or Resume Transparency", TrayIconHost.ToggleCommandText);
         Assert.Equal("Exit", TrayIconHost.ExitCommandText);
     }
 
@@ -18,7 +17,6 @@ public sealed class TrayIconHostTests
     [InlineData(TrayIconHost.OpenCommand, "open")]
     [InlineData(TrayIconHost.ApplyCommand, "apply")]
     [InlineData(TrayIconHost.ToggleCommand, "toggle")]
-    [InlineData(TrayIconHost.TuningCommand, "tuning")]
     [InlineData(TrayIconHost.ExitCommand, "exit")]
     public void ExecuteCommandForTest_DispatchesExpectedAction(int command, string expected)
     {
@@ -26,7 +24,6 @@ public sealed class TrayIconHostTests
         var host = new TrayIconHost();
         host.ConfigureCommandsForTest(
             () => calls.Add("open"),
-            () => calls.Add("tuning"),
             () => calls.Add("apply"),
             () => calls.Add("toggle"),
             () => calls.Add("exit"));
@@ -44,7 +41,6 @@ public sealed class TrayIconHostTests
         var host = new TrayIconHost();
         host.ConfigureCommandsForTest(
             () => calls.Add("open"),
-            () => calls.Add("tuning"),
             () => calls.Add("apply"),
             () => calls.Add("toggle"),
             () => calls.Add("exit"));

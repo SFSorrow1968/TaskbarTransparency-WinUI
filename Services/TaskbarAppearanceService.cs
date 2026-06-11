@@ -10,72 +10,48 @@ public sealed class TaskbarAppearanceService
     private const int WsExLayered = 0x00080000;
     private const uint LwaAlpha = 0x00000002;
     private const int AccentDisabled = 0;
-    private const int AccentEnableGradient = 1;
     private const int AccentEnableTransparentGradient = 2;
-    private const int AccentEnableBlurBehind = 3;
-    private const int AccentEnableAcrylicBlurBehind = 4;
     private const int MinimumFrameMilliseconds = 16;
+    private const string AccentHex = "#FFFFFF";
     private readonly ConcurrentDictionary<IntPtr, byte> _currentAlphas = new();
     private readonly ConcurrentDictionary<IntPtr, AppearanceRequest> _currentAppearances = new();
     private readonly ConcurrentDictionary<IntPtr, byte> _layeredHandles = new();
     private readonly object _animationSync = new();
     private CancellationTokenSource? _animationCancellation;
 
-    public TaskbarApplyDiagnostics Diagnostics { get; private set; } = TaskbarApplyDiagnostics.Empty;
-
-    public int Apply(TaskbarProfile profile, byte opacity, IReadOnlyCollection<MonitorProfile>? monitors = null)
+    public int Apply(byte opacity, int fadeMilliseconds, bool transparencyActive, IReadOnlyCollection<MonitorProfile>? monitors = null)
     {
-        return Apply(profile, opacity, monitors, TaskbarWindowCatalog.GetCurrent());
+        return Apply(opacity, fadeMilliseconds, transparencyActive, monitors, TaskbarWindowCatalog.GetCurrent());
     }
 
-    public int Apply(TaskbarProfile profile, byte opacity, IReadOnlyCollection<MonitorProfile>? monitors, IReadOnlyList<TaskbarWindowInfo> taskbarTargets)
+    public int Apply(byte opacity, int fadeMilliseconds, bool transparencyActive, IReadOnlyCollection<MonitorProfile>? monitors, IReadOnlyList<TaskbarWindowInfo> taskbarTargets)
     {
         var targets = DistinctByHandle(taskbarTargets);
-        var monitorLookup = BuildMonitorOverrideLookup(monitors);
+        var monitorLookup = transparencyActive ? BuildMonitorOverrideLookup(monitors) : null;
         var alphaTargets = new Dictionary<IntPtr, byte>(targets.Count);
-        var compositionApplied = 0;
-        var compositionSkipped = 0;
         foreach (var target in targets)
         {
             var monitor = monitorLookup?.GetValueOrDefault(target.DeviceName);
-            var targetOpacity = ResolveMonitorOpacity(opacity, monitor);
-            if (ApplyIfChanged(target.Handle, profile, targetOpacity))
-            {
-                compositionApplied++;
-            }
-            else
-            {
-                compositionSkipped++;
-            }
-
+            var targetOpacity = transparencyActive ? ResolveMonitorOpacity(opacity, monitor) : (byte)100;
+            ApplyIfChanged(target.Handle, targetOpacity, transparencyActive);
             alphaTargets[target.Handle] = targetOpacity;
         }
 
         PruneStaleHandles(targets);
-        var alphaSummary = AnimateTaskbarAlpha(alphaTargets, profile);
-        Diagnostics = TaskbarApplyDiagnostics.Create(
-            targets.Count,
-            compositionApplied,
-            compositionSkipped,
-            alphaSummary.LayeredAlphaChanges,
-            alphaSummary.LayeredAlphaNoOps,
-            monitorLookup is not null,
-            alphaSummary.AnimationStarted,
-            DateTimeOffset.Now);
+        AnimateTaskbarAlpha(alphaTargets, fadeMilliseconds);
         return targets.Count;
     }
 
-    private bool ApplyIfChanged(IntPtr handle, TaskbarProfile profile, byte opacity)
+    private void ApplyIfChanged(IntPtr handle, byte opacity, bool transparencyActive)
     {
-        var request = CreateAppearanceRequest(profile, opacity);
+        var request = CreateAppearanceRequest(opacity, transparencyActive);
         if (_currentAppearances.TryGetValue(handle, out var current) && current == request)
         {
-            return false;
+            return;
         }
 
         Apply(handle, request);
         _currentAppearances[handle] = request;
-        return true;
     }
 
     private static void Apply(IntPtr handle, AppearanceRequest request)
@@ -107,17 +83,13 @@ public sealed class TaskbarAppearanceService
 
     public static int ComposeColorForTest(string hex, byte opacity) => ComposeColor(hex, opacity);
     public static byte ConvertOpacityToAlphaForTest(byte opacity) => ConvertOpacityToAlpha(opacity);
-    public static double EaseProgressForTest(double progress, string easing) => EaseProgress(progress, easing);
-    public static int SelectFadeMillisecondsForTest(TaskbarProfile profile, byte startAlpha, byte targetAlpha) => SelectFadeMilliseconds(profile, startAlpha, targetAlpha);
-    public static IReadOnlyDictionary<IntPtr, int> SelectFadeDurationsForTest(TaskbarProfile profile, IReadOnlyDictionary<IntPtr, byte> starts, IReadOnlyDictionary<IntPtr, byte> targetAlphas) => SelectFadeDurations(profile, starts, targetAlphas);
-    public static IReadOnlyList<int> BuildAlphaAnimationDurationsForTest(TaskbarProfile profile, IReadOnlyDictionary<IntPtr, byte> currentAlphas, IReadOnlyDictionary<IntPtr, byte> targetAlphas) => BuildAlphaAnimationTargets(profile, currentAlphas, targetAlphas).ConvertAll(target => target.Duration);
+    public static double EaseProgressForTest(double progress) => EaseProgress(progress);
+    public static IReadOnlyList<int> BuildAlphaAnimationDurationsForTest(int fadeMilliseconds, IReadOnlyDictionary<IntPtr, byte> currentAlphas, IReadOnlyDictionary<IntPtr, byte> targetAlphas) => BuildAlphaAnimationTargets(fadeMilliseconds, currentAlphas, targetAlphas).ConvertAll(target => target.Duration);
     public static byte ResolveMonitorOpacityForTest(byte opacity, MonitorProfile? monitor) => ResolveMonitorOpacity(opacity, monitor);
     public static bool ShouldApplyLayeredAlphaForTest(byte? currentAlpha, byte targetAlpha) => ShouldApplyLayeredAlpha(currentAlpha, targetAlpha);
     public static bool ShouldReadLayeredStyleForTest(byte? currentAlpha, byte targetAlpha, bool layeredStyleKnown) => ShouldReadLayeredStyle(currentAlpha, targetAlpha, layeredStyleKnown);
-    public static bool AppearanceRequestMatchesForTest(TaskbarProfile leftProfile, byte leftOpacity, TaskbarProfile rightProfile, byte rightOpacity) => CreateAppearanceRequest(leftProfile, leftOpacity) == CreateAppearanceRequest(rightProfile, rightOpacity);
-    public static TaskbarApplyDiagnostics CreateDiagnosticsForTest(int targetCount, int compositionApplied, int compositionSkipped, int layeredAlphaChanges, int layeredAlphaNoOps, bool monitorLookupBuilt, bool animationStarted) => TaskbarApplyDiagnostics.Create(targetCount, compositionApplied, compositionSkipped, layeredAlphaChanges, layeredAlphaNoOps, monitorLookupBuilt, animationStarted, DateTimeOffset.UnixEpoch);
+    public static bool AppearanceRequestMatchesForTest(byte leftOpacity, bool leftActive, byte rightOpacity, bool rightActive) => CreateAppearanceRequest(leftOpacity, leftActive) == CreateAppearanceRequest(rightOpacity, rightActive);
     public static IReadOnlyCollection<IntPtr> FindStaleHandlesForTest(IEnumerable<IntPtr> cachedHandles, IEnumerable<IntPtr> liveHandles) => FindStaleHandles(cachedHandles, liveHandles);
-    public static bool NeedsMonitorOverrideLookupForTest(IReadOnlyCollection<MonitorProfile>? monitors) => NeedsMonitorOverrideLookup(monitors);
     public static IReadOnlyDictionary<string, MonitorProfile>? BuildMonitorOverrideLookupForTest(IReadOnlyCollection<MonitorProfile>? monitors) => BuildMonitorOverrideLookup(monitors);
     public static IReadOnlyList<TaskbarWindowInfo> DistinctByHandleForTest(IReadOnlyList<TaskbarWindowInfo> targets) => DistinctByHandle(targets);
 
@@ -131,18 +103,11 @@ public sealed class TaskbarAppearanceService
         return (alpha << 24) | (b << 16) | (g << 8) | r;
     }
 
-    private static AppearanceRequest CreateAppearanceRequest(TaskbarProfile profile, byte opacity)
+    private static AppearanceRequest CreateAppearanceRequest(byte opacity, bool transparencyActive)
     {
-        return new AppearanceRequest(
-            profile.Mode switch
-            {
-                TaskbarVisualMode.Clear => AccentEnableTransparentGradient,
-                TaskbarVisualMode.Acrylic => AccentEnableAcrylicBlurBehind,
-                TaskbarVisualMode.Mica => AccentEnableBlurBehind,
-                TaskbarVisualMode.Solid => AccentEnableGradient,
-                _ => AccentDisabled
-            },
-            ComposeColor(profile.AccentHex, opacity));
+        return transparencyActive
+            ? new AppearanceRequest(AccentEnableTransparentGradient, ComposeColor(AccentHex, opacity))
+            : new AppearanceRequest(AccentDisabled, 0);
     }
 
     private static IReadOnlyList<TaskbarWindowInfo> DistinctByHandle(IReadOnlyList<TaskbarWindowInfo> targets)
@@ -165,18 +130,17 @@ public sealed class TaskbarAppearanceService
         return distinct;
     }
 
-    private AlphaApplySummary AnimateTaskbarAlpha(IReadOnlyDictionary<IntPtr, byte> targetOpacities, TaskbarProfile profile)
+    private void AnimateTaskbarAlpha(IReadOnlyDictionary<IntPtr, byte> targetOpacities, int fadeMilliseconds)
     {
         if (targetOpacities.Count == 0)
         {
             _currentAlphas.Clear();
             _currentAppearances.Clear();
             _layeredHandles.Clear();
-            return AlphaApplySummary.Empty;
+            return;
         }
 
         var targetAlphas = new Dictionary<IntPtr, byte>(targetOpacities.Count);
-        var skipped = 0;
         foreach (var pair in targetOpacities)
         {
             var alpha = ConvertOpacityToAlpha(pair.Value);
@@ -184,15 +148,11 @@ public sealed class TaskbarAppearanceService
             {
                 targetAlphas[pair.Key] = alpha;
             }
-            else
-            {
-                skipped++;
-            }
         }
 
         if (targetAlphas.Count == 0)
         {
-            return new AlphaApplySummary(0, skipped, AnimationStarted: false);
+            return;
         }
 
         CancellationTokenSource cancellation;
@@ -204,7 +164,7 @@ public sealed class TaskbarAppearanceService
             cancellation = _animationCancellation;
         }
 
-        var animationTargets = BuildAlphaAnimationTargets(profile, _currentAlphas, targetAlphas);
+        var animationTargets = BuildAlphaAnimationTargets(fadeMilliseconds, _currentAlphas, targetAlphas);
 
         if (!HasAnimatedDuration(animationTargets))
         {
@@ -213,7 +173,7 @@ public sealed class TaskbarAppearanceService
                 ApplyLayeredAlpha(target.Handle, target.TargetAlpha);
             }
 
-            return new AlphaApplySummary(targetAlphas.Count, skipped, AnimationStarted: false);
+            return;
         }
 
         _ = Task.Run(async () =>
@@ -233,7 +193,7 @@ public sealed class TaskbarAppearanceService
                         var progress = target.Duration <= 0
                             ? 1d
                             : Math.Clamp(elapsed / (double)target.Duration, 0d, 1d);
-                        var eased = EaseProgress(progress, profile.Easing);
+                        var eased = EaseProgress(progress);
                         var alpha = (byte)Math.Clamp((int)Math.Round(target.StartAlpha + ((target.TargetAlpha - target.StartAlpha) * eased)), 0, 255);
                         ApplyLayeredAlpha(target.Handle, alpha);
                         allComplete &= progress >= 1d;
@@ -255,8 +215,6 @@ public sealed class TaskbarAppearanceService
                 ClearAnimationCancellation(cancellation);
             }
         }, cancellation.Token);
-
-        return new AlphaApplySummary(targetAlphas.Count, skipped, AnimationStarted: true);
     }
 
     private void PruneStaleHandles(IReadOnlyList<TaskbarWindowInfo> liveTargets)
@@ -332,11 +290,6 @@ public sealed class TaskbarAppearanceService
         return lookup;
     }
 
-    private static bool NeedsMonitorOverrideLookup(IReadOnlyCollection<MonitorProfile>? monitors)
-    {
-        return monitors is not null && monitors.Any(monitor => !monitor.SyncWithPrimary);
-    }
-
     private void ClearAnimationCancellation(CancellationTokenSource cancellation)
     {
         lock (_animationSync)
@@ -352,25 +305,13 @@ public sealed class TaskbarAppearanceService
         cancellation.Dispose();
     }
 
-    private static Dictionary<IntPtr, int> SelectFadeDurations(TaskbarProfile profile, IReadOnlyDictionary<IntPtr, byte> starts, IReadOnlyDictionary<IntPtr, byte> targetAlphas)
-    {
-        var durations = new Dictionary<IntPtr, int>(targetAlphas.Count);
-        foreach (var pair in targetAlphas)
-        {
-            var start = starts.GetValueOrDefault(pair.Key, pair.Value);
-            durations[pair.Key] = start == pair.Value ? 0 : SelectFadeMilliseconds(profile, start, pair.Value);
-        }
-
-        return durations;
-    }
-
-    private static List<AlphaAnimationTarget> BuildAlphaAnimationTargets(TaskbarProfile profile, IReadOnlyDictionary<IntPtr, byte> currentAlphas, IReadOnlyDictionary<IntPtr, byte> targetAlphas)
+    private static List<AlphaAnimationTarget> BuildAlphaAnimationTargets(int fadeMilliseconds, IReadOnlyDictionary<IntPtr, byte> currentAlphas, IReadOnlyDictionary<IntPtr, byte> targetAlphas)
     {
         var targets = new List<AlphaAnimationTarget>(targetAlphas.Count);
         foreach (var pair in targetAlphas)
         {
             var start = currentAlphas.GetValueOrDefault(pair.Key, pair.Value);
-            var duration = start == pair.Value ? 0 : SelectFadeMilliseconds(profile, start, pair.Value);
+            var duration = start == pair.Value ? 0 : Math.Max(0, fadeMilliseconds);
             targets.Add(new AlphaAnimationTarget(pair.Key, start, pair.Value, duration));
         }
 
@@ -437,22 +378,10 @@ public sealed class TaskbarAppearanceService
             : opacity;
     }
 
-    private static double EaseProgress(double progress, string easing)
+    private static double EaseProgress(double progress)
     {
         var clamped = Math.Clamp(progress, 0d, 1d);
-        return easing switch
-        {
-            "Linear" => clamped,
-            "QuintOut" => 1d - Math.Pow(1d - clamped, 5d),
-            _ => 1d - Math.Pow(1d - clamped, 3d)
-        };
-    }
-
-    private static int SelectFadeMilliseconds(TaskbarProfile profile, byte startAlpha, byte targetAlpha)
-    {
-        return targetAlpha >= startAlpha
-            ? Math.Max(0, profile.FadeInMilliseconds)
-            : Math.Max(0, profile.FadeOutMilliseconds);
+        return 1d - Math.Pow(1d - clamped, 3d);
     }
 
     private void EnsureLayeredWindow(IntPtr handle)
@@ -510,10 +439,6 @@ public sealed class TaskbarAppearanceService
 
     private readonly record struct AppearanceRequest(int AccentState, int GradientColor);
     private readonly record struct AlphaAnimationTarget(IntPtr Handle, byte StartAlpha, byte TargetAlpha, int Duration);
-    private readonly record struct AlphaApplySummary(int LayeredAlphaChanges, int LayeredAlphaNoOps, bool AnimationStarted)
-    {
-        public static AlphaApplySummary Empty { get; } = new(0, 0, AnimationStarted: false);
-    }
 
     [DllImport("user32.dll")]
     private static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
@@ -532,47 +457,4 @@ public sealed class TaskbarAppearanceService
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern bool SetLayeredWindowAttributes(IntPtr hwnd, uint colorKey, byte alpha, uint flags);
-}
-
-public sealed record TaskbarApplyDiagnostics(
-    int TargetCount,
-    int CompositionApplied,
-    int CompositionSkipped,
-    int LayeredAlphaChanges,
-    int LayeredAlphaNoOps,
-    bool MonitorLookupBuilt,
-    bool AnimationStarted,
-    DateTimeOffset UpdatedAt)
-{
-    public static TaskbarApplyDiagnostics Empty { get; } = Create(0, 0, 0, 0, 0, false, false, DateTimeOffset.UnixEpoch);
-
-    public double CompositionSkipRatio => Ratio(CompositionSkipped, CompositionApplied + CompositionSkipped);
-
-    public double LayeredAlphaSkipRatio => Ratio(LayeredAlphaNoOps, LayeredAlphaChanges + LayeredAlphaNoOps);
-
-    public static TaskbarApplyDiagnostics Create(
-        int targetCount,
-        int compositionApplied,
-        int compositionSkipped,
-        int layeredAlphaChanges,
-        int layeredAlphaNoOps,
-        bool monitorLookupBuilt,
-        bool animationStarted,
-        DateTimeOffset updatedAt)
-    {
-        return new TaskbarApplyDiagnostics(
-            Math.Max(0, targetCount),
-            Math.Max(0, compositionApplied),
-            Math.Max(0, compositionSkipped),
-            Math.Max(0, layeredAlphaChanges),
-            Math.Max(0, layeredAlphaNoOps),
-            monitorLookupBuilt,
-            animationStarted,
-            updatedAt);
-    }
-
-    private static double Ratio(int numerator, int denominator)
-    {
-        return denominator <= 0 ? 0d : numerator / (double)denominator;
-    }
 }

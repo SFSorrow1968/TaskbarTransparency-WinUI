@@ -6,8 +6,8 @@ public sealed class RuntimeSnapshot
 
     public DateTimeOffset LastAppliedAt { get; set; } = DateTimeOffset.Now;
     public string State { get; set; } = "Desktop";
-    public string AppliedProfile { get; set; } = TaskbarProfile.OxygenClear.Name;
-    public byte ResolvedOpacity { get; set; } = TaskbarProfile.OxygenClear.Opacity;
+    public byte ResolvedOpacity { get; set; } = 30;
+    public string OpacitySource { get; set; } = "Base opacity";
     public int TaskbarsUpdated { get; set; }
     public string LastMessage { get; set; } = "Ready";
     public List<RuntimeEvent> RecentEvents { get; } = [];
@@ -29,8 +29,7 @@ public sealed class RuntimeEvent
 {
     public DateTimeOffset Time { get; init; }
     public string State { get; init; } = "Desktop";
-    public string Profile { get; init; } = TaskbarProfile.OxygenClear.Name;
+    public string Source { get; init; } = "Base opacity";
     public byte Opacity { get; init; }
     public int TaskbarsUpdated { get; init; }
-    public string Message { get; init; } = "Ready";
 }

@@ -1,21 +1,24 @@
 # Oxygen Taskbar
 
-A from-scratch WinUI 3 rebuild of TaskbarTransparency. The app keeps the original idea, dynamic Windows taskbar material control, and reshapes it into a calmer desktop utility with a fluid dashboard, simple presets, automation policies, monitor awareness, diagnostics, and persistent settings.
+A WinUI 3 utility that controls Windows taskbar transparency with one simple model: a **base opacity**, plus optional **rules** that set an exact opacity for specific states (hover, fullscreen, maximized window, open window). What you set is what you see — there are no hidden adjustments.
 
-## Current build
+## How it works
 
-- WinUI 3 navigation shell with Mica backdrop
-- Dashboard with live opacity, profile, and runtime controls
-- Tuning screen for Clear, Acrylic glass, Mica, Solid, opacity, fade timing, hover proximity, startup, tray, and hotkey settings
-- Taskbar composition interop for primary and secondary taskbars
-- Automation policy model for desktop, hover, maximized, fullscreen, and visible-window states
-- Settings persistence under `%LocalAppData%\OxygenTaskbar\settings.json`
-- Monitor screen with detected display overview and per-display overrides
-- Diagnostics screen for runtime timeline, recovery actions, launcher logs, and hotkey registration status
-- Unit tests for settings persistence, taskbar appearance, runtime sensors, hotkeys, tray commands, policy, and snapshots
-- Tracker workbook generated from `tracker/build_tracker.py`
-- Generated mockups organized under `SCREEN IMAGES/`
-- Self-contained unpackaged Windows App SDK output for local launcher runs
+- **Base opacity** applies on the desktop and whenever no rule matches.
+- **Rules** are absolute percentages evaluated top-down: Hover → Fullscreen → Maximized → Open window. The first enabled match wins; disabled rules fall through.
+- **Automation** can be toggled off entirely, locking the taskbar to the base opacity.
+- **Pause transparency** (tray, hotkey, or dashboard) temporarily restores the normal taskbar look without touching your settings.
+
+## Screens
+
+- **Dashboard** — applied opacity right now, which rule produced it, base opacity slider, automation and pause controls.
+- **Rules** — edit each rule's toggle and opacity, plus hover distance.
+- **Monitors** — every detected display; each can follow the base opacity or use its own value.
+- **Settings** — fade duration, tray icon, start with Windows, keyboard shortcuts.
+- **Diagnostics** — detection status, recent activity, shortcut registration, logs.
+- **About** — version, repository, settings location.
+
+Settings persist at `%LocalAppData%\OxygenTaskbar\settings.json`.
 
 ## Build
 
@@ -37,7 +40,7 @@ Launcher logs are written to `launcher-logs\build-and-launch-latest.txt` and `la
 Every completed implementation pass should publish a SemVer snapshot branch and tag:
 
 ```powershell
-pwsh .\scripts\snapshot-release.ps1 -Version v0.1.0 -Push
+pwsh .\scripts\snapshot-release.ps1 -Version v0.2.0 -Push
 ```
 
 The script creates branch `snapshot/vX.Y.Z`, commit message `snapshot: vX.Y.Z`, and annotated tag `vX.Y.Z`.

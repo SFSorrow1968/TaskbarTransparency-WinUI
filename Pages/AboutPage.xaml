@@ -8,10 +8,8 @@
     mc:Ignorable="d">
 
     <ScrollViewer Background="{StaticResource OxygenShellBrush}">
-        <Grid Padding="44,34,44,44" RowSpacing="18" MaxWidth="1440" HorizontalAlignment="Center">
+        <Grid Padding="44,34,44,44" RowSpacing="18" MaxWidth="1100" HorizontalAlignment="Center">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -26,24 +24,20 @@
                     <FontIcon FontSize="72" Foreground="{StaticResource OxygenBlueBrush}" Glyph="&#xE7F4;" />
                 </Border>
                 <StackPanel Grid.Column="1" Spacing="6" VerticalAlignment="Center">
-                    <TextBlock Style="{StaticResource SectionHeaderTextBlockStyle}" Foreground="{StaticResource OxygenBlueBrush}" Text="ABOUT" />
                     <TextBlock Style="{StaticResource OxygenPageTitleTextBlockStyle}" Text="Oxygen Taskbar" />
-                    <TextBlock FontSize="18" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Intelligent taskbar translucency and appearance control with per-monitor awareness." TextWrapping="Wrap" />
+                    <TextBlock FontSize="18" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Windows taskbar transparency with simple, predictable rules." TextWrapping="Wrap" />
                 </StackPanel>
             </Grid>
 
             <Border Grid.Row="1" Style="{StaticResource OxygenCardBorderStyle}">
                 <StackPanel Spacing="0">
-                    <TextBlock Margin="0,0,0,16" FontSize="21" FontWeight="SemiBold" Foreground="White" Text="Application information" />
                     <Grid Height="52" ColumnSpacing="18">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="200" />
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Foreground="White" Text="Version" VerticalAlignment="Center" />
-                        <TextBlock x:Name="VersionText" Grid.Column="1" Foreground="{StaticResource OxygenMutedTextBrush}" Text="v0.1.33" VerticalAlignment="Center" />
-                        <TextBlock Grid.Column="2" Foreground="{StaticResource OxygenMintBrush}" Text="Snapshot" VerticalAlignment="Center" />
+                        <TextBlock x:Name="VersionText" Grid.Column="1" Foreground="{StaticResource OxygenMutedTextBrush}" VerticalAlignment="Center" />
                     </Grid>
                     <Grid Height="52" ColumnSpacing="18">
                         <Grid.ColumnDefinitions>
@@ -51,7 +45,7 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Foreground="White" Text="Repository" VerticalAlignment="Center" />
-                        <TextBlock Grid.Column="1" Foreground="{StaticResource OxygenBlueBrush}" Text="https://github.com/SFSorrow1968/TaskbarTransparency-WinUI" VerticalAlignment="Center" />
+                        <HyperlinkButton Grid.Column="1" Content="github.com/SFSorrow1968/TaskbarTransparency-WinUI" NavigateUri="https://github.com/SFSorrow1968/TaskbarTransparency-WinUI" Padding="0" VerticalAlignment="Center" />
                     </Grid>
                     <Grid Height="52" ColumnSpacing="18">
                         <Grid.ColumnDefinitions>
@@ -59,7 +53,7 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Foreground="White" Text="Settings location" VerticalAlignment="Center" />
-                        <TextBlock x:Name="SettingsPathText" Grid.Column="1" Foreground="{StaticResource OxygenBlueBrush}" VerticalAlignment="Center" />
+                        <TextBlock x:Name="SettingsPathText" Grid.Column="1" Foreground="{StaticResource OxygenMutedTextBrush}" VerticalAlignment="Center" TextWrapping="Wrap" />
                     </Grid>
                     <Grid Height="52" ColumnSpacing="18">
                         <Grid.ColumnDefinitions>
@@ -69,14 +63,6 @@
                         <TextBlock Foreground="White" Text="License" VerticalAlignment="Center" />
                         <TextBlock Grid.Column="1" Foreground="{StaticResource OxygenMutedTextBrush}" Text="MIT License" VerticalAlignment="Center" />
                     </Grid>
-                    <Grid Height="52" ColumnSpacing="18">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="200" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Foreground="White" Text="Status" VerticalAlignment="Center" />
-                        <TextBlock Grid.Column="1" Foreground="{StaticResource OxygenMintBrush}" Text="Active" VerticalAlignment="Center" />
-                    </Grid>
                 </StackPanel>
             </Border>
 
@@ -84,40 +70,10 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Button Click="ViewLogs_Click" Style="{StaticResource GlassButtonStyle}" Content="View logs" />
                 <Button Grid.Column="1" Click="OpenSettingsFile_Click" Style="{StaticResource GlassButtonStyle}" Content="Open settings file" />
-                <Button Grid.Column="2" Click="CheckForUpdates_Click" Style="{StaticResource GlassButtonStyle}" Content="Check for updates" />
             </Grid>
-
-            <InfoBar x:Name="UpdateInfo" Grid.Row="3" IsOpen="False" Severity="Informational" Title="Snapshot updates" />
-
-            <Border Grid.Row="4" Style="{StaticResource OxygenCardBorderStyle}">
-                <Grid ColumnSpacing="20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="140" />
-                        <ColumnDefinition Width="140" />
-                    </Grid.ColumnDefinitions>
-                    <Border Width="74" Height="74" Background="#3323C58E" CornerRadius="37">
-                        <FontIcon Foreground="{StaticResource OxygenMintBrush}" FontSize="34" Glyph="&#xE73E;" />
-                    </Border>
-                    <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
-                        <TextBlock FontSize="22" FontWeight="SemiBold" Foreground="White" Text="Snapshot build" />
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Release snapshots are published from this repository." />
-                    </StackPanel>
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Current version" />
-                        <TextBlock x:Name="CurrentVersionText" Foreground="White" FontSize="20" Text="v0.1.33" />
-                    </StackPanel>
-                    <StackPanel Grid.Column="3" VerticalAlignment="Center">
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Latest version" />
-                        <TextBlock x:Name="LatestVersionText" Foreground="White" FontSize="20" Text="v0.1.33" />
-                    </StackPanel>
-                </Grid>
-            </Border>
         </Grid>
     </ScrollViewer>
 </Page>

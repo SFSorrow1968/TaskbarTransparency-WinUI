@@ -15,10 +15,9 @@ public sealed class RuntimeSnapshotTests
             {
                 Time = DateTimeOffset.Now.AddSeconds(index),
                 State = $"State {index}",
-                Profile = "Test",
+                Source = "Base opacity",
                 Opacity = (byte)index,
-                TaskbarsUpdated = 1,
-                Message = "Applied"
+                TaskbarsUpdated = 1
             });
         }
 

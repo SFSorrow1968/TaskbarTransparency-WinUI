@@ -13,9 +13,8 @@ public sealed class AppState
     private readonly StartupRegistrationService _startup = new();
     private readonly GlobalHotkeyService _hotkeys = new();
     private readonly RuntimeStateSensorService _sensors;
-    private byte? _opacityBeforeToggle;
-    private bool _opacityPreviewPending;
-    private bool _hoverDistancePreviewPending;
+    private AutomationTrigger _currentTrigger = AutomationTrigger.Desktop;
+    private bool _previewPending;
 
     public AppSettings Settings { get; private set; } = new();
     public RuntimeSnapshot Runtime { get; } = new();
@@ -25,11 +24,12 @@ public sealed class AppState
     public bool StartupRegistrationFailed { get; private set; }
     public string StartupStatusMessage { get; private set; } = "Startup registration is ready.";
     public bool ExitRequested { get; private set; }
+    public bool TransparencyPaused { get; private set; }
+    public AutomationTrigger CurrentTrigger => _currentTrigger;
     public HotkeyConfigurationStatus HotkeyStatus => _hotkeys.Status;
-    public TaskbarApplyDiagnostics ApplyDiagnostics => _taskbar.Diagnostics;
 
     public event EventHandler? Changed;
-    public event EventHandler<AppViewRequestedEventArgs>? ShowWindowRequested;
+    public event EventHandler? ShowWindowRequested;
 
     public AppState()
     {
@@ -39,18 +39,18 @@ public sealed class AppState
     public void Initialize()
     {
         Settings = _store.Load();
+        Settings.Normalize();
         Settings.StartWithWindows = _startup.IsEnabled();
         var startupTaskbars = TaskbarWindowCatalog.GetCurrent();
         RefreshMonitors(startupTaskbars);
         _tray.Start(
-            () => RequestView(AppView.Dashboard),
-            () => RequestView(AppView.Tuning),
-            ReapplyCurrentRuntimeState,
+            RequestShowWindow,
+            ReapplyNow,
             ToggleTransparency,
             RequestExit);
         _tray.SetVisible(Settings.ShowTrayIcon);
-        ApplyNow(AutomationTrigger.Desktop, persistSettings: false, taskbarTargets: startupTaskbars);
-        _sensors.Start(trigger => ApplyNow(trigger, persistSettings: false));
+        ApplyNow(persistSettings: false, taskbarTargets: startupTaskbars);
+        _sensors.Start(OnTriggerChanged);
     }
 
     public void AttachWindow(IntPtr hwnd)
@@ -59,13 +59,13 @@ public sealed class AppState
             hwnd,
             Settings.OpenHotkey,
             Settings.ToggleHotkey,
-            () => RequestView(AppView.Dashboard),
+            RequestShowWindow,
             ToggleTransparency);
     }
 
-    public void RequestView(AppView view)
+    public void RequestShowWindow()
     {
-        ShowWindowRequested?.Invoke(this, new AppViewRequestedEventArgs(view));
+        ShowWindowRequested?.Invoke(this, EventArgs.Empty);
     }
 
     public void RequestExit()
@@ -80,6 +80,7 @@ public sealed class AppState
     public void RefreshMonitors()
     {
         RefreshMonitors(TaskbarWindowCatalog.GetCurrent());
+        ApplyNow(persistSettings: false);
     }
 
     private void RefreshMonitors(IReadOnlyList<TaskbarWindowInfo> detectedTaskbars)
@@ -105,78 +106,25 @@ public sealed class AppState
         }
     }
 
-    public void SetProfile(TaskbarProfile profile)
+    public void SetBaseOpacity(double value) => SetBaseOpacityCore(value, persistSettings: true);
+
+    public void PreviewBaseOpacity(double value) => SetBaseOpacityCore(value, persistSettings: false);
+
+    private void SetBaseOpacityCore(double value, bool persistSettings)
     {
-        if (Settings.ActiveProfile == profile)
+        var opacity = ClampOpacity(value);
+        if (Settings.BaseOpacity == opacity)
         {
+            CommitPendingPreview(persistSettings);
             return;
         }
 
-        _opacityBeforeToggle = null;
-        _opacityPreviewPending = false;
-        Settings.ActiveProfile = profile;
-        ApplyNow(persistSettings: true);
-    }
-
-    public void SetOpacity(double value)
-    {
-        SetOpacityCore(value, persistSettings: true);
-    }
-
-    public void PreviewOpacity(double value)
-    {
-        SetOpacityCore(value, persistSettings: false);
-    }
-
-    private void SetOpacityCore(double value, bool persistSettings)
-    {
-        var opacity = (byte)Math.Clamp((int)Math.Round(value), 0, 100);
-        if (Settings.ActiveProfile.Opacity == opacity)
-        {
-            if (persistSettings && _opacityPreviewPending)
-            {
-                _opacityPreviewPending = false;
-                SaveAndNotify();
-            }
-
-            return;
-        }
-
-        _opacityBeforeToggle = null;
-        Settings.ActiveProfile = Settings.ActiveProfile with { Opacity = opacity };
-        _opacityPreviewPending = !persistSettings;
+        Settings.BaseOpacity = opacity;
+        _previewPending = !persistSettings;
         ApplyNow(persistSettings);
     }
 
-    public void SetMonitorOverride(string deviceName, double opacity, bool syncWithPrimary)
-    {
-        var monitor = MonitorProfile.FindByDeviceName(Settings.Monitors, deviceName, StringComparison.OrdinalIgnoreCase);
-        if (monitor is null)
-        {
-            return;
-        }
-
-        var nextOpacity = (byte)Math.Clamp((int)Math.Round(opacity), 0, 100);
-        if (monitor.OverrideOpacity == nextOpacity && monitor.SyncWithPrimary == syncWithPrimary)
-        {
-            return;
-        }
-
-        monitor.OverrideOpacity = nextOpacity;
-        monitor.SyncWithPrimary = syncWithPrimary;
-
-        var liveMonitor = MonitorProfile.FindByDeviceName(Monitors, deviceName, StringComparison.OrdinalIgnoreCase);
-        if (liveMonitor is not null)
-        {
-            liveMonitor.OverrideOpacity = monitor.OverrideOpacity;
-            liveMonitor.SyncWithPrimary = syncWithPrimary;
-            MonitorsVersion++;
-        }
-
-        ApplyNow(persistSettings: true);
-    }
-
-    public void SetAutomation(bool enabled)
+    public void SetAutomationEnabled(bool enabled)
     {
         if (Settings.AutomationEnabled == enabled)
         {
@@ -187,43 +135,57 @@ public sealed class AppState
         ApplyNow(persistSettings: true);
     }
 
-    public void SetHoverReveal(bool enabled)
+    public void SetRuleEnabled(AutomationTrigger trigger, bool enabled)
     {
-        if (Settings.HoverReveal == enabled)
+        var rule = Settings.RuleFor(trigger);
+        if (rule is null || rule.Enabled == enabled)
         {
             return;
         }
 
-        Settings.HoverReveal = enabled;
-        SaveAndNotify();
+        rule.Enabled = enabled;
+        ApplyNow(persistSettings: true);
     }
 
-    public void SetHoverDistance(double value)
+    public void SetRuleOpacity(AutomationTrigger trigger, double value) => SetRuleOpacityCore(trigger, value, persistSettings: true);
+
+    public void PreviewRuleOpacity(AutomationTrigger trigger, double value) => SetRuleOpacityCore(trigger, value, persistSettings: false);
+
+    private void SetRuleOpacityCore(AutomationTrigger trigger, double value, bool persistSettings)
     {
-        SetHoverDistanceCore(value, persistSettings: true);
+        var rule = Settings.RuleFor(trigger);
+        if (rule is null)
+        {
+            return;
+        }
+
+        var opacity = ClampOpacity(value);
+        if (rule.Opacity == opacity)
+        {
+            CommitPendingPreview(persistSettings);
+            return;
+        }
+
+        rule.Opacity = opacity;
+        _previewPending = !persistSettings;
+        ApplyNow(persistSettings);
     }
 
-    public void PreviewHoverDistance(double value)
-    {
-        SetHoverDistanceCore(value, persistSettings: false);
-    }
+    public void SetHoverDistance(double value) => SetHoverDistanceCore(value, persistSettings: true);
+
+    public void PreviewHoverDistance(double value) => SetHoverDistanceCore(value, persistSettings: false);
 
     private void SetHoverDistanceCore(double value, bool persistSettings)
     {
         var distance = Math.Clamp((int)Math.Round(value), 0, 48);
         if (Settings.HoverDistance == distance)
         {
-            if (persistSettings && _hoverDistancePreviewPending)
-            {
-                _hoverDistancePreviewPending = false;
-                SaveAndNotify();
-            }
-
+            CommitPendingPreview(persistSettings);
             return;
         }
 
         Settings.HoverDistance = distance;
-        _hoverDistancePreviewPending = !persistSettings;
+        _previewPending = !persistSettings;
         if (persistSettings)
         {
             SaveAndNotify();
@@ -233,15 +195,50 @@ public sealed class AppState
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
-    public void SetFullscreenOverlap(bool enabled)
+    public void SetFadeMilliseconds(double value)
     {
-        if (Settings.FullscreenOverlap == enabled)
+        var fade = Math.Clamp((int)Math.Round(value), 0, 1000);
+        if (Settings.FadeMilliseconds == fade)
         {
             return;
         }
 
-        Settings.FullscreenOverlap = enabled;
+        Settings.FadeMilliseconds = fade;
         SaveAndNotify();
+    }
+
+    public void SetMonitorOverride(string deviceName, double opacity, bool syncWithPrimary) => SetMonitorOverrideCore(deviceName, opacity, syncWithPrimary, persistSettings: true);
+
+    public void PreviewMonitorOverride(string deviceName, double opacity, bool syncWithPrimary) => SetMonitorOverrideCore(deviceName, opacity, syncWithPrimary, persistSettings: false);
+
+    private void SetMonitorOverrideCore(string deviceName, double opacity, bool syncWithPrimary, bool persistSettings)
+    {
+        var monitor = MonitorProfile.FindByDeviceName(Settings.Monitors, deviceName, StringComparison.OrdinalIgnoreCase);
+        if (monitor is null)
+        {
+            return;
+        }
+
+        var nextOpacity = ClampOpacity(opacity);
+        if (monitor.OverrideOpacity == nextOpacity && monitor.SyncWithPrimary == syncWithPrimary)
+        {
+            CommitPendingPreview(persistSettings);
+            return;
+        }
+
+        monitor.OverrideOpacity = nextOpacity;
+        monitor.SyncWithPrimary = syncWithPrimary;
+
+        var liveMonitor = MonitorProfile.FindByDeviceName(Monitors, deviceName, StringComparison.OrdinalIgnoreCase);
+        if (liveMonitor is not null && !ReferenceEquals(liveMonitor, monitor))
+        {
+            liveMonitor.OverrideOpacity = monitor.OverrideOpacity;
+            liveMonitor.SyncWithPrimary = syncWithPrimary;
+        }
+
+        MonitorsVersion++;
+        _previewPending = !persistSettings;
+        ApplyNow(persistSettings);
     }
 
     public void SetTrayVisible(bool enabled)
@@ -304,72 +301,51 @@ public sealed class AppState
 
     public void ToggleTransparency()
     {
-        if (_opacityBeforeToggle is null)
-        {
-            _opacityBeforeToggle = Settings.ActiveProfile.Opacity;
-            Settings.ActiveProfile = Settings.ActiveProfile with { Opacity = 0 };
-        }
-        else
-        {
-            Settings.ActiveProfile = Settings.ActiveProfile with { Opacity = _opacityBeforeToggle.Value };
-            _opacityBeforeToggle = null;
-        }
-
-        ApplyNow(persistSettings: true);
+        TransparencyPaused = !TransparencyPaused;
+        ApplyNow(persistSettings: false);
     }
 
-    public void CompleteFirstRun(TaskbarProfile profile)
-    {
-        if (Settings.FirstRunCompleted && Settings.ActiveProfile == profile)
-        {
-            return;
-        }
+    public void ReapplyNow() => ApplyNow(persistSettings: false);
 
-        _opacityBeforeToggle = null;
-        _opacityPreviewPending = false;
-        Settings.FirstRunCompleted = true;
-        Settings.ActiveProfile = profile;
-        ApplyNow(persistSettings: true);
+    private void OnTriggerChanged(AutomationTrigger trigger)
+    {
+        _currentTrigger = trigger;
+        ApplyNow(persistSettings: false);
     }
 
-    public void ApplyNow() => ApplyNow(AutomationTrigger.Desktop, persistSettings: false);
-
-    public void ReapplyCurrentRuntimeState() => ApplyNow(RuntimeTriggerText.Parse(Runtime.State), persistSettings: false);
-
-    public void ApplyNow(AutomationTrigger trigger) => ApplyNow(trigger, persistSettings: false);
-
-    private void ApplyNow(bool persistSettings) => ApplyNow(AutomationTrigger.Desktop, persistSettings);
-
-    private void ApplyNow(AutomationTrigger trigger, bool persistSettings)
+    private void ApplyNow(bool persistSettings)
     {
-        ApplyNow(trigger, persistSettings, taskbarTargets: null);
+        ApplyNow(persistSettings, taskbarTargets: null);
     }
 
-    private void ApplyNow(AutomationTrigger trigger, bool persistSettings, IReadOnlyList<TaskbarWindowInfo>? taskbarTargets)
+    private void ApplyNow(bool persistSettings, IReadOnlyList<TaskbarWindowInfo>? taskbarTargets)
     {
-        var opacity = OpacityPolicy.Resolve(Settings.ActiveProfile, trigger, Settings.AutomationEnabled);
+        var resolution = TransparencyPaused
+            ? new OpacityResolution(100, "Transparency paused")
+            : OpacityPolicy.Resolve(Settings, _currentTrigger);
         var previousState = Runtime.State;
         var previousOpacity = Runtime.ResolvedOpacity;
         Runtime.TaskbarsUpdated = taskbarTargets is null
-            ? _taskbar.Apply(Settings.ActiveProfile, opacity, Settings.Monitors)
-            : _taskbar.Apply(Settings.ActiveProfile, opacity, Settings.Monitors, taskbarTargets);
+            ? _taskbar.Apply(resolution.Opacity, Settings.FadeMilliseconds, !TransparencyPaused, Settings.Monitors)
+            : _taskbar.Apply(resolution.Opacity, Settings.FadeMilliseconds, !TransparencyPaused, Settings.Monitors, taskbarTargets);
         Runtime.LastAppliedAt = DateTimeOffset.Now;
-        Runtime.State = trigger.ToString();
-        Runtime.AppliedProfile = Settings.ActiveProfile.Name;
-        Runtime.ResolvedOpacity = opacity;
+        Runtime.State = _currentTrigger.ToString();
+        Runtime.ResolvedOpacity = resolution.Opacity;
+        Runtime.OpacitySource = resolution.Source;
         Runtime.LastMessage = Runtime.TaskbarsUpdated == 0
             ? "No taskbar windows were found"
-            : $"Applied {Settings.ActiveProfile.Mode} at {opacity}%";
-        if (Runtime.RecentEvents.Count == 0 || previousState != Runtime.State || previousOpacity != opacity)
+            : TransparencyPaused
+                ? "Transparency paused; taskbars restored to normal"
+                : $"Applied {resolution.Opacity}% ({resolution.Source})";
+        if (Runtime.RecentEvents.Count == 0 || previousState != Runtime.State || previousOpacity != resolution.Opacity)
         {
             Runtime.RecordEvent(new RuntimeEvent
             {
                 Time = Runtime.LastAppliedAt,
                 State = Runtime.State,
-                Profile = Runtime.AppliedProfile,
+                Source = Runtime.OpacitySource,
                 Opacity = Runtime.ResolvedOpacity,
-                TaskbarsUpdated = Runtime.TaskbarsUpdated,
-                Message = Runtime.LastMessage
+                TaskbarsUpdated = Runtime.TaskbarsUpdated
             });
         }
 
@@ -382,8 +358,18 @@ public sealed class AppState
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
+    private void CommitPendingPreview(bool persistSettings)
+    {
+        if (persistSettings && _previewPending)
+        {
+            _previewPending = false;
+            SaveAndNotify();
+        }
+    }
+
     private void SaveAndNotify()
     {
+        _previewPending = false;
         Save();
         Changed?.Invoke(this, EventArgs.Empty);
     }
@@ -393,20 +379,13 @@ public sealed class AppState
         _store.Save(Settings);
     }
 
+    private static byte ClampOpacity(double value)
+    {
+        return (byte)Math.Clamp((int)Math.Round(value), 0, 100);
+    }
+
     private static string NormalizeHotkey(string hotkey, string fallback)
     {
         return string.IsNullOrWhiteSpace(hotkey) ? fallback : hotkey.Trim();
     }
-
-}
-
-public enum AppView
-{
-    Dashboard,
-    Tuning
-}
-
-public sealed class AppViewRequestedEventArgs(AppView view) : EventArgs
-{
-    public AppView View { get; } = view;
 }

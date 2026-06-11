@@ -9,7 +9,7 @@
     mc:Ignorable="d">
 
     <ScrollViewer Background="{StaticResource OxygenShellBrush}">
-        <Grid Padding="44,34,44,44" RowSpacing="18" MaxWidth="1440" HorizontalAlignment="Center">
+        <Grid Padding="44,34,44,44" RowSpacing="18" MaxWidth="1100" HorizontalAlignment="Center">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -18,238 +18,80 @@
             </Grid.RowDefinitions>
             <StackPanel Spacing="6">
                 <TextBlock FontSize="36" FontWeight="SemiBold" Foreground="White" Text="Dashboard" />
-                <TextBlock FontSize="18" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Manage live taskbar material and opacity" />
+                <TextBlock FontSize="18" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Your taskbar right now, and the one number that controls it." />
             </StackPanel>
 
-            <Grid Grid.Row="1" ColumnSpacing="16">
+            <Border Grid.Row="1" Style="{StaticResource OxygenCardBorderStyle}" Padding="28">
+                <Grid ColumnSpacing="28">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="230" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel VerticalAlignment="Center" Spacing="2">
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Applied opacity" />
+                        <TextBlock x:Name="AppliedOpacityText" FontSize="58" FontWeight="SemiBold" Foreground="White" Text="30%" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="6">
+                        <TextBlock x:Name="AppliedSourceText" FontSize="22" FontWeight="SemiBold" Foreground="White" Text="Base opacity" />
+                        <TextBlock x:Name="AppliedStateText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Current state: Desktop" />
+                        <TextBlock x:Name="AppliedDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" Text="Applied to 1 taskbar" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="10">
+                        <Button x:Name="PauseButton" Click="Pause_Click" Style="{StaticResource GlassButtonStyle}" Content="Pause transparency" />
+                        <Button Click="Reapply_Click" Style="{StaticResource GlassButtonStyle}" Content="Reapply now" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="2" Style="{StaticResource OxygenCardBorderStyle}" Padding="24">
+                <StackPanel Spacing="14">
+                    <StackPanel Spacing="4">
+                        <TextBlock FontSize="21" FontWeight="SemiBold" Foreground="White" Text="Base opacity" />
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Used on the desktop and whenever no rule overrides it. 0% is fully transparent, 100% is solid." TextWrapping="Wrap" />
+                    </StackPanel>
+                    <Grid ColumnSpacing="18">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="96" />
+                        </Grid.ColumnDefinitions>
+                        <Slider x:Name="OpacitySlider" Maximum="100" Minimum="0" StepFrequency="1" ValueChanged="OpacitySlider_ValueChanged" VerticalAlignment="Center" />
+                        <Border Grid.Column="1" Padding="10" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
+                            <TextBlock x:Name="OpacityValueBoxText" HorizontalAlignment="Center" FontSize="22" FontWeight="SemiBold" Foreground="White" Text="30%" />
+                        </Border>
+                    </Grid>
+                    <InfoBar x:Name="OverrideInfo" IsOpen="False" IsClosable="False" Severity="Informational" Title="A rule is overriding this value right now" Message="The applied opacity above comes from a rule. Edit rules on the Rules page." />
+                </StackPanel>
+            </Border>
+
+            <Grid Grid.Row="3" ColumnSpacing="16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <Border Padding="22" Background="{StaticResource OxygenCardBrush}" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8" MinHeight="124">
-                    <Grid ColumnSpacing="18">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="76" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <Border Width="76" Height="76" Background="#FFA8F2E5" CornerRadius="38">
-                            <FontIcon FontSize="34" Foreground="#FF10283D" Glyph="&#xF0E2;" />
-                        </Border>
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="6">
-                            <TextBlock Style="{StaticResource SectionHeaderTextBlockStyle}" Text="Profile" />
-                            <TextBlock x:Name="ProfileText" Style="{StaticResource MetricTextBlockStyle}" Text="Oxygen Clear" />
-                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Active preset" />
-                        </StackPanel>
-                        <FontIcon Grid.Column="2" Foreground="{StaticResource OxygenMutedTextBrush}" Glyph="&#xE974;" VerticalAlignment="Center" />
-                    </Grid>
+                <Border Style="{StaticResource OxygenCardBorderStyle}" Padding="20">
+                    <StackPanel Spacing="6">
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Automation" />
+                        <ToggleSwitch x:Name="AutomationSwitch" OffContent="Off" OnContent="On" Toggled="AutomationSwitch_Toggled" />
+                        <TextBlock x:Name="AutomationDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" Text="Rules react to hover, fullscreen, and windows." />
+                    </StackPanel>
                 </Border>
-                <Border Grid.Column="1" Padding="22" Background="{StaticResource OxygenCardBrush}" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8" MinHeight="124">
-                    <Grid ColumnSpacing="18">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="76" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Border Width="76" Height="76" Background="#FF8EC5FF" CornerRadius="38">
-                            <FontIcon FontSize="34" Foreground="#FF10283D" Glyph="&#xE9CA;" />
-                        </Border>
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="6">
-                            <TextBlock Style="{StaticResource SectionHeaderTextBlockStyle}" Text="Opacity" />
-                            <TextBlock x:Name="OpacityText" Style="{StaticResource MetricTextBlockStyle}" Text="32%" />
-                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Live desktop state" />
-                        </StackPanel>
-                    </Grid>
+                <Border Grid.Column="1" Style="{StaticResource OxygenCardBorderStyle}" Padding="20">
+                    <StackPanel Spacing="6">
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Taskbars" />
+                        <TextBlock x:Name="TaskbarsText" Style="{StaticResource MetricTextBlockStyle}" Text="0" />
+                        <TextBlock x:Name="TaskbarsDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Detected and controlled" />
+                    </StackPanel>
                 </Border>
-                <Border Grid.Column="2" Padding="22" Background="{StaticResource OxygenCardBrush}" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8" MinHeight="124">
-                    <Grid ColumnSpacing="18">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="76" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Border Width="76" Height="76" Background="#FFA8F2E5" CornerRadius="38">
-                            <FontIcon FontSize="34" Foreground="#FF10283D" Glyph="&#xE7F4;" />
-                        </Border>
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="6">
-                            <TextBlock Style="{StaticResource SectionHeaderTextBlockStyle}" Text="Taskbars" />
-                            <TextBlock x:Name="TaskbarsText" Style="{StaticResource MetricTextBlockStyle}" Text="0" />
-                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Detected and controlled" />
-                        </StackPanel>
-                    </Grid>
+                <Border Grid.Column="2" Style="{StaticResource OxygenCardBorderStyle}" Padding="20">
+                    <StackPanel Spacing="6">
+                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Last applied" />
+                        <TextBlock x:Name="LastAppliedText" Style="{StaticResource MetricTextBlockStyle}" Text="—" />
+                        <TextBlock x:Name="LastMessageText" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" Text="Ready" />
+                    </StackPanel>
                 </Border>
             </Grid>
-
-            <Border Grid.Row="2" Background="{StaticResource OxygenCardBrush}" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
-                <Grid RowSpacing="18">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <StackPanel Padding="24,22,24,8" Spacing="14">
-                        <StackPanel Spacing="6">
-                            <TextBlock FontSize="21" FontWeight="SemiBold" Foreground="White" Text="Live opacity" />
-                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Adjust current taskbar opacity in real time." />
-                        </StackPanel>
-                        <Grid ColumnSpacing="18">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="116" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Foreground="White" FontSize="18" Text="0%" VerticalAlignment="Center" />
-                            <Slider x:Name="OpacitySlider" Grid.Column="1" Maximum="100" Minimum="0" StepFrequency="1" ValueChanged="OpacitySlider_ValueChanged" VerticalAlignment="Center" />
-                            <TextBlock Grid.Column="2" Foreground="White" FontSize="18" Text="100%" VerticalAlignment="Center" />
-                            <Border Grid.Column="3" Padding="10" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
-                                <TextBlock x:Name="OpacityValueBoxText" HorizontalAlignment="Center" FontSize="22" FontWeight="SemiBold" Foreground="White" Text="32%" />
-                            </Border>
-                        </Grid>
-                    </StackPanel>
-                    <Grid Grid.Row="1" Padding="24,18,24,20" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="0,1,0,0" ColumnSpacing="14">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="1.1*" />
-                        </Grid.ColumnDefinitions>
-                        <Button Style="{StaticResource GlassButtonStyle}" Click="ApplyClear_Click">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
-                                <FontIcon Foreground="{StaticResource OxygenMutedTextBrush}" Glyph="&#xE734;" />
-                                <TextBlock Text="Clear" />
-                            </StackPanel>
-                        </Button>
-                        <Button Grid.Column="1" Style="{StaticResource GlassButtonStyle}" Click="ApplyGlass_Click" BorderBrush="#FF52D9DC">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
-                                <FontIcon Foreground="#FF52D9DC" Glyph="&#xF0E2;" />
-                                <TextBlock Text="Glass" />
-                            </StackPanel>
-                        </Button>
-                        <Button Grid.Column="2" Style="{StaticResource GlassButtonStyle}" Click="ApplySolid_Click">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
-                                <FontIcon Foreground="{StaticResource OxygenMutedTextBrush}" Glyph="&#xE73B;" />
-                                <TextBlock Text="Solid" />
-                            </StackPanel>
-                        </Button>
-                        <Button Grid.Column="3" Style="{StaticResource GlassButtonStyle}" Click="ApplyNow_Click" Background="{StaticResource OxygenBlueBrush}">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
-                                <FontIcon Foreground="White" Glyph="&#xE768;" />
-                                <TextBlock Foreground="White" Text="Reapply state" />
-                            </StackPanel>
-                        </Button>
-                    </Grid>
-                </Grid>
-            </Border>
-
-            <Border Grid.Row="3" Padding="24" Background="{StaticResource OxygenCardBrush}" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
-                <StackPanel Spacing="14">
-                    <TextBlock FontSize="21" FontWeight="SemiBold" Foreground="White" Text="Runtime status" />
-                    <Grid ColumnSpacing="14">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Border Padding="16" Background="#58233448" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
-                            <StackPanel Spacing="6">
-                                <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Active sensor" />
-                                <TextBlock x:Name="CurrentTriggerText" FontSize="24" FontWeight="SemiBold" Foreground="White" Text="Desktop" />
-                                <TextBlock x:Name="SensorDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Watching desktop changes" />
-                            </StackPanel>
-                        </Border>
-                        <Border Grid.Column="1" Padding="16" Background="#58233448" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
-                            <StackPanel Spacing="6">
-                                <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Resolved opacity" />
-                                <TextBlock x:Name="ResolvedOpacityText" FontSize="24" FontWeight="SemiBold" Foreground="White" Text="32%" />
-                                <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Policy output" />
-                            </StackPanel>
-                        </Border>
-                        <Border Grid.Column="2" Padding="16" Background="#58233448" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
-                            <StackPanel Spacing="6">
-                                <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Automation" />
-                                <TextBlock x:Name="AutomationStatusText" FontSize="24" FontWeight="SemiBold" Foreground="White" Text="Enabled" />
-                                <TextBlock x:Name="AutomationDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Sensors are live" />
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-                    <Grid Background="#58233448" CornerRadius="8" RowSpacing="0">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="52" />
-                            <RowDefinition Height="52" />
-                            <RowDefinition Height="52" />
-                            <RowDefinition Height="52" />
-                            <RowDefinition Height="52" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="56" />
-                            <ColumnDefinition Width="2*" />
-                            <ColumnDefinition Width="28" />
-                            <ColumnDefinition Width="3*" />
-                            <ColumnDefinition Width="36" />
-                        </Grid.ColumnDefinitions>
-
-                        <FontIcon Margin="18,0,0,0" Foreground="#FF35AAFF" Glyph="&#xE713;" VerticalAlignment="Center" />
-                        <TextBlock Grid.Column="1" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Service" VerticalAlignment="Center" />
-                        <Ellipse Grid.Column="2" Width="10" Height="10" Fill="#FF6EE28B" />
-                        <TextBlock x:Name="ServiceStatusText" Grid.Column="3" Foreground="White" Text="Running" VerticalAlignment="Center" />
-                        <FontIcon Grid.Column="4" Foreground="{StaticResource OxygenMutedTextBrush}" Glyph="&#xE974;" VerticalAlignment="Center" />
-
-                        <FontIcon Grid.Row="1" Margin="18,0,0,0" Foreground="#FF52D9DC" Glyph="&#xF0E2;" VerticalAlignment="Center" />
-                        <TextBlock Grid.Row="1" Grid.Column="1" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Current material" VerticalAlignment="Center" />
-                        <Ellipse Grid.Row="1" Grid.Column="2" Width="10" Height="10" Fill="#FF35AAFF" />
-                        <TextBlock x:Name="CurrentMaterialText" Grid.Row="1" Grid.Column="3" Foreground="White" Text="Clear" VerticalAlignment="Center" />
-                        <FontIcon Grid.Row="1" Grid.Column="4" Foreground="{StaticResource OxygenMutedTextBrush}" Glyph="&#xE974;" VerticalAlignment="Center" />
-
-                        <FontIcon Grid.Row="2" Margin="18,0,0,0" Foreground="#FF88B8FF" Glyph="&#xE916;" VerticalAlignment="Center" />
-                        <TextBlock Grid.Row="2" Grid.Column="1" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Last applied" VerticalAlignment="Center" />
-                        <Ellipse Grid.Row="2" Grid.Column="2" Width="10" Height="10" Fill="#FF88B8FF" />
-                        <TextBlock x:Name="RuntimeTimeText" Grid.Row="2" Grid.Column="3" Foreground="White" Text="Today" VerticalAlignment="Center" />
-                        <FontIcon Grid.Row="2" Grid.Column="4" Foreground="{StaticResource OxygenMutedTextBrush}" Glyph="&#xE974;" VerticalAlignment="Center" />
-
-                        <FontIcon Grid.Row="3" Margin="18,0,0,0" Foreground="#FF52D9DC" Glyph="&#xE9CE;" VerticalAlignment="Center" />
-                        <TextBlock Grid.Row="3" Grid.Column="1" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Session state" VerticalAlignment="Center" />
-                        <Ellipse Grid.Row="3" Grid.Column="2" Width="10" Height="10" Fill="#FF6EE28B" />
-                        <TextBlock x:Name="RuntimeMessageText" Grid.Row="3" Grid.Column="3" Foreground="White" Text="Watching desktop changes" TextWrapping="Wrap" VerticalAlignment="Center" />
-                        <FontIcon Grid.Row="3" Grid.Column="4" Foreground="{StaticResource OxygenMutedTextBrush}" Glyph="&#xE974;" VerticalAlignment="Center" />
-
-                        <FontIcon Grid.Row="4" Margin="18,0,0,0" Foreground="#FF6EE28B" Glyph="&#xE895;" VerticalAlignment="Center" />
-                        <TextBlock Grid.Row="4" Grid.Column="1" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Sync state" VerticalAlignment="Center" />
-                        <Ellipse Grid.Row="4" Grid.Column="2" Width="10" Height="10" Fill="#FF6EE28B" />
-                        <TextBlock x:Name="SyncStateText" Grid.Row="4" Grid.Column="3" Foreground="White" Text="All taskbars in sync" VerticalAlignment="Center" />
-                        <FontIcon Grid.Row="4" Grid.Column="4" Foreground="{StaticResource OxygenMutedTextBrush}" Glyph="&#xE974;" VerticalAlignment="Center" />
-                    </Grid>
-                    <TextBlock FontSize="18" FontWeight="SemiBold" Foreground="White" Text="Recent sensor history" />
-                    <ListView x:Name="RecentEventsList" MaxHeight="272" SelectionMode="None" Background="Transparent">
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="MinHeight" Value="58" />
-                                <Setter Property="Padding" Value="0" />
-                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Border Margin="0,0,0,8" Padding="14,10" Background="#58233448" CornerRadius="8">
-                                    <Grid ColumnSpacing="12">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="120" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="96" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="{Binding TimeText}" VerticalAlignment="Center" />
-                                        <StackPanel Grid.Column="1" Spacing="2">
-                                            <TextBlock Foreground="White" FontWeight="SemiBold" Text="{Binding State}" />
-                                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="{Binding Detail}" TextWrapping="Wrap" />
-                                        </StackPanel>
-                                        <Border Grid.Column="2" Padding="10,6" Background="#8835AAFF" CornerRadius="8" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                            <TextBlock Foreground="White" FontWeight="SemiBold" Text="{Binding OpacityText}" />
-                                        </Border>
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </StackPanel>
-            </Border>
         </Grid>
     </ScrollViewer>
 </Page>

@@ -26,84 +26,16 @@ public sealed class TaskbarAppearanceServiceTests
     }
 
     [Fact]
-    public void EaseProgressForTest_UsesLinearProgress_WhenRequested()
+    public void EaseProgressForTest_UsesCubicOutForSmoothFade()
     {
-        var progress = TaskbarAppearanceService.EaseProgressForTest(0.5, "Linear");
-
-        Assert.Equal(0.5, progress, precision: 3);
+        Assert.Equal(0.875, TaskbarAppearanceService.EaseProgressForTest(0.5), precision: 3);
+        Assert.Equal(0d, TaskbarAppearanceService.EaseProgressForTest(0d), precision: 3);
+        Assert.Equal(1d, TaskbarAppearanceService.EaseProgressForTest(1d), precision: 3);
     }
 
     [Fact]
-    public void EaseProgressForTest_UsesCubicOutFallback_ForSmoothFade()
+    public void BuildAlphaAnimationDurationsForTest_SkipsUnchangedTaskbars()
     {
-        var progress = TaskbarAppearanceService.EaseProgressForTest(0.5, "CubicOut");
-
-        Assert.Equal(0.875, progress, precision: 3);
-    }
-
-    [Fact]
-    public void SelectFadeMillisecondsForTest_UsesFadeIn_WhenOpacityIncreases()
-    {
-        var profile = TaskbarProfile.FocusGlass with
-        {
-            FadeInMilliseconds = 400,
-            FadeOutMilliseconds = 90
-        };
-
-        var duration = TaskbarAppearanceService.SelectFadeMillisecondsForTest(profile, startAlpha: 80, targetAlpha: 160);
-
-        Assert.Equal(400, duration);
-    }
-
-    [Fact]
-    public void SelectFadeMillisecondsForTest_UsesFadeOut_WhenOpacityDecreases()
-    {
-        var profile = TaskbarProfile.FocusGlass with
-        {
-            FadeInMilliseconds = 400,
-            FadeOutMilliseconds = 90
-        };
-
-        var duration = TaskbarAppearanceService.SelectFadeMillisecondsForTest(profile, startAlpha: 160, targetAlpha: 80);
-
-        Assert.Equal(90, duration);
-    }
-
-    [Fact]
-    public void SelectFadeDurationsForTest_UsesEachTaskbarDirection()
-    {
-        var profile = TaskbarProfile.FocusGlass with
-        {
-            FadeInMilliseconds = 400,
-            FadeOutMilliseconds = 90
-        };
-        var primary = new IntPtr(1);
-        var secondary = new IntPtr(2);
-        var starts = new Dictionary<IntPtr, byte>
-        {
-            [primary] = 80,
-            [secondary] = 160
-        };
-        var targets = new Dictionary<IntPtr, byte>
-        {
-            [primary] = 80,
-            [secondary] = 70
-        };
-
-        var durations = TaskbarAppearanceService.SelectFadeDurationsForTest(profile, starts, targets);
-
-        Assert.Equal(0, durations[primary]);
-        Assert.Equal(90, durations[secondary]);
-    }
-
-    [Fact]
-    public void BuildAlphaAnimationDurationsForTest_PrecomputesFrameLoopDurations()
-    {
-        var profile = TaskbarProfile.FocusGlass with
-        {
-            FadeInMilliseconds = 320,
-            FadeOutMilliseconds = 80
-        };
         var primary = new IntPtr(1);
         var secondary = new IntPtr(2);
         var current = new Dictionary<IntPtr, byte>
@@ -113,13 +45,13 @@ public sealed class TaskbarAppearanceServiceTests
         };
         var targets = new Dictionary<IntPtr, byte>
         {
-            [primary] = 120,
+            [primary] = 80,
             [secondary] = 120
         };
 
-        var durations = TaskbarAppearanceService.BuildAlphaAnimationDurationsForTest(profile, current, targets);
+        var durations = TaskbarAppearanceService.BuildAlphaAnimationDurationsForTest(320, current, targets);
 
-        Assert.Equal([320, 80], durations);
+        Assert.Equal([0, 320], durations);
     }
 
     [Fact]
@@ -147,19 +79,6 @@ public sealed class TaskbarAppearanceServiceTests
     }
 
     [Fact]
-    public void NeedsMonitorOverrideLookupForTest_SkipsDefaultSyncedMonitorSets()
-    {
-        Assert.False(TaskbarAppearanceService.NeedsMonitorOverrideLookupForTest(null));
-        Assert.False(TaskbarAppearanceService.NeedsMonitorOverrideLookupForTest([
-            new MonitorProfile { DeviceName = "Primary", SyncWithPrimary = true },
-            new MonitorProfile { DeviceName = "Secondary", SyncWithPrimary = true }
-        ]));
-        Assert.True(TaskbarAppearanceService.NeedsMonitorOverrideLookupForTest([
-            new MonitorProfile { DeviceName = "Secondary", SyncWithPrimary = false }
-        ]));
-    }
-
-    [Fact]
     public void BuildMonitorOverrideLookupForTest_PreservesFirstUnsyncedMonitorPerDevice()
     {
         var first = new MonitorProfile { DeviceName = "Display2", SyncWithPrimary = false, OverrideOpacity = 44 };
@@ -176,22 +95,13 @@ public sealed class TaskbarAppearanceServiceTests
     }
 
     [Fact]
-    public void CreateDiagnosticsForTest_ComputesSkipRatiosAndClampsCounts()
+    public void BuildMonitorOverrideLookupForTest_ReturnsNull_WhenAllMonitorsAreSynced()
     {
-        var diagnostics = TaskbarAppearanceService.CreateDiagnosticsForTest(
-            targetCount: 2,
-            compositionApplied: 1,
-            compositionSkipped: 3,
-            layeredAlphaChanges: -5,
-            layeredAlphaNoOps: 2,
-            monitorLookupBuilt: true,
-            animationStarted: false);
-
-        Assert.Equal(2, diagnostics.TargetCount);
-        Assert.Equal(0.75, diagnostics.CompositionSkipRatio, precision: 3);
-        Assert.Equal(1d, diagnostics.LayeredAlphaSkipRatio, precision: 3);
-        Assert.True(diagnostics.MonitorLookupBuilt);
-        Assert.False(diagnostics.AnimationStarted);
+        Assert.Null(TaskbarAppearanceService.BuildMonitorOverrideLookupForTest(null));
+        Assert.Null(TaskbarAppearanceService.BuildMonitorOverrideLookupForTest([
+            new MonitorProfile { DeviceName = "Primary", SyncWithPrimary = true },
+            new MonitorProfile { DeviceName = "Secondary", SyncWithPrimary = true }
+        ]));
     }
 
     [Fact]
@@ -224,16 +134,12 @@ public sealed class TaskbarAppearanceServiceTests
     }
 
     [Fact]
-    public void AppearanceRequestMatchesForTest_ChangesOnlyForNativeCompositionInputs()
+    public void AppearanceRequestMatchesForTest_ChangesForOpacityAndActiveState()
     {
-        var first = TaskbarProfile.FocusGlass with { FadeInMilliseconds = 50, FadeOutMilliseconds = 100, Easing = "Linear" };
-        var sameNativeRequest = first with { FadeInMilliseconds = 500, FadeOutMilliseconds = 900, Easing = "QuintOut" };
-        var differentOpacity = first with { Opacity = 73 };
-        var differentMode = first with { Mode = TaskbarVisualMode.Solid };
-
-        Assert.True(TaskbarAppearanceService.AppearanceRequestMatchesForTest(first, 72, sameNativeRequest, 72));
-        Assert.False(TaskbarAppearanceService.AppearanceRequestMatchesForTest(first, 72, differentOpacity, 73));
-        Assert.False(TaskbarAppearanceService.AppearanceRequestMatchesForTest(first, 72, differentMode, 72));
+        Assert.True(TaskbarAppearanceService.AppearanceRequestMatchesForTest(72, true, 72, true));
+        Assert.False(TaskbarAppearanceService.AppearanceRequestMatchesForTest(72, true, 73, true));
+        Assert.False(TaskbarAppearanceService.AppearanceRequestMatchesForTest(72, true, 72, false));
+        Assert.True(TaskbarAppearanceService.AppearanceRequestMatchesForTest(72, false, 30, false));
     }
 
     [Fact]
@@ -258,6 +164,7 @@ public sealed class TaskbarAppearanceServiceTests
         Assert.False(profiles[1].IsPrimary);
         Assert.Equal("Display 1", profiles[1].FriendlyName);
         Assert.Equal("Secondary", profiles[1].DeviceName);
+        Assert.All(profiles, profile => Assert.True(profile.SyncWithPrimary));
     }
 
     [Fact]

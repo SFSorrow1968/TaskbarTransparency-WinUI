@@ -1,21 +1,16 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
-using TaskbarTransparency.Models;
 using TaskbarTransparency.Services;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace TaskbarTransparency.Pages;
 
 public sealed partial class HomePage : Page
 {
-    private readonly AppState _state = ((App)Microsoft.UI.Xaml.Application.Current).State;
+    private readonly AppState _state = ((App)Application.Current).State;
     private readonly RefreshCoalescer _refreshCoalescer = new();
     private readonly DispatcherQueueTimer _opacityCommitTimer;
     private double _pendingOpacity;
-    private int _recentEventsVersion = -1;
     private bool _loading = true;
 
     public HomePage()
@@ -40,7 +35,7 @@ public sealed partial class HomePage : Page
         if (_opacityCommitTimer.IsRunning)
         {
             _opacityCommitTimer.Stop();
-            _state.SetOpacity(_pendingOpacity);
+            _state.SetBaseOpacity(_pendingOpacity);
         }
     }
 
@@ -52,37 +47,29 @@ public sealed partial class HomePage : Page
     private void Refresh()
     {
         _loading = true;
-        ProfileText.Text = _state.Settings.ActiveProfile.Name;
-        OpacityText.Text = $"{_state.Settings.ActiveProfile.Opacity}%";
-        OpacityValueBoxText.Text = $"{_state.Settings.ActiveProfile.Opacity}%";
-        TaskbarsText.Text = _state.Runtime.TaskbarsUpdated.ToString();
-        ServiceStatusText.Text = _state.Runtime.TaskbarsUpdated > 0 ? "Running" : "Waiting for taskbar";
-        CurrentMaterialText.Text = _state.Settings.ActiveProfile.Mode.ToString();
-        CurrentTriggerText.Text = RuntimeTriggerText.Label(_state.Runtime.State);
-        ResolvedOpacityText.Text = $"{_state.Runtime.ResolvedOpacity}%";
-        SensorDetailText.Text = _state.Settings.AutomationEnabled ? NextSensorHint(_state.Runtime.State) : "Automation is paused";
-        AutomationStatusText.Text = _state.Settings.AutomationEnabled ? "Enabled" : "Paused";
-        AutomationDetailText.Text = _state.Settings.AutomationEnabled ? "Sensors are live" : "Manual apply only";
-        RuntimeMessageText.Text = _state.Runtime.LastMessage;
-        RuntimeTimeText.Text = _state.Runtime.LastAppliedAt.ToString("MMM d, h:mm tt");
-        SyncStateText.Text = _state.Monitors.Count <= 1 ? "Primary taskbar in sync" : "All taskbars in sync";
-        if (_recentEventsVersion != _state.Runtime.RecentEventsVersion)
-        {
-            _recentEventsVersion = _state.Runtime.RecentEventsVersion;
-            var rows = new List<RuntimeEventRow>(_state.Runtime.RecentEvents.Count);
-            foreach (var item in _state.Runtime.RecentEvents)
-            {
-                rows.Add(new RuntimeEventRow(
-                    item.Time.ToString("h:mm:ss tt"),
-                    RuntimeTriggerText.Label(item.State),
-                    $"{item.Profile} - {item.Message} - {item.TaskbarsUpdated} taskbar{(item.TaskbarsUpdated == 1 ? string.Empty : "s")}",
-                    $"{item.Opacity}%"));
-            }
+        var runtime = _state.Runtime;
+        var settings = _state.Settings;
 
-            RecentEventsList.ItemsSource = rows;
-        }
+        AppliedOpacityText.Text = $"{runtime.ResolvedOpacity}%";
+        AppliedSourceText.Text = runtime.OpacitySource;
+        AppliedStateText.Text = $"Current state: {RuntimeTriggerText.Label(runtime.State)}";
+        AppliedDetailText.Text = runtime.TaskbarsUpdated == 0
+            ? "No taskbar windows were found"
+            : $"Applied to {runtime.TaskbarsUpdated} taskbar{(runtime.TaskbarsUpdated == 1 ? string.Empty : "s")}";
+        PauseButton.Content = _state.TransparencyPaused ? "Resume transparency" : "Pause transparency";
 
-        OpacitySlider.Value = _state.Settings.ActiveProfile.Opacity;
+        OpacitySlider.Value = settings.BaseOpacity;
+        OpacityValueBoxText.Text = $"{settings.BaseOpacity}%";
+        OverrideInfo.IsOpen = !_state.TransparencyPaused && runtime.OpacitySource != OpacityPolicy.BaseSource;
+
+        AutomationSwitch.IsOn = settings.AutomationEnabled;
+        AutomationDetailText.Text = settings.AutomationEnabled
+            ? "Rules react to hover, fullscreen, and windows."
+            : "Base opacity is used everywhere.";
+        TaskbarsText.Text = runtime.TaskbarsUpdated.ToString();
+        TaskbarsDetailText.Text = runtime.TaskbarsUpdated == 0 ? "Waiting for taskbar" : "Detected and controlled";
+        LastAppliedText.Text = runtime.LastAppliedAt.ToString("h:mm tt");
+        LastMessageText.Text = runtime.LastMessage;
         _loading = false;
     }
 
@@ -91,9 +78,8 @@ public sealed partial class HomePage : Page
         if (!_loading)
         {
             _pendingOpacity = e.NewValue;
-            OpacityText.Text = $"{e.NewValue:0}%";
             OpacityValueBoxText.Text = $"{e.NewValue:0}%";
-            _state.PreviewOpacity(e.NewValue);
+            _state.PreviewBaseOpacity(e.NewValue);
             _opacityCommitTimer.Stop();
             _opacityCommitTimer.Start();
         }
@@ -102,25 +88,17 @@ public sealed partial class HomePage : Page
     private void CommitPendingOpacity(DispatcherQueueTimer sender, object args)
     {
         sender.Stop();
-        _state.SetOpacity(_pendingOpacity);
+        _state.SetBaseOpacity(_pendingOpacity);
     }
 
-    private void ApplyClear_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e) => _state.SetProfile(TaskbarProfile.OxygenClear);
-    private void ApplyGlass_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e) => _state.SetProfile(TaskbarProfile.FocusGlass);
-    private void ApplySolid_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e) => _state.SetProfile(TaskbarProfile.NightSolid);
-    private void ApplyNow_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e) => _state.ReapplyCurrentRuntimeState();
-
-    private static string NextSensorHint(string state)
+    private void AutomationSwitch_Toggled(object sender, RoutedEventArgs e)
     {
-        return state switch
+        if (!_loading)
         {
-            nameof(AutomationTrigger.WindowVisible) => "Watching maximize, fullscreen, and hover",
-            nameof(AutomationTrigger.WindowMaximized) => "Watching fullscreen and hover",
-            nameof(AutomationTrigger.Fullscreen) => "Fullscreen overlap policy is active",
-            nameof(AutomationTrigger.Hover) => "Pointer is near a taskbar edge",
-            _ => "Watching windows, fullscreen, and hover"
-        };
+            _state.SetAutomationEnabled(AutomationSwitch.IsOn);
+        }
     }
 
-    private sealed record RuntimeEventRow(string TimeText, string State, string Detail, string OpacityText);
+    private void Pause_Click(object sender, RoutedEventArgs e) => _state.ToggleTransparency();
+    private void Reapply_Click(object sender, RoutedEventArgs e) => _state.ReapplyNow();
 }

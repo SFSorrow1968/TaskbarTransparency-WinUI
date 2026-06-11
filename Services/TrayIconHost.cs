@@ -25,19 +25,16 @@ public sealed class TrayIconHost : IDisposable
     internal const int OpenCommand = 1;
     internal const int ApplyCommand = 2;
     internal const int ToggleCommand = 3;
-    internal const int TuningCommand = 4;
-    internal const int ExitCommand = 5;
-    internal const string OpenCommandText = "Open Dashboard";
-    internal const string ApplyCommandText = "Reapply Current State";
-    internal const string ToggleCommandText = "Toggle Transparency";
-    internal const string TuningCommandText = "Open Tuning";
+    internal const int ExitCommand = 4;
+    internal const string OpenCommandText = "Open Oxygen Taskbar";
+    internal const string ApplyCommandText = "Reapply Now";
+    internal const string ToggleCommandText = "Pause or Resume Transparency";
     internal const string ExitCommandText = "Exit";
     private readonly Guid _iconId = new("a5b8d7f6-8a4f-44ff-9c16-565457be2e23");
     private readonly WndProc _wndProc;
     private IntPtr _windowHandle;
     private IntPtr _iconHandle;
     private Action? _showWindow;
-    private Action? _showTuning;
     private Action? _applyNow;
     private Action? _toggleTransparency;
     private Action? _exit;
@@ -48,10 +45,9 @@ public sealed class TrayIconHost : IDisposable
         _wndProc = WindowProc;
     }
 
-    public void Start(Action showWindow, Action showTuning, Action applyNow, Action toggleTransparency, Action exit)
+    public void Start(Action showWindow, Action applyNow, Action toggleTransparency, Action exit)
     {
         _showWindow = showWindow;
-        _showTuning = showTuning;
         _applyNow = applyNow;
         _toggleTransparency = toggleTransparency;
         _exit = exit;
@@ -59,10 +55,9 @@ public sealed class TrayIconHost : IDisposable
         EnsureIcon();
     }
 
-    internal void ConfigureCommandsForTest(Action showWindow, Action showTuning, Action applyNow, Action toggleTransparency, Action exit)
+    internal void ConfigureCommandsForTest(Action showWindow, Action applyNow, Action toggleTransparency, Action exit)
     {
         _showWindow = showWindow;
-        _showTuning = showTuning;
         _applyNow = applyNow;
         _toggleTransparency = toggleTransparency;
         _exit = exit;
@@ -190,9 +185,8 @@ public sealed class TrayIconHost : IDisposable
     {
         var menu = CreatePopupMenu();
         AppendMenu(menu, MenuString, OpenCommand, OpenCommandText);
-        AppendMenu(menu, MenuString, ApplyCommand, ApplyCommandText);
         AppendMenu(menu, MenuString, ToggleCommand, ToggleCommandText);
-        AppendMenu(menu, MenuString, TuningCommand, TuningCommandText);
+        AppendMenu(menu, MenuString, ApplyCommand, ApplyCommandText);
         AppendMenu(menu, MenuSeparator, 0, null);
         AppendMenu(menu, MenuString, ExitCommand, ExitCommandText);
 
@@ -209,9 +203,6 @@ public sealed class TrayIconHost : IDisposable
         {
             case OpenCommand:
                 _showWindow?.Invoke();
-                return true;
-            case TuningCommand:
-                _showTuning?.Invoke();
                 return true;
             case ApplyCommand:
                 _applyNow?.Invoke();
