@@ -95,12 +95,6 @@ public sealed partial class MainWindow : Window
                 case "home":
                     NavigatePage(typeof(HomePage));
                     break;
-                case "rules":
-                    NavigatePage(typeof(AutomationPage));
-                    break;
-                case "monitors":
-                    NavigatePage(typeof(MonitorsPage));
-                    break;
                 case "settings":
                     NavigatePage(typeof(SettingsPage));
                     break;

@@ -8,38 +8,18 @@
     mc:Ignorable="d">
 
     <ScrollViewer Background="{StaticResource OxygenShellBrush}">
-        <Grid Padding="44,34,44,44" RowSpacing="18" MaxWidth="1100" HorizontalAlignment="Center">
+        <Grid Padding="28,22,28,28" RowSpacing="16">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <StackPanel Spacing="6">
-                <TextBlock Style="{StaticResource OxygenPageTitleTextBlockStyle}" Text="Settings" />
-                <TextBlock FontSize="18" Foreground="{StaticResource OxygenMutedTextBrush}" Text="App behavior, startup, and shortcuts." />
+            <StackPanel Spacing="4">
+                <TextBlock FontSize="30" FontWeight="SemiBold" Foreground="White" Text="Settings" />
+                <TextBlock FontSize="16" Foreground="{StaticResource OxygenMutedTextBrush}" Text="App behavior, startup, and shortcuts. Appearance lives on the Dashboard." />
             </StackPanel>
 
             <Border Grid.Row="1" Style="{StaticResource OxygenCardBorderStyle}">
-                <StackPanel Spacing="16">
-                    <TextBlock FontSize="21" FontWeight="SemiBold" Foreground="White" Text="Appearance" />
-                    <Grid ColumnSpacing="18">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="170" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="110" />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Foreground="White" FontSize="16" Text="Fade duration" />
-                            <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" FontSize="13" Text="Opacity changes" />
-                        </StackPanel>
-                        <Slider x:Name="FadeSlider" Grid.Column="1" Maximum="1000" Minimum="0" StepFrequency="10" ValueChanged="FadeSlider_ValueChanged" />
-                        <TextBlock x:Name="FadeText" Grid.Column="2" FontSize="20" FontWeight="SemiBold" Foreground="White" Text="200 ms" VerticalAlignment="Center" />
-                    </Grid>
-                </StackPanel>
-            </Border>
-
-            <Border Grid.Row="2" Style="{StaticResource OxygenCardBorderStyle}">
                 <StackPanel Spacing="16">
                     <TextBlock FontSize="21" FontWeight="SemiBold" Foreground="White" Text="General" />
                     <Grid ColumnSpacing="14">
@@ -72,7 +52,7 @@
                 </StackPanel>
             </Border>
 
-            <Border Grid.Row="3" Style="{StaticResource OxygenCardBorderStyle}">
+            <Border Grid.Row="2" Style="{StaticResource OxygenCardBorderStyle}">
                 <StackPanel Spacing="16">
                     <TextBlock FontSize="21" FontWeight="SemiBold" Foreground="White" Text="Keyboard shortcuts" />
                     <Grid ColumnSpacing="14">

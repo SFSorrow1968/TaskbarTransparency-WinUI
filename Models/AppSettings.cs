@@ -3,7 +3,8 @@ namespace TaskbarTransparency.Models;
 public sealed class AppSettings
 {
     public byte BaseOpacity { get; set; } = 30;
-    public int FadeMilliseconds { get; set; } = 200;
+    public int FadeInMilliseconds { get; set; } = 200;
+    public int FadeOutMilliseconds { get; set; } = 200;
     public bool AutomationEnabled { get; set; } = true;
     public OpacityRule HoverRule { get; set; } = new() { Enabled = true, Opacity = 100 };
     public OpacityRule FullscreenRule { get; set; } = new() { Enabled = true, Opacity = 100 };
@@ -31,7 +32,8 @@ public sealed class AppSettings
     public void Normalize()
     {
         BaseOpacity = Math.Clamp(BaseOpacity, (byte)0, (byte)100);
-        FadeMilliseconds = Math.Clamp(FadeMilliseconds, 0, 1000);
+        FadeInMilliseconds = Math.Clamp(FadeInMilliseconds, 0, 1000);
+        FadeOutMilliseconds = Math.Clamp(FadeOutMilliseconds, 0, 1000);
         HoverDistance = Math.Clamp(HoverDistance, 0, 48);
         HoverRule.Normalize();
         FullscreenRule.Normalize();

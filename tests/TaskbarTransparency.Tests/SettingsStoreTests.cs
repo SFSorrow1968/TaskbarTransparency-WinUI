@@ -15,7 +15,8 @@ public sealed class SettingsStoreTests : IDisposable
         var expected = new AppSettings
         {
             BaseOpacity = 41,
-            FadeMilliseconds = 260,
+            FadeInMilliseconds = 260,
+            FadeOutMilliseconds = 140,
             AutomationEnabled = false,
             HoverRule = new OpacityRule { Enabled = false, Opacity = 90 },
             FullscreenRule = new OpacityRule { Enabled = true, Opacity = 99 },
@@ -43,7 +44,8 @@ public sealed class SettingsStoreTests : IDisposable
         var loaded = store.Load();
 
         Assert.Equal(41, loaded.BaseOpacity);
-        Assert.Equal(260, loaded.FadeMilliseconds);
+        Assert.Equal(260, loaded.FadeInMilliseconds);
+        Assert.Equal(140, loaded.FadeOutMilliseconds);
         Assert.False(loaded.AutomationEnabled);
         Assert.False(loaded.HoverRule.Enabled);
         Assert.Equal(90, loaded.HoverRule.Opacity);

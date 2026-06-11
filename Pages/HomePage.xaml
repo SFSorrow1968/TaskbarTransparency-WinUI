@@ -9,88 +9,282 @@
     mc:Ignorable="d">
 
     <ScrollViewer Background="{StaticResource OxygenShellBrush}">
-        <Grid Padding="44,34,44,44" RowSpacing="18" MaxWidth="1100" HorizontalAlignment="Center">
+        <Grid Padding="28,22,28,28" RowSpacing="16">
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup>
+                    <VisualState x:Name="NarrowState">
+                        <VisualState.StateTriggers>
+                            <AdaptiveTrigger MinWindowWidth="0" />
+                        </VisualState.StateTriggers>
+                    </VisualState>
+                    <VisualState x:Name="WideState">
+                        <VisualState.StateTriggers>
+                            <AdaptiveTrigger MinWindowWidth="1080" />
+                        </VisualState.StateTriggers>
+                        <VisualState.Setters>
+                            <Setter Target="RightColumn.Width" Value="*" />
+                            <Setter Target="RightPanel.(Grid.Row)" Value="0" />
+                            <Setter Target="RightPanel.(Grid.Column)" Value="1" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <StackPanel Spacing="6">
-                <TextBlock FontSize="36" FontWeight="SemiBold" Foreground="White" Text="Dashboard" />
-                <TextBlock FontSize="18" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Your taskbar right now, and the one number that controls it." />
+
+            <StackPanel Spacing="4">
+                <TextBlock FontSize="30" FontWeight="SemiBold" Foreground="White" Text="Dashboard" />
+                <TextBlock FontSize="16" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Your taskbar right now — base opacity, rules, and displays in one place." />
             </StackPanel>
 
-            <Border Grid.Row="1" Style="{StaticResource OxygenCardBorderStyle}" Padding="28">
-                <Grid ColumnSpacing="28">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="230" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel VerticalAlignment="Center" Spacing="2">
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Applied opacity" />
-                        <TextBlock x:Name="AppliedOpacityText" FontSize="58" FontWeight="SemiBold" Foreground="White" Text="30%" />
-                    </StackPanel>
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="6">
-                        <TextBlock x:Name="AppliedSourceText" FontSize="22" FontWeight="SemiBold" Foreground="White" Text="Base opacity" />
-                        <TextBlock x:Name="AppliedStateText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Current state: Desktop" />
-                        <TextBlock x:Name="AppliedDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" Text="Applied to 1 taskbar" />
-                    </StackPanel>
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="10">
-                        <Button x:Name="PauseButton" Click="Pause_Click" Style="{StaticResource GlassButtonStyle}" Content="Pause transparency" />
-                        <Button Click="Reapply_Click" Style="{StaticResource GlassButtonStyle}" Content="Reapply now" />
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <Border Grid.Row="2" Style="{StaticResource OxygenCardBorderStyle}" Padding="24">
-                <StackPanel Spacing="14">
-                    <StackPanel Spacing="4">
-                        <TextBlock FontSize="21" FontWeight="SemiBold" Foreground="White" Text="Base opacity" />
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Used on the desktop and whenever no rule overrides it. 0% is fully transparent, 100% is solid." TextWrapping="Wrap" />
-                    </StackPanel>
-                    <Grid ColumnSpacing="18">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="96" />
-                        </Grid.ColumnDefinitions>
-                        <Slider x:Name="OpacitySlider" Maximum="100" Minimum="0" StepFrequency="1" ValueChanged="OpacitySlider_ValueChanged" VerticalAlignment="Center" />
-                        <Border Grid.Column="1" Padding="10" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
-                            <TextBlock x:Name="OpacityValueBoxText" HorizontalAlignment="Center" FontSize="22" FontWeight="SemiBold" Foreground="White" Text="30%" />
-                        </Border>
-                    </Grid>
-                    <InfoBar x:Name="OverrideInfo" IsOpen="False" IsClosable="False" Severity="Informational" Title="A rule is overriding this value right now" Message="The applied opacity above comes from a rule. Edit rules on the Rules page." />
-                </StackPanel>
-            </Border>
-
-            <Grid Grid.Row="3" ColumnSpacing="16">
+            <Grid Grid.Row="1" ColumnSpacing="16" RowSpacing="16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition x:Name="RightColumn" Width="0" />
                 </Grid.ColumnDefinitions>
-                <Border Style="{StaticResource OxygenCardBorderStyle}" Padding="20">
-                    <StackPanel Spacing="6">
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Automation" />
-                        <ToggleSwitch x:Name="AutomationSwitch" OffContent="Off" OnContent="On" Toggled="AutomationSwitch_Toggled" />
-                        <TextBlock x:Name="AutomationDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" Text="Rules react to hover, fullscreen, and windows." />
-                    </StackPanel>
-                </Border>
-                <Border Grid.Column="1" Style="{StaticResource OxygenCardBorderStyle}" Padding="20">
-                    <StackPanel Spacing="6">
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Taskbars" />
-                        <TextBlock x:Name="TaskbarsText" Style="{StaticResource MetricTextBlockStyle}" Text="0" />
-                        <TextBlock x:Name="TaskbarsDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Detected and controlled" />
-                    </StackPanel>
-                </Border>
-                <Border Grid.Column="2" Style="{StaticResource OxygenCardBorderStyle}" Padding="20">
-                    <StackPanel Spacing="6">
-                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Last applied" />
-                        <TextBlock x:Name="LastAppliedText" Style="{StaticResource MetricTextBlockStyle}" Text="—" />
-                        <TextBlock x:Name="LastMessageText" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" Text="Ready" />
-                    </StackPanel>
-                </Border>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <StackPanel x:Name="LeftPanel" Spacing="16">
+                    <Border Style="{StaticResource OxygenCardBorderStyle}">
+                        <StackPanel Spacing="16">
+                            <Grid ColumnSpacing="22">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="200" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel VerticalAlignment="Center" Spacing="2">
+                                    <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Applied opacity" />
+                                    <TextBlock x:Name="AppliedOpacityText" FontSize="52" FontWeight="SemiBold" Foreground="White" Text="30%" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+                                    <TextBlock x:Name="AppliedSourceText" FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Base opacity" />
+                                    <TextBlock x:Name="AppliedStateText" Foreground="{StaticResource OxygenMutedTextBrush}" Text="Current state: Desktop" />
+                                    <TextBlock x:Name="AppliedDetailText" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" Text="Applied to 1 taskbar" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="8">
+                                    <Button x:Name="PauseButton" Click="Pause_Click" Style="{StaticResource GlassButtonStyle}" Content="Pause transparency" />
+                                    <Button Click="Reapply_Click" Style="{StaticResource GlassButtonStyle}" Content="Reapply now" />
+                                </StackPanel>
+                            </Grid>
+                            <Border Height="1" Background="{StaticResource OxygenCardStrokeBrush}" />
+                            <Grid ColumnSpacing="18">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <ToggleSwitch x:Name="AutomationSwitch" Header="Automation" OffContent="Off" OnContent="On" Toggled="AutomationSwitch_Toggled" />
+                                <TextBlock x:Name="AutomationDetailText" Grid.Column="1" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Text="Rules react to hover, fullscreen, and windows." />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource OxygenCardBorderStyle}">
+                        <StackPanel Spacing="14">
+                            <StackPanel Spacing="4">
+                                <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Base opacity" />
+                                <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Used on the desktop and whenever no rule overrides it. 0% is fully transparent, 100% is solid." TextWrapping="Wrap" />
+                            </StackPanel>
+                            <Grid ColumnSpacing="18">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="90" />
+                                </Grid.ColumnDefinitions>
+                                <Slider x:Name="OpacitySlider" Maximum="100" Minimum="0" StepFrequency="1" ValueChanged="OpacitySlider_ValueChanged" VerticalAlignment="Center" />
+                                <Border Grid.Column="1" Padding="8" BorderBrush="{StaticResource OxygenCardStrokeBrush}" BorderThickness="1" CornerRadius="8">
+                                    <TextBlock x:Name="OpacityValueBoxText" HorizontalAlignment="Center" FontSize="20" FontWeight="SemiBold" Foreground="White" Text="30%" />
+                                </Border>
+                            </Grid>
+                            <InfoBar x:Name="OverrideInfo" IsOpen="False" IsClosable="False" Severity="Informational" Title="A rule is overriding this value right now" Message="The applied opacity above comes from a rule in the Rules panel." />
+                            <Border Height="1" Background="{StaticResource OxygenCardStrokeBrush}" />
+                            <Grid ColumnSpacing="18">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="90" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Foreground="White" Text="Fade in" VerticalAlignment="Center" />
+                                <Slider x:Name="FadeInSlider" Grid.Column="1" Maximum="1000" Minimum="0" StepFrequency="10" ValueChanged="FadeInSlider_ValueChanged" />
+                                <TextBlock x:Name="FadeInText" Grid.Column="2" FontSize="18" FontWeight="SemiBold" Foreground="White" Text="200 ms" VerticalAlignment="Center" />
+                            </Grid>
+                            <Grid ColumnSpacing="18">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="90" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Foreground="White" Text="Fade out" VerticalAlignment="Center" />
+                                <Slider x:Name="FadeOutSlider" Grid.Column="1" Maximum="1000" Minimum="0" StepFrequency="10" ValueChanged="FadeOutSlider_ValueChanged" />
+                                <TextBlock x:Name="FadeOutText" Grid.Column="2" FontSize="18" FontWeight="SemiBold" Foreground="White" Text="200 ms" VerticalAlignment="Center" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource OxygenCardBorderStyle}">
+                        <StackPanel Spacing="12">
+                            <Grid ColumnSpacing="14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="170" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Spacing="4">
+                                    <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Monitors" />
+                                    <TextBlock x:Name="MonitorsSummaryText" Foreground="{StaticResource OxygenMutedTextBrush}" TextWrapping="Wrap" Text="Each display follows the base opacity unless you give it its own value." />
+                                </StackPanel>
+                                <Button Grid.Column="1" Click="Detect_Click" Style="{StaticResource GlassButtonStyle}" Content="Detect displays" VerticalAlignment="Top" />
+                            </Grid>
+                            <InfoBar x:Name="NoDisplayInfo" IsOpen="False" IsClosable="False" Severity="Warning" Title="No taskbar detected" Message="No taskbar window is currently available. If Windows Explorer is restarting, use Detect displays to retry." />
+                            <ItemsControl x:Name="MonitorList">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="local:MonitorRow">
+                                        <Border Margin="0,0,0,10" Padding="16" Background="#58233448" CornerRadius="8">
+                                            <StackPanel Spacing="8">
+                                                <Grid ColumnSpacing="14">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Spacing="2" VerticalAlignment="Center">
+                                                        <StackPanel Orientation="Horizontal" Spacing="10">
+                                                            <TextBlock FontSize="17" FontWeight="SemiBold" Foreground="White" Text="{x:Bind Name}" />
+                                                            <Border Padding="8,3" Background="#332878FF" CornerRadius="9" Visibility="{x:Bind PrimaryBadgeVisibility}">
+                                                                <TextBlock FontSize="12" Foreground="White" Text="Primary" />
+                                                            </Border>
+                                                        </StackPanel>
+                                                        <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="{x:Bind Device}" />
+                                                    </StackPanel>
+                                                    <ToggleSwitch Grid.Column="1" Header="Follow base opacity" IsOn="{x:Bind SyncWithPrimary, Mode=OneTime}" OffContent="Off" OnContent="On" Toggled="SyncSwitch_Toggled" />
+                                                </Grid>
+                                                <Grid ColumnSpacing="14" Visibility="{x:Bind OverrideVisibility, Mode=OneWay}">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="70" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Slider Maximum="100" Minimum="0" StepFrequency="1" Value="{x:Bind Opacity, Mode=OneTime}" ValueChanged="OverrideSlider_ValueChanged" />
+                                                    <TextBlock Grid.Column="1" FontSize="17" FontWeight="SemiBold" Foreground="White" Text="{x:Bind OpacityText, Mode=OneWay}" VerticalAlignment="Center" />
+                                                </Grid>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <StackPanel x:Name="RightPanel" Grid.Row="1" Spacing="16">
+                    <Border Style="{StaticResource OxygenCardBorderStyle}">
+                        <StackPanel Spacing="14">
+                            <StackPanel Spacing="4">
+                                <TextBlock FontSize="20" FontWeight="SemiBold" Foreground="White" Text="Rules" />
+                                <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Each rule sets the exact opacity for a state. The first matching rule from the top wins; otherwise the base opacity applies." TextWrapping="Wrap" />
+                            </StackPanel>
+
+                            <Border Height="1" Background="{StaticResource OxygenCardStrokeBrush}" />
+
+                            <Grid ColumnSpacing="14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Spacing="2">
+                                    <TextBlock FontSize="17" FontWeight="SemiBold" Foreground="White" Text="1 · Hover" />
+                                    <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="When the pointer is near a taskbar." TextWrapping="Wrap" />
+                                </StackPanel>
+                                <ToggleSwitch x:Name="HoverSwitch" Grid.Column="1" OffContent="Off" OnContent="On" Toggled="RuleSwitch_Toggled" Tag="Hover" />
+                            </Grid>
+                            <Grid ColumnSpacing="14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="70" />
+                                </Grid.ColumnDefinitions>
+                                <Slider x:Name="HoverOpacitySlider" Maximum="100" Minimum="0" StepFrequency="1" Tag="Hover" ValueChanged="RuleSlider_ValueChanged" />
+                                <TextBlock x:Name="HoverOpacityText" Grid.Column="1" FontSize="17" FontWeight="SemiBold" Foreground="White" Text="100%" VerticalAlignment="Center" />
+                            </Grid>
+                            <Grid ColumnSpacing="14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="70" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Hover distance" VerticalAlignment="Center" />
+                                <Slider x:Name="HoverDistanceSlider" Grid.Column="1" Maximum="48" Minimum="0" StepFrequency="1" ValueChanged="HoverDistanceSlider_ValueChanged" />
+                                <TextBlock x:Name="HoverDistanceText" Grid.Column="2" FontSize="17" FontWeight="SemiBold" Foreground="White" Text="8 px" VerticalAlignment="Center" />
+                            </Grid>
+
+                            <Border Height="1" Background="{StaticResource OxygenCardStrokeBrush}" />
+
+                            <Grid ColumnSpacing="14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Spacing="2">
+                                    <TextBlock FontSize="17" FontWeight="SemiBold" Foreground="White" Text="2 · Fullscreen" />
+                                    <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="Keeps the taskbar visible above fullscreen apps at this opacity, using the taskbar auto-hide trick. The fade never completes, so Windows never hides it." TextWrapping="Wrap" />
+                                </StackPanel>
+                                <ToggleSwitch x:Name="FullscreenSwitch" Grid.Column="1" OffContent="Off" OnContent="On" Toggled="RuleSwitch_Toggled" Tag="Fullscreen" />
+                            </Grid>
+                            <Grid ColumnSpacing="14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="70" />
+                                </Grid.ColumnDefinitions>
+                                <Slider x:Name="FullscreenOpacitySlider" Maximum="100" Minimum="0" StepFrequency="1" Tag="Fullscreen" ValueChanged="RuleSlider_ValueChanged" />
+                                <TextBlock x:Name="FullscreenOpacityText" Grid.Column="1" FontSize="17" FontWeight="SemiBold" Foreground="White" Text="100%" VerticalAlignment="Center" />
+                            </Grid>
+
+                            <Border Height="1" Background="{StaticResource OxygenCardStrokeBrush}" />
+
+                            <Grid ColumnSpacing="14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Spacing="2">
+                                    <TextBlock FontSize="17" FontWeight="SemiBold" Foreground="White" Text="3 · Maximized window" />
+                                    <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="When the active window is maximized." TextWrapping="Wrap" />
+                                </StackPanel>
+                                <ToggleSwitch x:Name="MaximizedSwitch" Grid.Column="1" OffContent="Off" OnContent="On" Toggled="RuleSwitch_Toggled" Tag="WindowMaximized" />
+                            </Grid>
+                            <Grid ColumnSpacing="14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="70" />
+                                </Grid.ColumnDefinitions>
+                                <Slider x:Name="MaximizedOpacitySlider" Maximum="100" Minimum="0" StepFrequency="1" Tag="WindowMaximized" ValueChanged="RuleSlider_ValueChanged" />
+                                <TextBlock x:Name="MaximizedOpacityText" Grid.Column="1" FontSize="17" FontWeight="SemiBold" Foreground="White" Text="60%" VerticalAlignment="Center" />
+                            </Grid>
+
+                            <Border Height="1" Background="{StaticResource OxygenCardStrokeBrush}" />
+
+                            <Grid ColumnSpacing="14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Spacing="2">
+                                    <TextBlock FontSize="17" FontWeight="SemiBold" Foreground="White" Text="4 · Open window" />
+                                    <TextBlock Foreground="{StaticResource OxygenMutedTextBrush}" Text="When any window is in the foreground (not maximized)." TextWrapping="Wrap" />
+                                </StackPanel>
+                                <ToggleSwitch x:Name="WindowSwitch" Grid.Column="1" OffContent="Off" OnContent="On" Toggled="RuleSwitch_Toggled" Tag="WindowVisible" />
+                            </Grid>
+                            <Grid ColumnSpacing="14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="70" />
+                                </Grid.ColumnDefinitions>
+                                <Slider x:Name="WindowOpacitySlider" Maximum="100" Minimum="0" StepFrequency="1" Tag="WindowVisible" ValueChanged="RuleSlider_ValueChanged" />
+                                <TextBlock x:Name="WindowOpacityText" Grid.Column="1" FontSize="17" FontWeight="SemiBold" Foreground="White" Text="45%" VerticalAlignment="Center" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
             </Grid>
         </Grid>
     </ScrollViewer>

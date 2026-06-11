@@ -19,12 +19,7 @@ public sealed class TaskbarAppearanceService
     private readonly object _animationSync = new();
     private CancellationTokenSource? _animationCancellation;
 
-    public int Apply(byte opacity, int fadeMilliseconds, bool transparencyActive, IReadOnlyCollection<MonitorProfile>? monitors = null)
-    {
-        return Apply(opacity, fadeMilliseconds, transparencyActive, monitors, TaskbarWindowCatalog.GetCurrent());
-    }
-
-    public int Apply(byte opacity, int fadeMilliseconds, bool transparencyActive, IReadOnlyCollection<MonitorProfile>? monitors, IReadOnlyList<TaskbarWindowInfo> taskbarTargets)
+    public int Apply(byte opacity, int fadeInMilliseconds, int fadeOutMilliseconds, bool transparencyActive, IReadOnlyCollection<MonitorProfile>? monitors, IReadOnlyList<TaskbarWindowInfo> taskbarTargets)
     {
         var targets = DistinctByHandle(taskbarTargets);
         var monitorLookup = transparencyActive ? BuildMonitorOverrideLookup(monitors) : null;
@@ -38,7 +33,7 @@ public sealed class TaskbarAppearanceService
         }
 
         PruneStaleHandles(targets);
-        AnimateTaskbarAlpha(alphaTargets, fadeMilliseconds);
+        AnimateTaskbarAlpha(alphaTargets, fadeInMilliseconds, fadeOutMilliseconds);
         return targets.Count;
     }
 
@@ -84,7 +79,7 @@ public sealed class TaskbarAppearanceService
     public static int ComposeColorForTest(string hex, byte opacity) => ComposeColor(hex, opacity);
     public static byte ConvertOpacityToAlphaForTest(byte opacity) => ConvertOpacityToAlpha(opacity);
     public static double EaseProgressForTest(double progress) => EaseProgress(progress);
-    public static IReadOnlyList<int> BuildAlphaAnimationDurationsForTest(int fadeMilliseconds, IReadOnlyDictionary<IntPtr, byte> currentAlphas, IReadOnlyDictionary<IntPtr, byte> targetAlphas) => BuildAlphaAnimationTargets(fadeMilliseconds, currentAlphas, targetAlphas).ConvertAll(target => target.Duration);
+    public static IReadOnlyList<int> BuildAlphaAnimationDurationsForTest(int fadeInMilliseconds, int fadeOutMilliseconds, IReadOnlyDictionary<IntPtr, byte> currentAlphas, IReadOnlyDictionary<IntPtr, byte> targetAlphas) => BuildAlphaAnimationTargets(fadeInMilliseconds, fadeOutMilliseconds, currentAlphas, targetAlphas).ConvertAll(target => target.Duration);
     public static byte ResolveMonitorOpacityForTest(byte opacity, MonitorProfile? monitor) => ResolveMonitorOpacity(opacity, monitor);
     public static bool ShouldApplyLayeredAlphaForTest(byte? currentAlpha, byte targetAlpha) => ShouldApplyLayeredAlpha(currentAlpha, targetAlpha);
     public static bool ShouldReadLayeredStyleForTest(byte? currentAlpha, byte targetAlpha, bool layeredStyleKnown) => ShouldReadLayeredStyle(currentAlpha, targetAlpha, layeredStyleKnown);
@@ -130,7 +125,7 @@ public sealed class TaskbarAppearanceService
         return distinct;
     }
 
-    private void AnimateTaskbarAlpha(IReadOnlyDictionary<IntPtr, byte> targetOpacities, int fadeMilliseconds)
+    private void AnimateTaskbarAlpha(IReadOnlyDictionary<IntPtr, byte> targetOpacities, int fadeInMilliseconds, int fadeOutMilliseconds)
     {
         if (targetOpacities.Count == 0)
         {
@@ -164,7 +159,7 @@ public sealed class TaskbarAppearanceService
             cancellation = _animationCancellation;
         }
 
-        var animationTargets = BuildAlphaAnimationTargets(fadeMilliseconds, _currentAlphas, targetAlphas);
+        var animationTargets = BuildAlphaAnimationTargets(fadeInMilliseconds, fadeOutMilliseconds, _currentAlphas, targetAlphas);
 
         if (!HasAnimatedDuration(animationTargets))
         {
@@ -305,13 +300,15 @@ public sealed class TaskbarAppearanceService
         cancellation.Dispose();
     }
 
-    private static List<AlphaAnimationTarget> BuildAlphaAnimationTargets(int fadeMilliseconds, IReadOnlyDictionary<IntPtr, byte> currentAlphas, IReadOnlyDictionary<IntPtr, byte> targetAlphas)
+    private static List<AlphaAnimationTarget> BuildAlphaAnimationTargets(int fadeInMilliseconds, int fadeOutMilliseconds, IReadOnlyDictionary<IntPtr, byte> currentAlphas, IReadOnlyDictionary<IntPtr, byte> targetAlphas)
     {
         var targets = new List<AlphaAnimationTarget>(targetAlphas.Count);
         foreach (var pair in targetAlphas)
         {
             var start = currentAlphas.GetValueOrDefault(pair.Key, pair.Value);
-            var duration = start == pair.Value ? 0 : Math.Max(0, fadeMilliseconds);
+            var duration = start == pair.Value
+                ? 0
+                : Math.Max(0, pair.Value > start ? fadeInMilliseconds : fadeOutMilliseconds);
             targets.Add(new AlphaAnimationTarget(pair.Key, start, pair.Value, duration));
         }
 

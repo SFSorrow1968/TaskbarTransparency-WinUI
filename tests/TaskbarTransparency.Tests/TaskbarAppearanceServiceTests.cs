@@ -34,24 +34,27 @@ public sealed class TaskbarAppearanceServiceTests
     }
 
     [Fact]
-    public void BuildAlphaAnimationDurationsForTest_SkipsUnchangedTaskbars()
+    public void BuildAlphaAnimationDurationsForTest_SkipsUnchangedTaskbarsAndPicksDirection()
     {
-        var primary = new IntPtr(1);
-        var secondary = new IntPtr(2);
+        var unchanged = new IntPtr(1);
+        var fadingOut = new IntPtr(2);
+        var fadingIn = new IntPtr(3);
         var current = new Dictionary<IntPtr, byte>
         {
-            [primary] = 80,
-            [secondary] = 160
+            [unchanged] = 80,
+            [fadingOut] = 160,
+            [fadingIn] = 40
         };
         var targets = new Dictionary<IntPtr, byte>
         {
-            [primary] = 80,
-            [secondary] = 120
+            [unchanged] = 80,
+            [fadingOut] = 120,
+            [fadingIn] = 200
         };
 
-        var durations = TaskbarAppearanceService.BuildAlphaAnimationDurationsForTest(320, current, targets);
+        var durations = TaskbarAppearanceService.BuildAlphaAnimationDurationsForTest(320, 90, current, targets);
 
-        Assert.Equal([0, 320], durations);
+        Assert.Equal([0, 90, 320], durations);
     }
 
     [Fact]

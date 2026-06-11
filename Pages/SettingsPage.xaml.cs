@@ -1,4 +1,3 @@
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using TaskbarTransparency.Services;
@@ -9,16 +8,11 @@ public sealed partial class SettingsPage : Page
 {
     private readonly AppState _state = ((App)Application.Current).State;
     private readonly RefreshCoalescer _refreshCoalescer = new();
-    private readonly DispatcherQueueTimer _fadeCommitTimer;
-    private double _pendingFade;
     private bool _loading = true;
 
     public SettingsPage()
     {
         InitializeComponent();
-        _fadeCommitTimer = DispatcherQueue.CreateTimer();
-        _fadeCommitTimer.Interval = TimeSpan.FromMilliseconds(350);
-        _fadeCommitTimer.Tick += CommitPendingFade;
         Loaded += Page_Loaded;
         Unloaded += Page_Unloaded;
     }
@@ -32,11 +26,6 @@ public sealed partial class SettingsPage : Page
     private void Page_Unloaded(object sender, RoutedEventArgs e)
     {
         _state.Changed -= State_Changed;
-        if (_fadeCommitTimer.IsRunning)
-        {
-            _fadeCommitTimer.Stop();
-            _state.SetFadeMilliseconds(_pendingFade);
-        }
     }
 
     private void State_Changed(object? sender, EventArgs e)
@@ -48,8 +37,6 @@ public sealed partial class SettingsPage : Page
     {
         var settings = _state.Settings;
         _loading = true;
-        FadeSlider.Value = settings.FadeMilliseconds;
-        FadeText.Text = $"{settings.FadeMilliseconds} ms";
         TraySwitch.IsOn = settings.ShowTrayIcon;
         StartupSwitch.IsOn = settings.StartWithWindows;
         OpenHotkeyText.Text = settings.OpenHotkey;
@@ -58,23 +45,6 @@ public sealed partial class SettingsPage : Page
         StartupPermissionInfo.Message = _state.StartupStatusMessage;
         UpdateHotkeyRegistrationInfo();
         _loading = false;
-    }
-
-    private void FadeSlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
-    {
-        if (!_loading)
-        {
-            _pendingFade = e.NewValue;
-            FadeText.Text = $"{e.NewValue:0} ms";
-            _fadeCommitTimer.Stop();
-            _fadeCommitTimer.Start();
-        }
-    }
-
-    private void CommitPendingFade(DispatcherQueueTimer sender, object args)
-    {
-        sender.Stop();
-        _state.SetFadeMilliseconds(_pendingFade);
     }
 
     private void TraySwitch_Toggled(object sender, RoutedEventArgs e)

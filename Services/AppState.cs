@@ -12,6 +12,7 @@ public sealed class AppState
     private readonly TrayIconHost _tray = new();
     private readonly StartupRegistrationService _startup = new();
     private readonly GlobalHotkeyService _hotkeys = new();
+    private readonly FullscreenOverlayService _fullscreenOverlay = new();
     private readonly RuntimeStateSensorService _sensors;
     private AutomationTrigger _currentTrigger = AutomationTrigger.Desktop;
     private bool _previewPending;
@@ -74,6 +75,7 @@ public sealed class AppState
         _tray.Dispose();
         _hotkeys.Dispose();
         _sensors.Dispose();
+        _fullscreenOverlay.Dispose();
         Environment.Exit(0);
     }
 
@@ -195,15 +197,27 @@ public sealed class AppState
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
-    public void SetFadeMilliseconds(double value)
+    public void SetFadeInMilliseconds(double value)
     {
         var fade = Math.Clamp((int)Math.Round(value), 0, 1000);
-        if (Settings.FadeMilliseconds == fade)
+        if (Settings.FadeInMilliseconds == fade)
         {
             return;
         }
 
-        Settings.FadeMilliseconds = fade;
+        Settings.FadeInMilliseconds = fade;
+        SaveAndNotify();
+    }
+
+    public void SetFadeOutMilliseconds(double value)
+    {
+        var fade = Math.Clamp((int)Math.Round(value), 0, 1000);
+        if (Settings.FadeOutMilliseconds == fade)
+        {
+            return;
+        }
+
+        Settings.FadeOutMilliseconds = fade;
         SaveAndNotify();
     }
 
@@ -320,14 +334,16 @@ public sealed class AppState
 
     private void ApplyNow(bool persistSettings, IReadOnlyList<TaskbarWindowInfo>? taskbarTargets)
     {
+        var targets = taskbarTargets ?? TaskbarWindowCatalog.GetCurrent();
         var resolution = TransparencyPaused
             ? new OpacityResolution(100, "Transparency paused")
             : OpacityPolicy.Resolve(Settings, _currentTrigger);
         var previousState = Runtime.State;
         var previousOpacity = Runtime.ResolvedOpacity;
-        Runtime.TaskbarsUpdated = taskbarTargets is null
-            ? _taskbar.Apply(resolution.Opacity, Settings.FadeMilliseconds, !TransparencyPaused, Settings.Monitors)
-            : _taskbar.Apply(resolution.Opacity, Settings.FadeMilliseconds, !TransparencyPaused, Settings.Monitors, taskbarTargets);
+        _fullscreenOverlay.Update(
+            FullscreenOverlayService.ShouldOverlay(TransparencyPaused, Settings.AutomationEnabled, Settings.FullscreenRule.Enabled, _currentTrigger),
+            targets);
+        Runtime.TaskbarsUpdated = _taskbar.Apply(resolution.Opacity, Settings.FadeInMilliseconds, Settings.FadeOutMilliseconds, !TransparencyPaused, Settings.Monitors, targets);
         Runtime.LastAppliedAt = DateTimeOffset.Now;
         Runtime.State = _currentTrigger.ToString();
         Runtime.ResolvedOpacity = resolution.Opacity;

@@ -23,6 +23,7 @@
     <Compile Include="..\..\Services\GlobalHotkeyService.cs" Link="Services\GlobalHotkeyService.cs" />
     <Compile Include="..\..\Services\TrayIconHost.cs" Link="Services\TrayIconHost.cs" />
     <Compile Include="..\..\Services\RuntimeStateSensorService.cs" Link="Services\RuntimeStateSensorService.cs" />
+    <Compile Include="..\..\Services\FullscreenOverlayService.cs" Link="Services\FullscreenOverlayService.cs" />
     <Compile Include="..\..\Services\RuntimeTriggerText.cs" Link="Services\RuntimeTriggerText.cs" />
     <Compile Include="..\..\Services\SettingsStore.cs" Link="Services\SettingsStore.cs" />
     <Compile Include="..\..\Services\RefreshCoalescer.cs" Link="Services\RefreshCoalescer.cs" />

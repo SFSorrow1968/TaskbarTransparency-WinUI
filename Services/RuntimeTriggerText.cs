@@ -29,7 +29,7 @@ public static class RuntimeTriggerText
         {
             nameof(AutomationTrigger.WindowVisible) => "A window is open and not maximized.",
             nameof(AutomationTrigger.WindowMaximized) => "The active window is maximized on a detected monitor.",
-            nameof(AutomationTrigger.Fullscreen) => "The active window is covering the monitor as fullscreen.",
+            nameof(AutomationTrigger.Fullscreen) => "A fullscreen app is active; the taskbar is kept visible above it.",
             nameof(AutomationTrigger.Hover) => "The pointer is inside the saved taskbar hover proximity.",
             _ => "No foreground window rule is currently taking priority."
         };
